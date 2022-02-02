@@ -1,0 +1,548 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 52;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
+		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
+		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
+		7555FF83242A565900829871 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* ContentView.swift */; };
+		87A5DCBC27A9965C00A00109 /* CallVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCA727A9965B00A00109 /* CallVM.swift */; };
+		87A5DCBD27A9965C00A00109 /* CatalogVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCA827A9965B00A00109 /* CatalogVM.swift */; };
+		87A5DCBE27A9965C00A00109 /* ProfileVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCA927A9965B00A00109 /* ProfileVM.swift */; };
+		87A5DCBF27A9965C00A00109 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCAC27A9965B00A00109 /* SettingsScreen.swift */; };
+		87A5DCC027A9965C00A00109 /* SettingRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCAD27A9965B00A00109 /* SettingRowView.swift */; };
+		87A5DCC127A9965C00A00109 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCAE27A9965B00A00109 /* UserSettings.swift */; };
+		87A5DCC227A9965C00A00109 /* AppointmentRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB027A9965B00A00109 /* AppointmentRow.swift */; };
+		87A5DCC327A9965C00A00109 /* CatalogScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB127A9965B00A00109 /* CatalogScreen.swift */; };
+		87A5DCC427A9965C00A00109 /* UnitRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB227A9965B00A00109 /* UnitRow.swift */; };
+		87A5DCC527A9965C00A00109 /* MainRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB327A9965B00A00109 /* MainRouter.swift */; };
+		87A5DCC627A9965C00A00109 /* CallerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB527A9965B00A00109 /* CallerScreen.swift */; };
+		87A5DCC727A9965C00A00109 /* GrowingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB827A9965B00A00109 /* GrowingButton.swift */; };
+		87A5DCC827A9965C00A00109 /* ProfileScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB927A9965B00A00109 /* ProfileScreen.swift */; };
+		87A5DCC927A9965C00A00109 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCBA27A9965B00A00109 /* ProfileView.swift */; };
+		87A5DCCA27A9965C00A00109 /* NewAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCBB27A9965B00A00109 /* NewAccountView.swift */; };
+		87A5DCCD27A9B28E00A00109 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 87A5DCCC27A9B28E00A00109 /* Kingfisher */; };
+		87A5DCD227A9B30000A00109 /* CallRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCCE27A9B30000A00109 /* CallRow.swift */; };
+		87A5DCD327A9B30000A00109 /* KeyPad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCCF27A9B30000A00109 /* KeyPad.swift */; };
+		87A5DCD427A9B30000A00109 /* KeyPadButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCD027A9B30000A00109 /* KeyPadButton.swift */; };
+		87A5DCD527A9B30000A00109 /* KeyPadRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCD127A9B30000A00109 /* KeyPadRow.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7555FFB4242A642300829871 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		058557BA273AAA24004C7B11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
+		7555FF7B242A565900829871 /* iosVoip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosVoip.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7555FF82242A565900829871 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		87A5DCA727A9965B00A00109 /* CallVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallVM.swift; sourceTree = "<group>"; };
+		87A5DCA827A9965B00A00109 /* CatalogVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogVM.swift; sourceTree = "<group>"; };
+		87A5DCA927A9965B00A00109 /* ProfileVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileVM.swift; sourceTree = "<group>"; };
+		87A5DCAC27A9965B00A00109 /* SettingsScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		87A5DCAD27A9965B00A00109 /* SettingRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingRowView.swift; sourceTree = "<group>"; };
+		87A5DCAE27A9965B00A00109 /* UserSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		87A5DCB027A9965B00A00109 /* AppointmentRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppointmentRow.swift; sourceTree = "<group>"; };
+		87A5DCB127A9965B00A00109 /* CatalogScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogScreen.swift; sourceTree = "<group>"; };
+		87A5DCB227A9965B00A00109 /* UnitRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitRow.swift; sourceTree = "<group>"; };
+		87A5DCB327A9965B00A00109 /* MainRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRouter.swift; sourceTree = "<group>"; };
+		87A5DCB527A9965B00A00109 /* CallerScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallerScreen.swift; sourceTree = "<group>"; };
+		87A5DCB827A9965B00A00109 /* GrowingButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GrowingButton.swift; sourceTree = "<group>"; };
+		87A5DCB927A9965B00A00109 /* ProfileScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
+		87A5DCBA27A9965B00A00109 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		87A5DCBB27A9965B00A00109 /* NewAccountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewAccountView.swift; sourceTree = "<group>"; };
+		87A5DCCE27A9B30000A00109 /* CallRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CallRow.swift; path = ../../../../../voip_mephi/iosApp/iosApp/UI/Caller/CallRow.swift; sourceTree = "<group>"; };
+		87A5DCCF27A9B30000A00109 /* KeyPad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyPad.swift; path = ../../../../../voip_mephi/iosApp/iosApp/UI/Caller/KeyPad.swift; sourceTree = "<group>"; };
+		87A5DCD027A9B30000A00109 /* KeyPadButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyPadButton.swift; path = ../../../../../voip_mephi/iosApp/iosApp/UI/Caller/KeyPadButton.swift; sourceTree = "<group>"; };
+		87A5DCD127A9B30000A00109 /* KeyPadRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyPadRow.swift; path = ../../../../../voip_mephi/iosApp/iosApp/UI/Caller/KeyPadRow.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7555FF78242A565900829871 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87A5DCCD27A9B28E00A00109 /* Kingfisher in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		058557D7273AAEEB004C7B11 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		7555FF72242A565900829871 = {
+			isa = PBXGroup;
+			children = (
+				7555FF7D242A565900829871 /* iosVoip */,
+				7555FF7C242A565900829871 /* Products */,
+				7555FFB0242A642200829871 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		7555FF7C242A565900829871 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7555FF7B242A565900829871 /* iosVoip.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7555FF7D242A565900829871 /* iosVoip */ = {
+			isa = PBXGroup;
+			children = (
+				87A5DCAA27A9965B00A00109 /* UI */,
+				87A5DCA627A9965B00A00109 /* VM */,
+				058557BA273AAA24004C7B11 /* Assets.xcassets */,
+				7555FF82242A565900829871 /* ContentView.swift */,
+				7555FF8C242A565B00829871 /* Info.plist */,
+				2152FB032600AC8F00CF470E /* iOSApp.swift */,
+				058557D7273AAEEB004C7B11 /* Preview Content */,
+			);
+			path = iosVoip;
+			sourceTree = "<group>";
+		};
+		7555FFB0242A642200829871 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		87A5DCA627A9965B00A00109 /* VM */ = {
+			isa = PBXGroup;
+			children = (
+				87A5DCA727A9965B00A00109 /* CallVM.swift */,
+				87A5DCA827A9965B00A00109 /* CatalogVM.swift */,
+				87A5DCA927A9965B00A00109 /* ProfileVM.swift */,
+			);
+			name = VM;
+			path = ../../../VoIPMEPhI/iosApp/iosApp/VM;
+			sourceTree = "<group>";
+		};
+		87A5DCAA27A9965B00A00109 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				87A5DCAB27A9965B00A00109 /* Settings */,
+				87A5DCAF27A9965B00A00109 /* Catalog */,
+				87A5DCB327A9965B00A00109 /* MainRouter.swift */,
+				87A5DCB427A9965B00A00109 /* Caller */,
+				87A5DCB627A9965B00A00109 /* Call */,
+				87A5DCB727A9965B00A00109 /* Profile */,
+			);
+			name = UI;
+			path = ../../../VoIPMEPhI/iosApp/iosApp/UI;
+			sourceTree = "<group>";
+		};
+		87A5DCAB27A9965B00A00109 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				87A5DCAC27A9965B00A00109 /* SettingsScreen.swift */,
+				87A5DCAD27A9965B00A00109 /* SettingRowView.swift */,
+				87A5DCAE27A9965B00A00109 /* UserSettings.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		87A5DCAF27A9965B00A00109 /* Catalog */ = {
+			isa = PBXGroup;
+			children = (
+				87A5DCB027A9965B00A00109 /* AppointmentRow.swift */,
+				87A5DCB127A9965B00A00109 /* CatalogScreen.swift */,
+				87A5DCB227A9965B00A00109 /* UnitRow.swift */,
+			);
+			path = Catalog;
+			sourceTree = "<group>";
+		};
+		87A5DCB427A9965B00A00109 /* Caller */ = {
+			isa = PBXGroup;
+			children = (
+				87A5DCCE27A9B30000A00109 /* CallRow.swift */,
+				87A5DCCF27A9B30000A00109 /* KeyPad.swift */,
+				87A5DCD027A9B30000A00109 /* KeyPadButton.swift */,
+				87A5DCD127A9B30000A00109 /* KeyPadRow.swift */,
+				87A5DCB527A9965B00A00109 /* CallerScreen.swift */,
+			);
+			path = Caller;
+			sourceTree = "<group>";
+		};
+		87A5DCB627A9965B00A00109 /* Call */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Call;
+			sourceTree = "<group>";
+		};
+		87A5DCB727A9965B00A00109 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				87A5DCB827A9965B00A00109 /* GrowingButton.swift */,
+				87A5DCB927A9965B00A00109 /* ProfileScreen.swift */,
+				87A5DCBA27A9965B00A00109 /* ProfileView.swift */,
+				87A5DCBB27A9965B00A00109 /* NewAccountView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7555FF7A242A565900829871 /* iosVoip */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7555FFA5242A565B00829871 /* Build configuration list for PBXNativeTarget "iosVoip" */;
+			buildPhases = (
+				7555FFB5242A651A00829871 /* ShellScript */,
+				7555FF77242A565900829871 /* Sources */,
+				7555FF78242A565900829871 /* Frameworks */,
+				7555FF79242A565900829871 /* Resources */,
+				7555FFB4242A642300829871 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = iosVoip;
+			packageProductDependencies = (
+				87A5DCCC27A9B28E00A00109 /* Kingfisher */,
+			);
+			productName = iosVoip;
+			productReference = 7555FF7B242A565900829871 /* iosVoip.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7555FF73242A565900829871 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1130;
+				LastUpgradeCheck = 1130;
+				ORGANIZATIONNAME = orgName;
+				TargetAttributes = {
+					7555FF7A242A565900829871 = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 7555FF76242A565900829871 /* Build configuration list for PBXProject "iosVoip" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7555FF72242A565900829871;
+			packageReferences = (
+				87A5DCCB27A9B28E00A00109 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
+			productRefGroup = 7555FF7C242A565900829871 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7555FF7A242A565900829871 /* iosVoip */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7555FF79242A565900829871 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
+				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7555FFB5242A651A00829871 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7555FF77242A565900829871 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87A5DCC627A9965C00A00109 /* CallerScreen.swift in Sources */,
+				87A5DCBE27A9965C00A00109 /* ProfileVM.swift in Sources */,
+				87A5DCC327A9965C00A00109 /* CatalogScreen.swift in Sources */,
+				87A5DCBD27A9965C00A00109 /* CatalogVM.swift in Sources */,
+				87A5DCD227A9B30000A00109 /* CallRow.swift in Sources */,
+				87A5DCC827A9965C00A00109 /* ProfileScreen.swift in Sources */,
+				87A5DCC227A9965C00A00109 /* AppointmentRow.swift in Sources */,
+				87A5DCC727A9965C00A00109 /* GrowingButton.swift in Sources */,
+				87A5DCCA27A9965C00A00109 /* NewAccountView.swift in Sources */,
+				87A5DCC027A9965C00A00109 /* SettingRowView.swift in Sources */,
+				87A5DCD527A9B30000A00109 /* KeyPadRow.swift in Sources */,
+				87A5DCC927A9965C00A00109 /* ProfileView.swift in Sources */,
+				87A5DCD427A9B30000A00109 /* KeyPadButton.swift in Sources */,
+				87A5DCC527A9965C00A00109 /* MainRouter.swift in Sources */,
+				87A5DCD327A9B30000A00109 /* KeyPad.swift in Sources */,
+				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
+				7555FF83242A565900829871 /* ContentView.swift in Sources */,
+				87A5DCC127A9965C00A00109 /* UserSettings.swift in Sources */,
+				87A5DCBF27A9965C00A00109 /* SettingsScreen.swift in Sources */,
+				87A5DCC427A9965C00A00109 /* UnitRow.swift in Sources */,
+				87A5DCBC27A9965C00A00109 /* CallVM.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7555FFA3242A565B00829871 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7555FFA4242A565B00829871 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7555FFA6242A565B00829871 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"iosVoip/Preview Content\"";
+				DEVELOPMENT_TEAM = S6PWM8SL29;
+				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
+				INFOPLIST_FILE = iosVoip/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					shared,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = voipmephi.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7555FFA7242A565B00829871 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"iosVoip/Preview Content\"";
+				DEVELOPMENT_TEAM = S6PWM8SL29;
+				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
+				INFOPLIST_FILE = iosVoip/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					shared,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = voipmephi.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7555FF76242A565900829871 /* Build configuration list for PBXProject "iosVoip" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7555FFA3242A565B00829871 /* Debug */,
+				7555FFA4242A565B00829871 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7555FFA5242A565B00829871 /* Build configuration list for PBXNativeTarget "iosVoip" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7555FFA6242A565B00829871 /* Debug */,
+				7555FFA7242A565B00829871 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		87A5DCCB27A9B28E00A00109 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		87A5DCCC27A9B28E00A00109 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 87A5DCCB27A9B28E00A00109 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 7555FF73242A565900829871 /* Project object */;
+}

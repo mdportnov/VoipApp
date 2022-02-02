@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "551349444661",
+    "project_id": "voipmephi-b120a",
+    "storage_bucket": "voipmephi-b120a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551349444661:android:e435e46203abd5c01d917c",
+        "android_client_info": {
+          "package_name": "ru.mephi.voip.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551349444661-g69frrolles8en9bue0s1o3q2m0v0cau.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB765vLtTr1QUt2HdV_eVuNlrF6msbuCoQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "551349444661-g69frrolles8en9bue0s1o3q2m0v0cau.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

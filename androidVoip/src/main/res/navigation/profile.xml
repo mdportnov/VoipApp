@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/profile"
+    app:startDestination="@id/navigation_profile">
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="ru.mephi.voip.ui.profile.ProfileFragment"
+        android:label="@string/title_profile">
+        <action
+            android:id="@+id/action_navigation_profile_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="ru.mephi.voip.ui.settings.SettingsFragment"
+        android:label="SettingsFragment" />
+</navigation>

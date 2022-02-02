@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ru.mephi.voip">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Права для сети -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Права для sip -->
+    <uses-permission android:name="android.permission.USE_SIP" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CONFIGURE_SIP" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <application
+        android:name=".VoIPApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme.NoActionBar">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".call.ui.CallActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:keepScreenOn="true"
+            android:screenOrientation="portrait"
+            android:showOnLockScreen="true" />
+
+        <meta-data
+            android:name="AbtoVoipCallActivity"
+            android:value="ru.mephi.voip.call.CallActivity" />
+
+        <service
+            android:name="org.abtollc.service.ABTOSipService"
+            android:exported="true"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="org.abtollc.service.ABTOSipService" />
+                <action android:name="org.abtollc.service.SipConfiguration" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".call.SipBackgroundService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".call.abto.CallEventsReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="ru.mephi.voip.INCOMING_CALL" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name=".ui.catalog.adapter.CatalogSuggestionProvider"
+            android:authorities="${applicationId}.CatalogSuggestionProvider" />
+
+        <provider
+            android:name="org.abtollc.db.DBProvider"
+            android:authorities="${applicationId}.abtodb" />
+    </application>
+
+</manifest>

@@ -1,0 +1,57 @@
+<resources>
+    <string name="title_calls">Звонки</string>
+    <string name="title_contacts">Каталог</string>
+    <string name="title_profile">Профиль</string>
+    <string name="prompt_email">Логин</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="action_sign_in">Войти</string>
+    <string name="search_title">Поиск контактов</string>
+    <string name="room">Помещение:</string>
+    <string name="appointment">Должность:</string>
+    <string name="unit">Подразделение:</string>
+    <string name="description">Обязанности:</string>
+
+    <!-- Sip -->
+    <string name="sip_registration_finished">Регистрация успешна.\nВаш аккаунт %s  %d.</string>
+    <string name="sip_registration_error">Ошибка %s при регистрации</string>
+    <string name="sip_call_error">Ошибка произошла во время исходящего вызова</string>
+    <string name="sip_incoming_call_error">Ошибка произошла во время входящего вызова</string>
+    <string name="no_name_error">Пожалуйста, введите sip логин человека, которому нужно позвонить</string>
+    <string name="accounts_prefs">accounts</string>
+    <string name="notification_title">VoIP MEPhI</string>
+    <string name="notification_message">Сервис VoIP запущен</string>
+
+    <string name="voip_profile_welcome_message">Для получения доступа к ip-телефонии
+        НИЯУ МИФИ оставьте заявку письмом на voip@mephi.ru или по номеру
+        +7 (495) 788 56 99, доб. 7777</string>
+
+    <string name="sip_domain">pbx.mephi.ru</string>
+    <string name="sip_server">SIP Server</string>
+    <string name="sip_account_header">SIP-аккаунт</string>
+    <string name="add_new_account">Добавить новый аккаунт</string>
+    <string name="add_account">Добавить</string>
+    <string name="change_account">Сменить аккаунт</string>
+
+    <string name="domain">pbx.mephi.ru</string>
+    <string name="search_of_appointments">Поиск сотрудников…</string>
+    <string name="search_of_units">Поиск подразделений…</string>
+    <string name="empty_unit">Пустой пункт</string>
+    <string name="update_is_not_impossible">Обновление невозможно</string>
+    <string name="wrong_query">Неправильный запрос</string>
+    <string name="enter_longer_query">Введите более длинный запрос</string>
+    <string name="connection_lost">Интернет-соединение отсутствует</string>
+    <string name="init_code_str">01 000 00</string>
+    <string name="mephi_number">+7 (495) 788 56 99</string>
+    <string name="call">Call</string>
+    <string name="email">Email:</string>
+    <string name="call_via_phone">Звонок через телефон</string>
+    <string name="sp_sip_enabled">is_sip_enabled</string>
+    <string name="disable_sip">Выключить SIP</string>
+    <string name="enable_sip">Включить SIP</string>
+    <string name="support_email">voip@mephi.ru</string>
+    <string name="not_found">По запросу ничего не найдено</string>
+
+    <string name="call_screen_always_settings">call_screen_always</string>
+    <string name="background_work_settings">background_work</string>
+    <string name="input_number">Введите номер</string>
+</resources>

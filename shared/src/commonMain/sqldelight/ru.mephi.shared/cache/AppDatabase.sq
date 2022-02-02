@@ -1,0 +1,45 @@
+CREATE TABLE search_history (
+    id INTEGER,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    PRIMARY KEY(id)
+);
+
+getAllSearches:
+    SELECT * FROM search_history;
+
+insertAllSearches:
+    INSERT INTO search_history(id, name, type)
+    VALUES (?,?,?);
+
+deleteSearchById:
+    DELETE FROM search_history
+    WHERE id = ?;
+
+deleteAllSearches:
+    DELETE FROM search_history;
+
+isExistsSearch:
+    SELECT EXISTS (SELECT * FROM  search_history WHERE name = ?);
+
+
+CREATE TABLE call_history(
+    id INTEGER,
+    sipNumber TEXT NOT NULL,
+    sipName TEXT,
+    status TEXT NOT NULL,
+    time INTEGER NOT NULL,
+PRIMARY KEY(id));
+
+getAllCalls:
+    SELECT * FROM call_history ORDER BY time DESC;
+
+insertCall:
+    INSERT INTO call_history(id, sipNumber, sipName, status, time)
+        VALUES (?,?,?, ?,?);
+
+deleteAllCalls:
+    DELETE FROM call_history;
+
+deleteCallById:
+    DELETE FROM call_history WHERE id = ?;
