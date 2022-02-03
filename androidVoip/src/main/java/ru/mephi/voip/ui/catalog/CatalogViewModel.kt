@@ -1,17 +1,12 @@
 package ru.mephi.voip.ui.catalog
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import ru.mephi.shared.appContext
+import ru.mephi.shared.*
 import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.SearchType
@@ -19,18 +14,17 @@ import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repository.CatalogRepository
 import ru.mephi.voip.R
-import java.util.*
 
 class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecutor() {
-    var catalogStack: Stack<UnitM> = Stack()
+    var catalogStack: Stack<UnitM> = mutableListOf()
     var catalogLiveData: MutableLiveData<Stack<UnitM>> = MutableLiveData()
-    var breadcrumbStack: Stack<UnitM> = Stack()
+    var breadcrumbStack: Stack<UnitM> = mutableListOf()
     var breadcrumbLiveData: MutableLiveData<Stack<UnitM>> = MutableLiveData()
 
     private fun pushPageToCatalog(newPage: UnitM) {
         catalogStack.push(newPage)
         catalogLiveData.postValue(catalogStack)
-        breadcrumbStack.push(catalogStack.peek())
+        breadcrumbStack.push(catalogStack.peek()!!)
         breadcrumbLiveData.postValue(breadcrumbStack)
     }
 
@@ -56,7 +50,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
 
     fun goNext(codeStr: String, currScrollPos: Int = 0) {
         launch(ioDispatcher) {
-            repository.getUnitsByCodeStr(codeStr)
+            repository.getUnitByCodeStr(codeStr)
                 .onEach { resource ->
                     when (resource) {
                         is Resource.Success -> {

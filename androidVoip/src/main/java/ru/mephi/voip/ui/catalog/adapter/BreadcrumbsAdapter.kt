@@ -5,14 +5,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.mephi.shared.data.model.UnitM
+import ru.mephi.shared.popFromStackTill
 import ru.mephi.voip.databinding.ItemRecyclerBreadcrumbBinding
 import ru.mephi.voip.ui.catalog.CatalogViewModel
-import java.util.*
 
-fun <T> Stack<T>.popFromStackTill(el: T) {
-    while (this.peek() != el)
-        this.pop()
-}
 
 class BreadcrumbsAdapter(
     var context: Context?,

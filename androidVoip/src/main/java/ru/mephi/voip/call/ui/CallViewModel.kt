@@ -122,7 +122,7 @@ class CallViewModel(
         }
     }
 
-    private fun addRecord(callRecord: ru.mephi.shared.data.model.CallRecord) {
+    private fun addRecord(callRecord: CallRecord) {
         callsRepository.addRecord(callRecord)
     }
 

@@ -26,8 +26,8 @@ class CallsDB(databaseDriverFactory: DatabaseDriverFactory) :
             record.forEach {
                 dbQuery.insertCall(
                     it.id,
-                    it.sipName ?: "",
                     it.sipNumber,
+                    it.sipName ?: "",
                     it.status.toString(),
                     it.time
                 )

@@ -3,6 +3,8 @@ package ru.mephi.shared.data.repository
 import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.database.dto.toKodeIn
 import ru.mephi.shared.data.database.interfaces.ISearchRecordsDao
@@ -13,11 +15,11 @@ import ru.mephi.shared.data.network.ApiHelper
 import ru.mephi.shared.data.network.EmptyUnitException
 import ru.mephi.shared.data.network.Resource
 
-class CatalogRepository(
-    private val api: ApiHelper,
-    private val dao: ISearchRecordsDao<SearchRecord>,
-    private val catalogDao: CatalogDao
-) {
+class CatalogRepository : KoinComponent {
+    private val api: ApiHelper by inject()
+    private val dao: ISearchRecordsDao<SearchRecord> by inject()
+    private val catalogDao: CatalogDao by inject()
+
     suspend fun getInfoByPhone(num: String): Flow<Resource<NameItem>> = flow {
         emit(Resource.Loading())
 
@@ -61,7 +63,7 @@ class CatalogRepository(
             emit(Resource.Success(usersUnit))
     }
 
-    suspend fun getUnitsByCodeStr(codeStr: String): Flow<Resource<List<UnitM>>> = flow {
+    suspend fun getUnitByCodeStr(codeStr: String): Flow<Resource<List<UnitM>>> = flow {
         emit(Resource.Loading())
 
         val units = catalogDao.getUnitByCodeStr(codeStr)

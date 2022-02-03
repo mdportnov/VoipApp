@@ -30,10 +30,12 @@ import com.polyak.iconswitch.IconSwitch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koin.android.ext.android.inject
+import ru.mephi.shared.Stack
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.shared.data.model.UnitM
+import ru.mephi.shared.peek
 import ru.mephi.voip.R
 import ru.mephi.voip.databinding.FragmentCatalogBinding
 import ru.mephi.voip.databinding.ToolbarCatalogBinding
@@ -43,7 +45,6 @@ import ru.mephi.voip.ui.utils.hideKeyboard
 import ru.mephi.voip.ui.utils.isOnline
 import ru.mephi.voip.ui.utils.showSnackBar
 import ru.mephi.voip.ui.utils.toast
-import java.util.*
 
 fun isLetters(string: String): Boolean {
     return string.matches("^[a-zA-Zа-яА-Я ]*$".toRegex())
@@ -264,25 +265,6 @@ class CatalogFragment : Fragment(),
         binding.rv.layoutManager = llm
         unitsAdapter = DataAdapter(requireContext(), viewModel)
 
-//        unitsAdapter.setOnDataChangeListener(object : DataAdapter.OnDataChangeListener {
-//            override fun onDataChanged(status: Resource<*>) {
-//                when (status) {
-//                    is Resource.Success -> {
-//                        viewModel.dismissProgressBar()
-//                        retrieveCatalog()
-//                    }
-//
-//                    is Resource.Error -> {
-//                        viewModel.dismissProgressBar()
-//                    }
-//
-//                    is Resource.Loading -> {
-//                        viewModel.showProgressBar()
-//                    }
-//                }
-//            }
-//        })
-
         binding.rv.adapter = unitsAdapter
 
         val dividerItemDecoration = DividerItemDecoration(context, RecyclerView.VERTICAL)
@@ -341,7 +323,7 @@ class CatalogFragment : Fragment(),
 
     private fun retrieveCatalog() {
         if (viewModel.catalogStack.isNotEmpty()) {
-            unitsAdapter.changeData(viewModel.catalogStack.peek())
+            unitsAdapter.changeData(viewModel.catalogStack.peek()!!)
             breadcrumbsAdapter.changeData(viewModel.breadcrumbStack.toMutableList())
         }
     }

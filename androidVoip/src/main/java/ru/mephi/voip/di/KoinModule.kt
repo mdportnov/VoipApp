@@ -20,7 +20,6 @@ import ru.mephi.voip.ui.profile.ProfileViewModel
 val koinModule = module {
     single(named("account_prefs")) { spAccounts() }
     single { spAccounts() }
-    single { ApiHelper() }
     single { KtorApiService() }
     single { CallEventsReceiver() }
     single { MySipService() }
