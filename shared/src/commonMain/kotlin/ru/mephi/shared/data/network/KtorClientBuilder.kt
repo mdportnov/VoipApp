@@ -27,7 +27,7 @@ object KtorClientBuilder {
         BASE_URL + "get_photo_mobile.jpg?api_key=$API_KEY&EmpGUID="
 
     fun createHttpClient(): HttpClient {
-        val timeout = 5000L
+        val timeout = 3000L
         return HttpClient {
             install(JsonFeature) {
                 serializer = KotlinxSerializer(json)

@@ -9,6 +9,15 @@
           "revision": "c21f9abbfa29dd3e1456387503d722ca5d11a71e",
           "version": null
         }
+      },
+      {
+        "package": "Toaster",
+        "repositoryURL": "https://github.com/devxoul/Toaster",
+        "state": {
+          "branch": "master",
+          "revision": "e291374fda2be69bed0330e4346d5fb2af08f4ba",
+          "version": null
+        }
       }
     ]
   },
