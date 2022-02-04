@@ -54,7 +54,7 @@ val repositoryModule = module {
 
     single { ApiHelper() }
     single { provideCatalogDB() }
-    single { CatalogDao(get()) }
+    single { CatalogDao() }
     single { SearchDB(get()) }
     single { CallsDB(get()) }
     single { provideCatalogRepository() }

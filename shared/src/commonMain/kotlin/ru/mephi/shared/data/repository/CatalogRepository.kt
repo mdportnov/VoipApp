@@ -1,6 +1,5 @@
 package ru.mephi.shared.data.repository
 
-import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.koin.core.component.KoinComponent
@@ -11,9 +10,7 @@ import ru.mephi.shared.data.database.interfaces.ISearchRecordsDao
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.UnitM
-import ru.mephi.shared.data.network.ApiHelper
-import ru.mephi.shared.data.network.EmptyUnitException
-import ru.mephi.shared.data.network.Resource
+import ru.mephi.shared.data.network.*
 
 class CatalogRepository : KoinComponent {
     private val api: ApiHelper by inject()
@@ -30,7 +27,13 @@ class CatalogRepository : KoinComponent {
             else
                 emit(Resource.Success(name))
         } catch (exception: Exception) {
-            emit(Resource.Error.UndefinedError(message = exception.message ?: "Error Occurred!"))
+            emit(
+                Resource.Error.UndefinedError(
+                    exception = Exception(
+                        exception.message ?: "Error Occurred!"
+                    )
+                )
+            )
         }
     }
 
@@ -40,7 +43,7 @@ class CatalogRepository : KoinComponent {
         val children = api.getUnitsByName(query).map { it }
 
         if (children.isNullOrEmpty())
-            emit(Resource.Error.NotFoundError("По запросу \"${query}\" ничего не найдено"))
+            emit(Resource.Error.NotFoundError(exception = NotFoundException(query)))
         else
             emit(
                 Resource.Success(
@@ -58,41 +61,48 @@ class CatalogRepository : KoinComponent {
         usersUnit.shortname = query
 
         if (usersUnit.appointments.isNullOrEmpty())
-            emit(Resource.Error.NotFoundError("По запросу \"${query}\" ничего не найдено"))
+            emit(Resource.Error.NotFoundError(NotFoundException(query)))
         else
             emit(Resource.Success(usersUnit))
     }
 
-    suspend fun getUnitByCodeStr(codeStr: String): Flow<Resource<List<UnitM>>> = flow {
+    suspend fun getUnitByCodeStr(codeStr: String): Flow<Resource<List<UnitM>?>> = flow {
         emit(Resource.Loading())
 
         val units = catalogDao.getUnitByCodeStr(codeStr)
 
         emit(Resource.Loading(units))
+        val resource = api.getUnitByCodeStr(codeStr)
 
-        try {
-            val remoteUnits = api.getUnitByCodeStr(codeStr)
-            units?.forEach {
-                catalogDao.deleteByCodeStr(it.code_str)
+        when (resource) {
+            is Resource.Error.NetworkError<*> -> {
+                emit(Resource.Error.NetworkError(exception = NetworkException()))
             }
-            remoteUnits.forEach {
-                catalogDao.add(it.toKodeIn)
+            is Resource.Error.EmptyError<*> -> {
+                emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
             }
+            is Resource.Error.UndefinedError<*> -> {
+                emit(Resource.Error.UndefinedError(exception = Exception("Oops. Error!")))
+            }
+
+            else -> {}
         }
-//        catch (e: Http) {
-//            emit(Resource.Error.UndefinedError("Oops, smth went wrong", units))
-//        }
-        catch (e: IOException) { // e.g. without internet case
-            emit(Resource.Error.UndefinedError(e.message ?: "Error Occurred!"))
-        } catch (e: EmptyUnitException) {
-            emit(Resource.Error.EmptyError(e.message))
-        }
+        if (resource is Resource.Success<*>)
+            if (!(resource.data as List<UnitM>).isNullOrEmpty()) {
+                units?.forEach {
+                    catalogDao.deleteByCodeStr(it.code_str)
+                }
+                resource.data.forEach {
+                    catalogDao.add(it.toKodeIn)
+                }
+            }
 
         val newUnits = catalogDao.getUnitByCodeStr(codeStr)
-        if (newUnits.isNullOrEmpty())
-            emit(Resource.Error.EmptyError("Пустой пункт"))
-        else
-            emit(Resource.Success(newUnits))
+        when {
+            newUnits == null -> emit(Resource.Error.NetworkError(exception = NetworkException()))
+            newUnits.isEmpty() -> emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
+            else -> emit(Resource.Success(newUnits))
+        }
     }
 
     fun getSearchRecords() = dao.getAll()

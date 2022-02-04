@@ -1,6 +1,7 @@
 package ru.mephi.shared.data.network
 
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
@@ -26,9 +27,18 @@ object KtorClientBuilder {
         BASE_URL + "get_photo_mobile.jpg?api_key=$API_KEY&EmpGUID="
 
     fun createHttpClient(): HttpClient {
+        val timeout = 5000L
         return HttpClient {
             install(JsonFeature) {
                 serializer = KotlinxSerializer(json)
+            }
+            HttpResponseValidator {
+                handleResponseException { exception ->
+                        if (exception !is ClientRequestException) return@handleResponseException
+                    val exceptionResponse = exception.response
+                    if (exceptionResponse.status != HttpStatusCode.OK)
+                        throw NetworkException()
+                }
             }
             expectSuccess = false
             defaultRequest {
@@ -37,9 +47,9 @@ object KtorClientBuilder {
                 })
             }
             install(HttpTimeout) {
-                requestTimeoutMillis = 15000L
-                connectTimeoutMillis = 15000L
-                socketTimeoutMillis = 15000L
+                requestTimeoutMillis = timeout
+                connectTimeoutMillis = timeout
+                socketTimeoutMillis = timeout
             }
             defaultRequest {
                 parameter("api_key", API_KEY)

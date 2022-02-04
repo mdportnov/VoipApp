@@ -108,13 +108,15 @@ class DataAdapter(
 //                binding.name.setTextColor(Color.LTGRAY)
 
             binding.name.setOnClickListener {
-                when {
-                    isOnline(context) || catalogDao.checkByCodeStr(item.code_str) -> {
-                        goNext(item.code_str, getCurrentScrollPos())
-                    }
-                    else -> Toast.makeText(context, "Сеть недоступна", Toast.LENGTH_SHORT)
-                        .show()
-                }
+                goNext(item.code_str, getCurrentScrollPos())
+//                when {
+////                    isOnline(context) ||
+////                    catalogDao.checkByCodeStr(item.code_str) -> {
+////                    goNext(item.code_str, getCurrentScrollPos())
+////                    }
+//                    else -> Toast.makeText(context, "Сеть недоступна", Toast.LENGTH_SHORT)
+//                        .show()
+//                }
             }
         }
     }

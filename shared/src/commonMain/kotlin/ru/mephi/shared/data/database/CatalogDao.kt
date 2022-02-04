@@ -4,11 +4,14 @@ import org.kodein.db.DB
 import org.kodein.db.deleteAll
 import org.kodein.db.find
 import org.kodein.db.useModels
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mephi.shared.data.database.dto.UnitMKodeIn
 import ru.mephi.shared.data.database.dto.fromKodein
 import ru.mephi.shared.data.model.UnitM
 
-class CatalogDao(private val kodeinDB: DB) {
+class CatalogDao : KoinComponent {
+    private val kodeinDB: DB by inject()
     fun checkByCodeStr(code_str: String) =
         kodeinDB.find<UnitMKodeIn>().byId(code_str).isValid()
 

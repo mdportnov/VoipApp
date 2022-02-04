@@ -65,6 +65,9 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                         is Resource.Error.NotFoundError -> {
                             showSnackBar(appContext.getString(R.string.not_found))
                         }
+                        is Resource.Error.NetworkError -> {
+                            showSnackBar(appContext.getString(R.string.connection_lost))
+                        }
                         else -> {}
                     }
                 }.launchIn(this)
