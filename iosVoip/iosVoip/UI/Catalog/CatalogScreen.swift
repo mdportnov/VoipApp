@@ -24,7 +24,7 @@ struct CatalogScreen: View {
                     trailing:
                         HStack{
                             Toggle(isOn: $searchTypeIsOn){
-                                Text(searchTypeIsOn ? "Поиск сотрудников..." : "Поиск подразделений...")
+                                Label(searchTypeIsOn ? "Поиск сотрудников..." : "Поиск подразделений...", systemImage: searchTypeIsOn ? "person" : "person.3")
                             }
                             Button(action: {
                                 self.viewModel.getUnitByCodeStr(codeStr: viewModel.startCodeStr)
@@ -45,8 +45,12 @@ struct CatalogScreen: View {
     }
     
     private func performSearch(searchQuery : String, searchType: SearchType){
-        viewModel.performSearch(searchQuery: searchQuery, searchType: searchType)
-        Toast(text: "Поиск по запросу \"\(searchQuery)\"...", duration: Delay.short).show()
+        if searchQuery.count < 3 {
+            Toast(text: "Слишком короткой запрос", duration: Delay.long).show()
+        } else {
+            viewModel.performSearch(searchQuery: searchQuery, searchType: searchType)
+            Toast(text: "Поиск по запросу \"\(searchQuery)\"...", duration: Delay.short).show()
+        }
     }
     
     private func listView() -> AnyView {

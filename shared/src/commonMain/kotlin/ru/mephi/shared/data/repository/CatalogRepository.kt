@@ -91,7 +91,7 @@ class CatalogRepository : KoinComponent {
                     emit(Resource.Error.NotFoundError(exception = NotFoundException(query)))
                 }
                 is Resource.Success<*> -> {
-                    val children = (resource.data as List<UnitM>).map { it }
+                    val children = resource.data as List<UnitM>
 
                     emit(
                         Resource.Success(

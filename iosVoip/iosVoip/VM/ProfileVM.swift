@@ -16,7 +16,7 @@ class ProfileViewModel : ObservableObject {
     
     @State var sipStatus = AccountStatus.loading
     
-    var sipNumber = "8877"
+    var sipNumber = "09024"
     @Published var sipNameItem = LoadableNameItem.loading
     
     init(api: KtorApiService) {
@@ -35,12 +35,18 @@ class ProfileViewModel : ObservableObject {
     
     func getNameByPhone(phone: String) {
         self.sipNameItem = .loading
-        api.getInfoByPhone(phone: phone, completionHandler: { nameItem, error in
-            if let nameItem = nameItem {
-                self.sipNameItem = .result(nameItem)
-            } else {
-                self.sipNameItem = .error(error?.localizedDescription ?? "error")
+        
+        api.getInfoByPhone(phone: phone, completionHandler: { resource, error in
+            switch resource {
+            case is ResourceErrorNetworkError<NSArray>: self.sipNameItem = .error("Проблемы с сетью")
+            case is ResourceErrorEmptyError<NSArray>:
+                self.sipNameItem = .error("Имя недоступно")
+            case is ResourceSuccess<NSArray>:
+                self.sipNameItem = .result(((resource?.data) as! NSArray)[0] as! NameItem)
+            default:
+                self.sipNameItem = .error("Что-то пошло не так")
             }
+            
         })
     }
 }

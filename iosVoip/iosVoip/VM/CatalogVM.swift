@@ -48,9 +48,57 @@ class CatalogVM: ObservableObject {
     }
     
     func performSearch(searchQuery: String, searchType: SearchType){
-        api.getUnitsByName(filterLike: searchQuery) { units, error in
-                
+        self.loadingResource = ResourceLoading(data: nil)
+        
+        if searchType == SearchType.units{
+            api.getUnitsByName(filterLike: searchQuery) { resource, error in
+                switch resource{
+                    case is ResourceErrorEmptyError<NSArray>:
+                        Toast(text: resource?.message, duration: Delay.short).show()
+                    case is ResourceSuccess<NSArray>:
+                        let remoteUnits = resource?.data ?? []
+                    
+                        let unitOfUnits = UnitM(
+                            code_str: "", name: searchQuery, fullname: searchQuery, shortname: searchQuery,
+                            parent_code: "", parent_name: "", children: remoteUnits as? [UnitM], appointments: nil, scrollPosition: nil
+                        )
+                    
+                        self.loadingResource = ResourceSuccess(data: unitOfUnits)
+                        CommonUtilsKt.push(self.catalogStack, item: unitOfUnits)
+                        self.catalogTitle = unitOfUnits.shortname.uppercased()
+                    
+                        print("Current stack:\n")
+                        self.catalogStack.forEach { item in
+                            print((item as! UnitM).shortname)
+                        }
+                    default:
+                        Toast(text: resource?.message, duration: Delay.short).show()
+                }
+            }
         }
+        else {
+            api.getUsersByName(filterLike: searchQuery) { resource, error in
+                switch resource {
+                    case is ResourceErrorEmptyError<UnitM>:
+                        Toast(text: resource?.message, duration: Delay.short).show()
+                    case is ResourceSuccess<UnitM>:
+                    print("ResourceSuccess response on .\(searchQuery)!")
+                    let unitOfUsers = resource?.data
+                    unitOfUsers?.shortname = searchQuery
+                    self.loadingResource = ResourceSuccess(data: unitOfUsers)
+                    CommonUtilsKt.push(self.catalogStack, item: unitOfUsers)
+                    self.catalogTitle = unitOfUsers?.shortname.uppercased() ?? "VoIP MEPhI"
+                    
+                    print("Current stack:\n")
+                    self.catalogStack.forEach { item in
+                        print((item as! UnitM).shortname)
+                    }
+                default:
+                    Toast(text: resource?.message, duration: Delay.short).show()
+                }
+            }
+        }
+            
     }
     
     func getUnitByCodeStr(codeStr: String){
