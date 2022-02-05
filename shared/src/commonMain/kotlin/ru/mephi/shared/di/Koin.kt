@@ -52,11 +52,11 @@ val repositoryModule = module {
             +NameItem.serializer()
         })
 
+    single { SearchDB(get()) }
+    single { CallsDB(get()) }
     single { ApiHelper() }
     single { provideCatalogDB() }
     single { CatalogDao() }
-    single { SearchDB(get()) }
-    single { CallsDB(get()) }
     single { provideCatalogRepository() }
     single { provideCallsRepository(get(), get()) }
 }

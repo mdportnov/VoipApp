@@ -11,11 +11,11 @@ interface BaseApiService {
     suspend fun getUnitByCodeStr(codeStr: String): Resource<List<UnitM>?>
 
     // get_subscribers_mobile.json?api_key=ВАШКЛЮЧ&filter_lastname=LIKE|%Трут%
-    suspend fun getUsersByName(filterLike: String): UnitM
+    suspend fun getUsersByName(filterLike: String): Resource<UnitM>
 
     // get_units_mobile.json?api_key=ВАШКЛЮЧ&filter_fullname=LIKE|%информ%
-    suspend fun getUnitsByName(filterLike: String): List<UnitM>
+    suspend fun getUnitsByName(filterLike: String): Resource<List<UnitM>>
 
     // get_displayname.json?api_key=КЛЮЧ&line=9295
-    suspend fun getInfoByPhone(phone: String): NameItem?
+    suspend fun getInfoByPhone(phone: String): Resource<List<NameItem>>
 }

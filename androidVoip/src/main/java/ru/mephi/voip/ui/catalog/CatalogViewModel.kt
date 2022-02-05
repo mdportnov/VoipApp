@@ -88,6 +88,11 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                         is Resource.Error.NotFoundError -> {
                             resource.message?.let { showSnackBar(it) }
                         }
+                        is Resource.Error.UndefinedError -> {
+                            resource.message?.let {
+                                showSnackBar(it)
+                            }
+                        }
                         else -> {}
                     }
                 }.launchIn(this)
@@ -102,6 +107,11 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                         }
                         is Resource.Error.NotFoundError -> {
                             resource.message?.let { showSnackBar(it) }
+                        }
+                        is Resource.Error.UndefinedError -> {
+                            resource.message?.let {
+                                showSnackBar(it)
+                            }
                         }
                         else -> {}
                     }

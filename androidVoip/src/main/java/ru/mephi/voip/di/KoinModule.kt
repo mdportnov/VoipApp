@@ -7,6 +7,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import ru.mephi.shared.appContext
+import ru.mephi.shared.data.database.SearchDB
 import ru.mephi.shared.data.network.ApiHelper
 import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.shared.vm.CallerViewModel
@@ -49,35 +50,3 @@ val viewModels = module {
         CatalogViewModel(get())
     }
 }
-
-//val roomDatabaseModule = module {
-//    fun provideCallDatabaseDao(database: CallDatabase): CallRecordsDao {
-//        return database.getCallRecordsDao()
-//    }
-//
-//    fun provideSearchDatabaseDao(database: SearchDatabase): SearchRecordsDao {
-//        return database.getSearchRecordsDao()
-//    }
-//
-//
-//    fun provideCallDatabase(app: Application): CallDatabase {
-//        return Room.databaseBuilder(
-//            app, CallDatabase::class.java,
-//            "calls_database.db"
-//        ).allowMainThreadQueries()
-//            .fallbackToDestructiveMigration()
-//            .build()
-//    }
-//
-//    fun provideSearchDatabase(app: Application): SearchDatabase {
-//        return Room.databaseBuilder(
-//            app, SearchDatabase::class.java,
-//            "search_database.db"
-//        ).allowMainThreadQueries().build()
-//    }
-//
-//    single { provideCallDatabaseDao(get()) }
-//    single { provideSearchDatabaseDao(get()) }
-//    single { provideCallDatabase(androidApplication()) }
-//    single { provideSearchDatabase(androidApplication()) }
-//}

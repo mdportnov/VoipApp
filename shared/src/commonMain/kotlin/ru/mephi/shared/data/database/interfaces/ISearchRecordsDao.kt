@@ -1,11 +1,13 @@
 package ru.mephi.shared.data.database.interfaces
 
-interface ISearchRecordsDao<T> {
-    fun getAll(): List<T>
+import ru.mephi.shared.data.model.SearchRecord
 
-    fun insertAll(vararg record: T)
+interface ISearchRecordsDao {
+    fun getAll(): List<SearchRecord>
 
-    fun deleteRecords(vararg record: T)
+    fun insertAll(vararg record: SearchRecord)
+
+    fun deleteRecords(vararg record: SearchRecord)
 
     fun deleteAll()
 

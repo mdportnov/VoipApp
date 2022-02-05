@@ -6,7 +6,7 @@ import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.SearchType
 
 class SearchDB(databaseDriverFactory: DatabaseDriverFactory) :
-    ISearchRecordsDao<SearchRecord> {
+    ISearchRecordsDao {
     private val database = AppDatabase(databaseDriverFactory.createDriver())
     private val dbQuery = database.appDatabaseQueries
 

@@ -100,13 +100,14 @@ class CallViewModel(
                     when (result) {
                         is Resource.Success -> {
                             result.data?.let {
-                                _callerUnit.value = it.name
+                                val nameItem = it[0]
+                                _callerUnit.value = nameItem.name
 
-                                it.appointment?.let { appointment ->
+                                nameItem.appointment?.let { appointment ->
                                     _callerAppointment.value = appointment
                                 }
 
-                                it.display_name.also { name ->
+                                nameItem.display_name.also { name ->
                                     _callerName.value = name
                                 }
                             }

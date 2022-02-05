@@ -130,7 +130,7 @@ class SharedViewModel(
                     when (result) {
                         is Resource.Success -> {
                             result.data?.let {
-                                _displayName.value = it
+                                _displayName.value = it[0]
                             }
                         }
                         is Resource.Error -> {

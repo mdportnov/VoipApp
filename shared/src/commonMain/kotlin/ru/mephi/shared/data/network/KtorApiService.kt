@@ -25,34 +25,53 @@ class KtorApiService : BaseApiService {
         }
     }
 
-    override suspend fun getUsersByName(filterLike: String): UnitM {
-        return httpClient.get {
-            url {
-                path("get_subscribers_mobile.json")
-                parameter("filter_lastname", "LIKE|%$filterLike%")
-            }
+    override suspend fun getUsersByName(filterLike: String): Resource<UnitM> {
+        try {
+            val unitOfUsers: UnitM = httpClient.get {
+                url {
+                    path("get_subscribers_mobile.json")
+                    parameter("filter_lastname", "LIKE|%$filterLike%")
+                }
+            } ?: return Resource.Error.NetworkError(exception = NotFoundException(filterLike))
+
+            return Resource.Success(data = unitOfUsers)
+        } catch (e: Throwable) {
+            return Resource.Error.UndefinedError(exception = NetworkException())
         }
     }
 
-    override suspend fun getUnitsByName(filterLike: String): List<UnitM> {
-        return httpClient.get {
-            url {
-                path("get_units_mobile_find.json")
-                parameter("filter_fullname", "LIKE|%$filterLike%")
-            }
+    override suspend fun getUnitsByName(filterLike: String): Resource<List<UnitM>> {
+        try {
+            val units: List<UnitM> = httpClient.get {
+                url {
+                    path("get_units_mobile_find.json")
+                    parameter("filter_fullname", "LIKE|%$filterLike%")
+                }
+            } ?: return Resource.Error.NetworkError(exception = NetworkException())
+
+            if (units.isNullOrEmpty())
+                return Resource.Error.NotFoundError(exception = NotFoundException(filterLike))
+
+            return Resource.Success(data = units)
+        } catch (e: Throwable) {
+            return Resource.Error.UndefinedError(exception = NetworkException())
         }
     }
 
-    override suspend fun getInfoByPhone(phone: String): NameItem? {
-        return try {
-            httpClient.get<List<NameItem>> {
+    override suspend fun getInfoByPhone(phone: String): Resource<List<NameItem>> {
+        try {
+            val nameItems: List<NameItem> = httpClient.get {
                 url {
                     path("get_displayname.json")
                     parameter("line", phone)
                 }
-            }[0]
-        } catch (e: Exception) {
-            null
+            } ?: return Resource.Error.NetworkError(exception = NetworkException())
+
+            if (nameItems.isNullOrEmpty())
+                return Resource.Error.NotFoundError(exception = NotFoundException(query = phone))
+            return Resource.Success(data = nameItems)
+        } catch (e: Throwable) {
+            return Resource.Error.UndefinedError(exception = NetworkException())
         }
     }
 }
@@ -67,7 +86,12 @@ class NetworkException : Exception() {
         get() = "Интернет-соединение отсутствует"
 }
 
-class NotFoundException(val query: String) : Exception() {
+class NotFoundException(private val query: String) : Exception() {
     override val message: String
         get() = "По запросу \"${query}\" ничего не найдено"
+}
+
+class UndefinedErrorException : Exception() {
+    override val message: String
+        get() = "Что-то пошло не так"
 }

@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.shared.data.database.CatalogDao
+import ru.mephi.shared.data.database.SearchDB
 import ru.mephi.shared.data.database.dto.toKodeIn
-import ru.mephi.shared.data.database.interfaces.ISearchRecordsDao
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.UnitM
@@ -14,56 +14,99 @@ import ru.mephi.shared.data.network.*
 
 class CatalogRepository : KoinComponent {
     private val api: ApiHelper by inject()
-    private val dao: ISearchRecordsDao<SearchRecord> by inject()
+    private val dao: SearchDB by inject()
     private val catalogDao: CatalogDao by inject()
 
-    suspend fun getInfoByPhone(num: String): Flow<Resource<NameItem>> = flow {
+    suspend fun getInfoByPhone(num: String): Flow<Resource<List<NameItem>>> = flow {
         emit(Resource.Loading())
 
         try {
-            val name = api.getInfoByPhone(num)
-            if (name?.display_name.isNullOrEmpty())
-                emit(Resource.Error.EmptyError())
-            else
-                emit(Resource.Success(name))
+            when (val resource = api.getInfoByPhone(num)) {
+                is Resource.Error.NetworkError<*> -> {
+                    emit(Resource.Error.NetworkError(exception = NetworkException()))
+                }
+                is Resource.Error.EmptyError<*> -> {
+                    emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
+                }
+                is Resource.Error.UndefinedError<*> -> {
+                    emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+                }
+                is Resource.Success<*> -> {
+                    val nameItem = (resource.data as List<NameItem>)[0]
+                    if (nameItem.display_name.isEmpty())
+                        emit(Resource.Error.EmptyError())
+                    else
+                        emit(Resource.Success(resource.data))
+                }
+                else -> {}
+            }
         } catch (exception: Exception) {
-            emit(
-                Resource.Error.UndefinedError(
-                    exception = Exception(
-                        exception.message ?: "Error Occurred!"
-                    )
-                )
-            )
+            emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+        }
+    }
+
+    suspend fun getUsersByName(query: String): Flow<Resource<UnitM>> = flow {
+        emit(Resource.Loading())
+
+        try {
+            when (val resource = api.getUsersByName(query)) {
+                is Resource.Error.NetworkError -> {
+                    emit(Resource.Error.NetworkError(exception = NetworkException()))
+                }
+                is Resource.Error.EmptyError<*> -> {
+                    emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
+                }
+                is Resource.Error.UndefinedError<*> -> {
+                    emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+                }
+                is Resource.Success<*> -> {
+                    val unitOfUsers = (resource.data as UnitM)
+                    unitOfUsers.shortname = query
+                    if (unitOfUsers.appointments.isNullOrEmpty())
+                        emit(Resource.Error.NotFoundError(NotFoundException(query)))
+                    else
+                        emit(Resource.Success(unitOfUsers))
+                }
+                else -> {}
+            }
+        } catch (exception: Exception) {
+            emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
         }
     }
 
     suspend fun getUnitsByName(query: String): Flow<Resource<UnitM>> = flow {
         emit(Resource.Loading())
+        try {
+            when (val resource = api.getUnitsByName(query)) {
+                is Resource.Error.NetworkError<*> -> {
+                    emit(Resource.Error.NetworkError(exception = NetworkException()))
+                }
+                is Resource.Error.EmptyError<*> -> {
+                    emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
+                }
+                is Resource.Error.UndefinedError<*> -> {
+                    emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+                }
+                is Resource.Error.NotFoundError<*> -> {
+                    emit(Resource.Error.NotFoundError(exception = NotFoundException(query)))
+                }
+                is Resource.Success<*> -> {
+                    val children = (resource.data as List<UnitM>).map { it }
 
-        val children = api.getUnitsByName(query).map { it }
-
-        if (children.isNullOrEmpty())
-            emit(Resource.Error.NotFoundError(exception = NotFoundException(query)))
-        else
-            emit(
-                Resource.Success(
-                    UnitM(
-                        "", query, query, shortname = query,
-                        "", "", children, null
+                    emit(
+                        Resource.Success(
+                            UnitM(
+                                "", query, query, shortname = query,
+                                "", "", children, null
+                            )
+                        )
                     )
-                )
-            )
-    }
-
-    suspend fun getUsersByName(query: String): Flow<Resource<UnitM>> = flow {
-        emit(Resource.Loading())
-        val usersUnit = api.getUsersByName(query)
-        usersUnit.shortname = query
-
-        if (usersUnit.appointments.isNullOrEmpty())
-            emit(Resource.Error.NotFoundError(NotFoundException(query)))
-        else
-            emit(Resource.Success(usersUnit))
+                }
+                else -> {}
+            }
+        } catch (exception: Exception) {
+            emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+        }
     }
 
     suspend fun getUnitByCodeStr(codeStr: String): Flow<Resource<List<UnitM>?>> = flow {
@@ -72,9 +115,8 @@ class CatalogRepository : KoinComponent {
         val units = catalogDao.getUnitByCodeStr(codeStr)
 
         emit(Resource.Loading(units))
-        val resource = api.getUnitByCodeStr(codeStr)
 
-        when (resource) {
+        when (val resource = api.getUnitByCodeStr(codeStr)) {
             is Resource.Error.NetworkError<*> -> {
                 emit(Resource.Error.NetworkError(exception = NetworkException()))
             }
@@ -82,20 +124,20 @@ class CatalogRepository : KoinComponent {
                 emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
             }
             is Resource.Error.UndefinedError<*> -> {
-                emit(Resource.Error.UndefinedError(exception = Exception("Oops. Error!")))
+                emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
             }
-
+            is Resource.Success<*> -> {
+                if (!(resource.data as List<UnitM>).isNullOrEmpty()) {
+                    units?.forEach {
+                        catalogDao.deleteByCodeStr(it.code_str)
+                    }
+                    resource.data.forEach {
+                        catalogDao.add(it.toKodeIn)
+                    }
+                }
+            }
             else -> {}
         }
-        if (resource is Resource.Success<*>)
-            if (!(resource.data as List<UnitM>).isNullOrEmpty()) {
-                units?.forEach {
-                    catalogDao.deleteByCodeStr(it.code_str)
-                }
-                resource.data.forEach {
-                    catalogDao.add(it.toKodeIn)
-                }
-            }
 
         val newUnits = catalogDao.getUnitByCodeStr(codeStr)
         when {
