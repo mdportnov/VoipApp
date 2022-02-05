@@ -10,28 +10,28 @@
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
-		87A5DCBC27A9965C00A00109 /* CallVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCA727A9965B00A00109 /* CallVM.swift */; };
-		87A5DCBD27A9965C00A00109 /* CatalogVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCA827A9965B00A00109 /* CatalogVM.swift */; };
-		87A5DCBE27A9965C00A00109 /* ProfileVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCA927A9965B00A00109 /* ProfileVM.swift */; };
-		87A5DCBF27A9965C00A00109 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCAC27A9965B00A00109 /* SettingsScreen.swift */; };
-		87A5DCC027A9965C00A00109 /* SettingRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCAD27A9965B00A00109 /* SettingRowView.swift */; };
-		87A5DCC127A9965C00A00109 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCAE27A9965B00A00109 /* UserSettings.swift */; };
-		87A5DCC227A9965C00A00109 /* AppointmentRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB027A9965B00A00109 /* AppointmentRow.swift */; };
-		87A5DCC327A9965C00A00109 /* CatalogScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB127A9965B00A00109 /* CatalogScreen.swift */; };
-		87A5DCC427A9965C00A00109 /* UnitRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB227A9965B00A00109 /* UnitRow.swift */; };
-		87A5DCC527A9965C00A00109 /* MainRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB327A9965B00A00109 /* MainRouter.swift */; };
-		87A5DCC627A9965C00A00109 /* CallerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB527A9965B00A00109 /* CallerScreen.swift */; };
-		87A5DCC727A9965C00A00109 /* GrowingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB827A9965B00A00109 /* GrowingButton.swift */; };
-		87A5DCC827A9965C00A00109 /* ProfileScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCB927A9965B00A00109 /* ProfileScreen.swift */; };
-		87A5DCC927A9965C00A00109 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCBA27A9965B00A00109 /* ProfileView.swift */; };
-		87A5DCCA27A9965C00A00109 /* NewAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCBB27A9965B00A00109 /* NewAccountView.swift */; };
 		87A5DCCD27A9B28E00A00109 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 87A5DCCC27A9B28E00A00109 /* Kingfisher */; };
-		87A5DCD227A9B30000A00109 /* CallRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCCE27A9B30000A00109 /* CallRow.swift */; };
-		87A5DCD327A9B30000A00109 /* KeyPad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCCF27A9B30000A00109 /* KeyPad.swift */; };
-		87A5DCD427A9B30000A00109 /* KeyPadButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCD027A9B30000A00109 /* KeyPadButton.swift */; };
-		87A5DCD527A9B30000A00109 /* KeyPadRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCD127A9B30000A00109 /* KeyPadRow.swift */; };
 		87A5DCD827AD7E9000A00109 /* Toaster in Frameworks */ = {isa = PBXBuildFile; productRef = 87A5DCD727AD7E9000A00109 /* Toaster */; };
 		87A5DCDA27AD80CA00A00109 /* Reachabilty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DCD927AD80CA00A00109 /* Reachabilty.swift */; };
+		87A5DD4C27AE9DF500A00109 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD3827AE9DF500A00109 /* SettingsScreen.swift */; };
+		87A5DD4D27AE9DF500A00109 /* SettingRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD3927AE9DF500A00109 /* SettingRowView.swift */; };
+		87A5DD4E27AE9DF500A00109 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD3A27AE9DF500A00109 /* UserSettings.swift */; };
+		87A5DD4F27AE9DF500A00109 /* AppointmentRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD3C27AE9DF500A00109 /* AppointmentRow.swift */; };
+		87A5DD5027AE9DF500A00109 /* CatalogScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD3D27AE9DF500A00109 /* CatalogScreen.swift */; };
+		87A5DD5127AE9DF500A00109 /* UnitRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD3E27AE9DF500A00109 /* UnitRow.swift */; };
+		87A5DD5227AE9DF500A00109 /* MainRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD3F27AE9DF500A00109 /* MainRouter.swift */; };
+		87A5DD5327AE9DF500A00109 /* CallerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD4127AE9DF500A00109 /* CallerScreen.swift */; };
+		87A5DD5427AE9DF500A00109 /* GrowingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD4427AE9DF500A00109 /* GrowingButton.swift */; };
+		87A5DD5527AE9DF500A00109 /* ProfileScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD4527AE9DF500A00109 /* ProfileScreen.swift */; };
+		87A5DD5627AE9DF500A00109 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD4627AE9DF500A00109 /* ProfileView.swift */; };
+		87A5DD5727AE9DF500A00109 /* NewAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD4727AE9DF500A00109 /* NewAccountView.swift */; };
+		87A5DD5827AE9DF500A00109 /* CallVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD4927AE9DF500A00109 /* CallVM.swift */; };
+		87A5DD5927AE9DF500A00109 /* CatalogVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD4A27AE9DF500A00109 /* CatalogVM.swift */; };
+		87A5DD5A27AE9DF500A00109 /* ProfileVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD4B27AE9DF500A00109 /* ProfileVM.swift */; };
+		87A5DD5F27AE9F4500A00109 /* CallRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD5B27AE9F4500A00109 /* CallRow.swift */; };
+		87A5DD6027AE9F4500A00109 /* KeyPad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD5C27AE9F4500A00109 /* KeyPad.swift */; };
+		87A5DD6127AE9F4500A00109 /* KeyPadButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD5D27AE9F4500A00109 /* KeyPadButton.swift */; };
+		87A5DD6227AE9F4500A00109 /* KeyPadRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD5E27AE9F4500A00109 /* KeyPadRow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,26 +53,26 @@
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* iosVoip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosVoip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		87A5DCA727A9965B00A00109 /* CallVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallVM.swift; sourceTree = "<group>"; };
-		87A5DCA827A9965B00A00109 /* CatalogVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogVM.swift; sourceTree = "<group>"; };
-		87A5DCA927A9965B00A00109 /* ProfileVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileVM.swift; sourceTree = "<group>"; };
-		87A5DCAC27A9965B00A00109 /* SettingsScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
-		87A5DCAD27A9965B00A00109 /* SettingRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingRowView.swift; sourceTree = "<group>"; };
-		87A5DCAE27A9965B00A00109 /* UserSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
-		87A5DCB027A9965B00A00109 /* AppointmentRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppointmentRow.swift; sourceTree = "<group>"; };
-		87A5DCB127A9965B00A00109 /* CatalogScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogScreen.swift; sourceTree = "<group>"; };
-		87A5DCB227A9965B00A00109 /* UnitRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitRow.swift; sourceTree = "<group>"; };
-		87A5DCB327A9965B00A00109 /* MainRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRouter.swift; sourceTree = "<group>"; };
-		87A5DCB527A9965B00A00109 /* CallerScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallerScreen.swift; sourceTree = "<group>"; };
-		87A5DCB827A9965B00A00109 /* GrowingButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GrowingButton.swift; sourceTree = "<group>"; };
-		87A5DCB927A9965B00A00109 /* ProfileScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
-		87A5DCBA27A9965B00A00109 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		87A5DCBB27A9965B00A00109 /* NewAccountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewAccountView.swift; sourceTree = "<group>"; };
-		87A5DCCE27A9B30000A00109 /* CallRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CallRow.swift; path = ../../../../../voip_mephi/iosApp/iosApp/UI/Caller/CallRow.swift; sourceTree = "<group>"; };
-		87A5DCCF27A9B30000A00109 /* KeyPad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyPad.swift; path = ../../../../../voip_mephi/iosApp/iosApp/UI/Caller/KeyPad.swift; sourceTree = "<group>"; };
-		87A5DCD027A9B30000A00109 /* KeyPadButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyPadButton.swift; path = ../../../../../voip_mephi/iosApp/iosApp/UI/Caller/KeyPadButton.swift; sourceTree = "<group>"; };
-		87A5DCD127A9B30000A00109 /* KeyPadRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeyPadRow.swift; path = ../../../../../voip_mephi/iosApp/iosApp/UI/Caller/KeyPadRow.swift; sourceTree = "<group>"; };
 		87A5DCD927AD80CA00A00109 /* Reachabilty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reachabilty.swift; sourceTree = "<group>"; };
+		87A5DD3827AE9DF500A00109 /* SettingsScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		87A5DD3927AE9DF500A00109 /* SettingRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingRowView.swift; sourceTree = "<group>"; };
+		87A5DD3A27AE9DF500A00109 /* UserSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		87A5DD3C27AE9DF500A00109 /* AppointmentRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppointmentRow.swift; sourceTree = "<group>"; };
+		87A5DD3D27AE9DF500A00109 /* CatalogScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogScreen.swift; sourceTree = "<group>"; };
+		87A5DD3E27AE9DF500A00109 /* UnitRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnitRow.swift; sourceTree = "<group>"; };
+		87A5DD3F27AE9DF500A00109 /* MainRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRouter.swift; sourceTree = "<group>"; };
+		87A5DD4127AE9DF500A00109 /* CallerScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallerScreen.swift; sourceTree = "<group>"; };
+		87A5DD4427AE9DF500A00109 /* GrowingButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GrowingButton.swift; sourceTree = "<group>"; };
+		87A5DD4527AE9DF500A00109 /* ProfileScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
+		87A5DD4627AE9DF500A00109 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		87A5DD4727AE9DF500A00109 /* NewAccountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewAccountView.swift; sourceTree = "<group>"; };
+		87A5DD4927AE9DF500A00109 /* CallVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallVM.swift; sourceTree = "<group>"; };
+		87A5DD4A27AE9DF500A00109 /* CatalogVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogVM.swift; sourceTree = "<group>"; };
+		87A5DD4B27AE9DF500A00109 /* ProfileVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileVM.swift; sourceTree = "<group>"; };
+		87A5DD5B27AE9F4500A00109 /* CallRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallRow.swift; sourceTree = "<group>"; };
+		87A5DD5C27AE9F4500A00109 /* KeyPad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPad.swift; sourceTree = "<group>"; };
+		87A5DD5D27AE9F4500A00109 /* KeyPadButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPadButton.swift; sourceTree = "<group>"; };
+		87A5DD5E27AE9F4500A00109 /* KeyPadRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPadRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,8 +116,8 @@
 		7555FF7D242A565900829871 /* iosVoip */ = {
 			isa = PBXGroup;
 			children = (
-				87A5DCAA27A9965B00A00109 /* UI */,
-				87A5DCA627A9965B00A00109 /* VM */,
+				87A5DD3627AE9DF500A00109 /* UI */,
+				87A5DD4827AE9DF500A00109 /* VM */,
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
 				7555FF8C242A565B00829871 /* Info.plist */,
 				2152FB032600AC8F00CF470E /* iOSApp.swift */,
@@ -134,79 +134,77 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		87A5DCA627A9965B00A00109 /* VM */ = {
+		87A5DD3627AE9DF500A00109 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				87A5DCA727A9965B00A00109 /* CallVM.swift */,
-				87A5DCA827A9965B00A00109 /* CatalogVM.swift */,
-				87A5DCA927A9965B00A00109 /* ProfileVM.swift */,
+				87A5DD3727AE9DF500A00109 /* Settings */,
+				87A5DD3B27AE9DF500A00109 /* Catalog */,
+				87A5DD3F27AE9DF500A00109 /* MainRouter.swift */,
+				87A5DD4027AE9DF500A00109 /* Caller */,
+				87A5DD4227AE9DF500A00109 /* Call */,
+				87A5DD4327AE9DF500A00109 /* Profile */,
 			);
-			name = VM;
-			path = ../../../VoIPMEPhI/iosApp/iosApp/VM;
+			path = UI;
 			sourceTree = "<group>";
 		};
-		87A5DCAA27A9965B00A00109 /* UI */ = {
+		87A5DD3727AE9DF500A00109 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				87A5DCAB27A9965B00A00109 /* Settings */,
-				87A5DCAF27A9965B00A00109 /* Catalog */,
-				87A5DCB327A9965B00A00109 /* MainRouter.swift */,
-				87A5DCB427A9965B00A00109 /* Caller */,
-				87A5DCB627A9965B00A00109 /* Call */,
-				87A5DCB727A9965B00A00109 /* Profile */,
-			);
-			name = UI;
-			path = ../../../VoIPMEPhI/iosApp/iosApp/UI;
-			sourceTree = "<group>";
-		};
-		87A5DCAB27A9965B00A00109 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				87A5DCAC27A9965B00A00109 /* SettingsScreen.swift */,
-				87A5DCAD27A9965B00A00109 /* SettingRowView.swift */,
-				87A5DCAE27A9965B00A00109 /* UserSettings.swift */,
+				87A5DD3827AE9DF500A00109 /* SettingsScreen.swift */,
+				87A5DD3927AE9DF500A00109 /* SettingRowView.swift */,
+				87A5DD3A27AE9DF500A00109 /* UserSettings.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
 		};
-		87A5DCAF27A9965B00A00109 /* Catalog */ = {
+		87A5DD3B27AE9DF500A00109 /* Catalog */ = {
 			isa = PBXGroup;
 			children = (
-				87A5DCB027A9965B00A00109 /* AppointmentRow.swift */,
-				87A5DCB127A9965B00A00109 /* CatalogScreen.swift */,
-				87A5DCB227A9965B00A00109 /* UnitRow.swift */,
+				87A5DD3C27AE9DF500A00109 /* AppointmentRow.swift */,
+				87A5DD3D27AE9DF500A00109 /* CatalogScreen.swift */,
+				87A5DD3E27AE9DF500A00109 /* UnitRow.swift */,
 			);
 			path = Catalog;
 			sourceTree = "<group>";
 		};
-		87A5DCB427A9965B00A00109 /* Caller */ = {
+		87A5DD4027AE9DF500A00109 /* Caller */ = {
 			isa = PBXGroup;
 			children = (
-				87A5DCCE27A9B30000A00109 /* CallRow.swift */,
-				87A5DCCF27A9B30000A00109 /* KeyPad.swift */,
-				87A5DCD027A9B30000A00109 /* KeyPadButton.swift */,
-				87A5DCD127A9B30000A00109 /* KeyPadRow.swift */,
-				87A5DCB527A9965B00A00109 /* CallerScreen.swift */,
+				87A5DD5B27AE9F4500A00109 /* CallRow.swift */,
+				87A5DD5C27AE9F4500A00109 /* KeyPad.swift */,
+				87A5DD5D27AE9F4500A00109 /* KeyPadButton.swift */,
+				87A5DD5E27AE9F4500A00109 /* KeyPadRow.swift */,
+				87A5DD4127AE9DF500A00109 /* CallerScreen.swift */,
 			);
 			path = Caller;
 			sourceTree = "<group>";
 		};
-		87A5DCB627A9965B00A00109 /* Call */ = {
+		87A5DD4227AE9DF500A00109 /* Call */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = Call;
 			sourceTree = "<group>";
 		};
-		87A5DCB727A9965B00A00109 /* Profile */ = {
+		87A5DD4327AE9DF500A00109 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
-				87A5DCB827A9965B00A00109 /* GrowingButton.swift */,
-				87A5DCB927A9965B00A00109 /* ProfileScreen.swift */,
-				87A5DCBA27A9965B00A00109 /* ProfileView.swift */,
-				87A5DCBB27A9965B00A00109 /* NewAccountView.swift */,
+				87A5DD4427AE9DF500A00109 /* GrowingButton.swift */,
+				87A5DD4527AE9DF500A00109 /* ProfileScreen.swift */,
+				87A5DD4627AE9DF500A00109 /* ProfileView.swift */,
+				87A5DD4727AE9DF500A00109 /* NewAccountView.swift */,
 			);
 			path = Profile;
+			sourceTree = "<group>";
+		};
+		87A5DD4827AE9DF500A00109 /* VM */ = {
+			isa = PBXGroup;
+			children = (
+				87A5DD4927AE9DF500A00109 /* CallVM.swift */,
+				87A5DD4A27AE9DF500A00109 /* CatalogVM.swift */,
+				87A5DD4B27AE9DF500A00109 /* ProfileVM.swift */,
+			);
+			path = VM;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -309,27 +307,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87A5DD5127AE9DF500A00109 /* UnitRow.swift in Sources */,
+				87A5DD5627AE9DF500A00109 /* ProfileView.swift in Sources */,
+				87A5DD5827AE9DF500A00109 /* CallVM.swift in Sources */,
+				87A5DD4D27AE9DF500A00109 /* SettingRowView.swift in Sources */,
+				87A5DD5F27AE9F4500A00109 /* CallRow.swift in Sources */,
 				87A5DCDA27AD80CA00A00109 /* Reachabilty.swift in Sources */,
-				87A5DCC627A9965C00A00109 /* CallerScreen.swift in Sources */,
-				87A5DCBE27A9965C00A00109 /* ProfileVM.swift in Sources */,
-				87A5DCC327A9965C00A00109 /* CatalogScreen.swift in Sources */,
-				87A5DCBD27A9965C00A00109 /* CatalogVM.swift in Sources */,
-				87A5DCD227A9B30000A00109 /* CallRow.swift in Sources */,
-				87A5DCC827A9965C00A00109 /* ProfileScreen.swift in Sources */,
-				87A5DCC227A9965C00A00109 /* AppointmentRow.swift in Sources */,
-				87A5DCC727A9965C00A00109 /* GrowingButton.swift in Sources */,
-				87A5DCCA27A9965C00A00109 /* NewAccountView.swift in Sources */,
-				87A5DCC027A9965C00A00109 /* SettingRowView.swift in Sources */,
-				87A5DCD527A9B30000A00109 /* KeyPadRow.swift in Sources */,
-				87A5DCC927A9965C00A00109 /* ProfileView.swift in Sources */,
-				87A5DCD427A9B30000A00109 /* KeyPadButton.swift in Sources */,
-				87A5DCC527A9965C00A00109 /* MainRouter.swift in Sources */,
-				87A5DCD327A9B30000A00109 /* KeyPad.swift in Sources */,
+				87A5DD4F27AE9DF500A00109 /* AppointmentRow.swift in Sources */,
+				87A5DD4C27AE9DF500A00109 /* SettingsScreen.swift in Sources */,
+				87A5DD5027AE9DF500A00109 /* CatalogScreen.swift in Sources */,
+				87A5DD5927AE9DF500A00109 /* CatalogVM.swift in Sources */,
+				87A5DD6227AE9F4500A00109 /* KeyPadRow.swift in Sources */,
+				87A5DD4E27AE9DF500A00109 /* UserSettings.swift in Sources */,
+				87A5DD6127AE9F4500A00109 /* KeyPadButton.swift in Sources */,
+				87A5DD5527AE9DF500A00109 /* ProfileScreen.swift in Sources */,
+				87A5DD6027AE9F4500A00109 /* KeyPad.swift in Sources */,
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
-				87A5DCC127A9965C00A00109 /* UserSettings.swift in Sources */,
-				87A5DCBF27A9965C00A00109 /* SettingsScreen.swift in Sources */,
-				87A5DCC427A9965C00A00109 /* UnitRow.swift in Sources */,
-				87A5DCBC27A9965C00A00109 /* CallVM.swift in Sources */,
+				87A5DD5327AE9DF500A00109 /* CallerScreen.swift in Sources */,
+				87A5DD5727AE9DF500A00109 /* NewAccountView.swift in Sources */,
+				87A5DD5227AE9DF500A00109 /* MainRouter.swift in Sources */,
+				87A5DD5427AE9DF500A00109 /* GrowingButton.swift in Sources */,
+				87A5DD5A27AE9DF500A00109 /* ProfileVM.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
