@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7555FF7A242A565900829871"
                BuildableName = "iosVoip.app"
-               BlueprintName = "iosVoip"
+               BlueprintName = "VoIP"
                ReferencedContainer = "container:iosVoip.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,7 +46,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7555FF7A242A565900829871"
             BuildableName = "iosVoip.app"
-            BlueprintName = "iosVoip"
+            BlueprintName = "VoIP"
             ReferencedContainer = "container:iosVoip.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -70,7 +70,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7555FF7A242A565900829871"
             BuildableName = "iosVoip.app"
-            BlueprintName = "iosVoip"
+            BlueprintName = "VoIP"
             ReferencedContainer = "container:iosVoip.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
