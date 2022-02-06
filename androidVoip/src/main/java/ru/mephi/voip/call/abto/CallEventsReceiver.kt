@@ -15,11 +15,10 @@ import android.os.RemoteException
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import org.abtollc.sdk.AbtoPhone
-import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.voip.R
-import ru.mephi.voip.call.ui.CallActivity
+import ru.mephi.voip.ui.call.CallActivity
 import timber.log.Timber
 
 class CallEventsReceiver : BroadcastReceiver(), KoinComponent {

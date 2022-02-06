@@ -45,11 +45,6 @@ fun Fragment.toast(message: CharSequence?) =
 fun Context.launchMailClientIntent(email: String) {
     val emailIntent = Intent(Intent.ACTION_SEND)
     emailIntent.data = Uri.parse("mailto:$email")
-//    emailIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//    emailIntent.type = "vnd.android.cursor.item/email"
-//    emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
-//    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Тема")
-//    emailIntent.putExtra(Intent.EXTRA_TEXT, "Сообщение")
     startActivity(Intent.createChooser(emailIntent, "Отправить сообщение по почте через..."))
 }
 

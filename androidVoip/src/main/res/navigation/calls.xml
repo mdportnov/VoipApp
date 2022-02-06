@@ -6,7 +6,7 @@
     app:startDestination="@id/navigation_calls">
     <fragment
         android:id="@+id/navigation_calls"
-        android:name="ru.mephi.voip.ui.calls.CallerFragment"
+        android:name="ru.mephi.voip.ui.caller.CallerFragment"
         android:label="@string/title_calls"
         tools:layout="@layout/fragment_calls">
         <argument

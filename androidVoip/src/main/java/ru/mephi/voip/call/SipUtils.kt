@@ -1,11 +1,11 @@
-package ru.mephi.voip.call.utils
+package ru.mephi.voip.call
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import org.abtollc.sdk.AbtoPhone
 import ru.mephi.shared.data.model.Account
-import ru.mephi.voip.data.encryption.EncryptUtils
+import ru.mephi.voip.ui.utils.EncryptUtils
 
 fun parseRemoteContact(remoteContact: String): Pair<String, String> { // return Name and Number
     val name = remoteContact.substringAfter("\"").substringBefore("\"")

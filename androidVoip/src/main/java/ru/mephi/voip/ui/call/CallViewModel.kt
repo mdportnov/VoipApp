@@ -1,4 +1,4 @@
-package ru.mephi.voip.call.ui
+package ru.mephi.voip.ui.call
 
 import android.app.Application
 import android.os.Handler

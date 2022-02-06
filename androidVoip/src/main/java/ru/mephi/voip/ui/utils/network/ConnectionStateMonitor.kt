@@ -1,4 +1,4 @@
-package ru.mephi.voip.data.network
+package ru.mephi.voip.ui.utils.network
 
 import android.content.Context
 import android.net.ConnectivityManager

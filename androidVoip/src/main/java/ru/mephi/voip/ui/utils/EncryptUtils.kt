@@ -1,4 +1,4 @@
-package ru.mephi.voip.data.encryption
+package ru.mephi.voip.ui.utils
 
 import com.github.leonardoxh.keystore.CipherStorage
 import com.github.leonardoxh.keystore.CipherStorageFactory

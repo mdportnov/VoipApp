@@ -12,10 +12,10 @@ import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.call.ui.AbtoViewModel
-import ru.mephi.voip.call.utils.getAccountsList
-import ru.mephi.voip.call.utils.getActiveAccount
-import ru.mephi.voip.call.utils.saveAccounts
+import ru.mephi.voip.ui.call.AbtoViewModel
+import ru.mephi.voip.call.getAccountsList
+import ru.mephi.voip.call.getActiveAccount
+import ru.mephi.voip.call.saveAccounts
 import ru.mephi.voip.ui.SharedViewModel
 import ru.mephi.voip.ui.utils.getCurrentUserNumber
 

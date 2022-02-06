@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.abtollc.sdk.*
 import org.abtollc.utils.codec.Codec
@@ -21,7 +20,6 @@ import org.koin.android.ext.android.inject
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.call.utils.getActiveAccount
 import ru.mephi.voip.ui.MainActivity
 import ru.mephi.voip.ui.eventbus.Event
 import timber.log.Timber
@@ -42,6 +40,7 @@ class SipBackgroundService : Service(), OnInitializeListener {
     }
 
     override fun onBind(intent: Intent): IBinder {
+        Timber.d("onBind")
 //        if (!sp.getBoolean(getString(R.string.background_work_settings), false)) {
         if (sp.getBoolean(getString(R.string.sp_sip_enabled), false)) {
             phone = (application as AbtoApplication).abtoPhone
@@ -54,6 +53,7 @@ class SipBackgroundService : Service(), OnInitializeListener {
 
     override fun onCreate() {
         super.onCreate()
+        Timber.d("onCreate")
         EventBus.getDefault().register(this)
     }
 
@@ -64,6 +64,7 @@ class SipBackgroundService : Service(), OnInitializeListener {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
+        Timber.d("onUnbind")
         // При полном закрытии приложения останавливаем Call-сервис
         if (!sp.getBoolean(getString(R.string.background_work_settings), false)) {
             // abtoPhone.stopForeground() // Убираем уведомления, но abto сервис ещё работает
@@ -74,6 +75,7 @@ class SipBackgroundService : Service(), OnInitializeListener {
 
     @Subscribe
     fun enableSip(messageEvent: Event.EnableAccount? = null) {
+        Timber.d("enableSip")
         phone = (application as AbtoApplication).abtoPhone
         phone?.let {
             initAccount(it)

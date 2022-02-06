@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.calls.adapter
+package ru.mephi.voip.ui.caller.adapter
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -16,7 +16,7 @@ import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.voip.R
-import ru.mephi.voip.call.ui.CallActivity
+import ru.mephi.voip.ui.call.CallActivity
 
 
 class SwipeToDeleteCallback(private var adapter: CallHistoryAdapter) :

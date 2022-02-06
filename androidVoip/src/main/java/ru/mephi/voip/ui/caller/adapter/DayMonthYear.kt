@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.calls.adapter
+package ru.mephi.voip.ui.caller.adapter
 
 import java.time.Month
 

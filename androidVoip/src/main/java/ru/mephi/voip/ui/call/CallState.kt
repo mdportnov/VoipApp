@@ -1,4 +1,4 @@
-package ru.mephi.voip.call.ui
+package ru.mephi.voip.ui.call
 
 enum class CallButtonsState {
     OUTGOING_CALL, INCOMING_CALL, CALL_PROCESS, CALL_ENDED

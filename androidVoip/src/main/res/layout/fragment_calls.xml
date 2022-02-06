@@ -44,7 +44,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintWidth_percent=".5">
 
-                <ru.mephi.voip.ui.calls.numpad.NumPad
+                <ru.mephi.voip.ui.caller.numpad.NumPad
                     android:id="@+id/num_pad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

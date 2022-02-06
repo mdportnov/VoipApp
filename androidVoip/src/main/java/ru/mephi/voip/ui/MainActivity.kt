@@ -19,7 +19,7 @@ import org.koin.core.context.unloadKoinModules
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
 import ru.mephi.voip.call.SipBackgroundService
-import ru.mephi.voip.data.network.NetworkSensingBaseActivity
+import ru.mephi.voip.ui.utils.network.NetworkSensingBaseActivity
 import ru.mephi.voip.databinding.ActivityMainBinding
 import ru.mephi.voip.di.viewModels
 import ru.mephi.voip.ui.utils.ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE

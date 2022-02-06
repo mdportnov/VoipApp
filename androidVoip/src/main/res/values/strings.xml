@@ -1,5 +1,6 @@
 <resources>
     <string name="title_calls">Звонки</string>
+    <string name="title_settings">Настройки</string>
     <string name="title_contacts">Каталог</string>
     <string name="title_profile">Профиль</string>
     <string name="prompt_email">Логин</string>

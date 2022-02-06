@@ -1,4 +1,4 @@
-package ru.mephi.voip.call.ui
+package ru.mephi.voip.ui.call
 
 import android.content.Context
 import android.content.Intent
@@ -48,7 +48,6 @@ import coil.transform.BlurTransformation
 import coil.transform.RoundedCornersTransformation
 import coil.util.CoilUtils
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import org.abtollc.sdk.*
@@ -59,7 +58,7 @@ import org.koin.android.ext.android.inject
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
-import ru.mephi.voip.call.utils.parseRemoteContact
+import ru.mephi.voip.call.parseRemoteContact
 import ru.mephi.voip.ui.utils.toast
 import timber.log.Timber
 
@@ -519,7 +518,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
                             .clickable { },
                         colors = ButtonDefaults.buttonColors(
                             colorResource(
-                                id = if (holdState == ru.mephi.voip.call.ui.HoldState.LOCAL_HOLD)
+                                id = if (holdState == ru.mephi.voip.ui.call.HoldState.LOCAL_HOLD)
                                     R.color.colorAccent
                                 else R.color.colorGray
                             )
@@ -569,7 +568,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
                             .clickable { },
                         colors = ButtonDefaults.buttonColors(
                             colorResource(
-                                id = if (holdState == ru.mephi.voip.call.ui.HoldState.LOCAL_HOLD)
+                                id = if (holdState == ru.mephi.voip.ui.call.HoldState.LOCAL_HOLD)
                                     R.color.colorAccent
                                 else R.color.colorGray
                             )
@@ -669,10 +668,10 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 
     override fun onCallHeld(callId: Int, state: HoldState) {
         when (state) {
-            LOCAL_HOLD -> viewModel.changeHoldState(ru.mephi.voip.call.ui.HoldState.LOCAL_HOLD)
-            REMOTE_HOLD -> viewModel.changeHoldState(ru.mephi.voip.call.ui.HoldState.REMOTE_HOLD)
-            ACTIVE -> viewModel.changeHoldState(ru.mephi.voip.call.ui.HoldState.ACTIVE)
-            ERROR -> viewModel.changeHoldState(ru.mephi.voip.call.ui.HoldState.ERROR)
+            LOCAL_HOLD -> viewModel.changeHoldState(ru.mephi.voip.ui.call.HoldState.LOCAL_HOLD)
+            REMOTE_HOLD -> viewModel.changeHoldState(ru.mephi.voip.ui.call.HoldState.REMOTE_HOLD)
+            ACTIVE -> viewModel.changeHoldState(ru.mephi.voip.ui.call.HoldState.ACTIVE)
+            ERROR -> viewModel.changeHoldState(ru.mephi.voip.ui.call.HoldState.ERROR)
         }
     }
 

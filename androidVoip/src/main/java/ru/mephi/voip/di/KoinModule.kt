@@ -7,13 +7,11 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import ru.mephi.shared.appContext
-import ru.mephi.shared.data.database.SearchDB
-import ru.mephi.shared.data.network.ApiHelper
 import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.call.MySipService
 import ru.mephi.voip.call.abto.CallEventsReceiver
-import ru.mephi.voip.call.ui.CallViewModel
+import ru.mephi.voip.ui.call.CallViewModel
 import ru.mephi.voip.ui.SharedViewModel
 import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.profile.ProfileViewModel

@@ -1,9 +1,9 @@
-package ru.mephi.voip.ui.calls.numpad
+package ru.mephi.voip.ui.caller.numpad
 
 import android.view.View
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.calls.numpad.NumPadLogic.returnList
-import ru.mephi.voip.ui.calls.numpad.NumPadLogic.returnNum
+import ru.mephi.voip.ui.caller.numpad.NumPadLogic.returnList
+import ru.mephi.voip.ui.caller.numpad.NumPadLogic.returnNum
 
 interface NumPadClickListener {
     fun onNumClicked(nums: StringBuilder, view: View)

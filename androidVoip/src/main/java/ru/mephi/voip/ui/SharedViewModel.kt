@@ -21,8 +21,8 @@ import ru.mephi.shared.data.repository.CatalogRepository
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.call.SipBackgroundService
-import ru.mephi.voip.call.ui.AbtoViewModel
-import ru.mephi.voip.call.utils.getAccountsList
+import ru.mephi.voip.ui.call.AbtoViewModel
+import ru.mephi.voip.call.getAccountsList
 import ru.mephi.voip.ui.eventbus.Event
 import ru.mephi.voip.ui.utils.getCurrentUserNumber
 import timber.log.Timber

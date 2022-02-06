@@ -51,7 +51,7 @@
         </activity>
 
         <activity
-            android:name=".call.ui.CallActivity"
+            android:name="ru.mephi.voip.ui.call.CallActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:keepScreenOn="true"

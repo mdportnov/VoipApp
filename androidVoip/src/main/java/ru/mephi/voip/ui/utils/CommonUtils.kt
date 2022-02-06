@@ -42,13 +42,3 @@ fun isOnline(context: Context): Boolean {
     }
     return false
 }
-
-fun Context.vibrate(duration: Long) {
-    val vib = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        vib.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
-    } else {
-        @Suppress("DEPRECATION")
-        vib.vibrate(duration)
-    }
-}

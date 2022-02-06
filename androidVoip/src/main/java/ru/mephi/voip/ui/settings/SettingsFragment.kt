@@ -5,6 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -30,6 +37,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val context = preferenceManager.context
         val screen = preferenceManager.createPreferenceScreen(context)
 
+//        layoutInflater.inflate(R.layout.toolbar_settings, activity?.findViewById(android.R.id.content) as ViewGroup?)
+//        val toolbar = activity?.findViewById(R.id.toolbar) as Toolbar
+////        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+//
+//        val navController = findNavController()
+//        val appBarConfig = AppBarConfiguration(navController.graph)
+//        val navHostFragment = NavHostFragment.findNavController(this)
+//        NavigationUI.setupWithNavController(toolbar, navHostFragment, appBarConfig)
+
         val backgroundWorkPreference = SwitchPreferenceCompat(context).apply {
             key = getString(R.string.background_work_settings)
             title = "Работать в фоновом режиме"
@@ -45,18 +61,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
             title = "Удалить кэш каталога"
         }
 
-//        val accountsCategory = PreferenceCategory(context).apply {
-//            key = "accounts"
-//            title = "SIP Аккаунты"
-//        }
-
-        val settingsCategory = PreferenceCategory(context).apply {
-            key = "settings"
-            title = "Настройки"
+        val voipSettings = PreferenceCategory(context).apply {
+            key = "voip"
+            title = "VoIP"
         }
 
-//        screen.addPreference(accountsCategory)
-        screen.addPreference(settingsCategory)
+        val dataSettings = PreferenceCategory(context).apply {
+            key = "data"
+            title = "Данные"
+        }
+
+        screen.addPreference(voipSettings)
+        screen.addPreference(dataSettings)
 
         deleteHistoryPreference.setOnPreferenceClickListener {
             catalogRepository.deleteAllSearchRecords()
@@ -127,10 +143,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         aboutCategory.addPreference(versionPreference)
         aboutCategory.addPreference(developedByPreference)
 
-        settingsCategory.addPreference(backgroundWorkPreference)
-        settingsCategory.addPreference(callScreenPreference)
-        settingsCategory.addPreference(deleteHistoryPreference)
-        settingsCategory.addPreference(deleteCatalogCachePreference)
+        voipSettings.addPreference(backgroundWorkPreference)
+        voipSettings.addPreference(callScreenPreference)
+        dataSettings.addPreference(deleteHistoryPreference)
+        dataSettings.addPreference(deleteCatalogCachePreference)
         preferenceScreen = screen
     }
 }

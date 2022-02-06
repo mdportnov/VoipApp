@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.calls.adapter
+package ru.mephi.voip.ui.caller.adapter
 
 import androidx.recyclerview.widget.DiffUtil
 import ru.mephi.shared.data.model.CallRecord

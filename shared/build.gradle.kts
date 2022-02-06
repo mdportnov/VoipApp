@@ -77,6 +77,7 @@ sqldelight {
 
 android {
     compileSdkVersion(32)
+    buildToolsVersion("30.0.3")
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdkVersion(21)

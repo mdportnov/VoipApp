@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.calls
+package ru.mephi.voip.ui.caller
 
 import android.Manifest
 import android.animation.ObjectAnimator
@@ -32,25 +32,23 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.call.ui.CallActivity
+import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.databinding.FragmentCallsBinding
 import ru.mephi.voip.databinding.ToolbarCallerBinding
 import ru.mephi.voip.ui.SharedViewModel
-import ru.mephi.voip.ui.calls.adapter.CallHistoryAdapter
-import ru.mephi.voip.ui.calls.adapter.SwipeToDeleteCallback
-import ru.mephi.voip.ui.utils.slideDown
-import ru.mephi.voip.ui.utils.slideUp
+import ru.mephi.voip.ui.caller.adapter.CallHistoryAdapter
+import ru.mephi.voip.ui.caller.adapter.SwipeToDeleteCallback
 import ru.mephi.voip.ui.utils.toast
 import timber.log.Timber
 import com.squareup.sqldelight.runtime.coroutines.asFlow
+import ru.mephi.voip.ui.utils.slideDown
+import ru.mephi.voip.ui.utils.slideUp
 
 
 class CallerFragment : Fragment() {
@@ -105,7 +103,6 @@ class CallerFragment : Fragment() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 sharedVM.status?.collect { status ->
-
                     Timber.d("Getting status from SharedViewModel ${status.status}")
 
                     toolbarBinding.statusText.text = status.status

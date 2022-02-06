@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.calls.adapter
+package ru.mephi.voip.ui.caller.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.call.ui.CallActivity
+import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.databinding.ItemCallRecordBinding
 import ru.mephi.voip.ui.MainActivity
 import ru.mephi.voip.ui.catalog.adapter.BaseViewHolder

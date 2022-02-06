@@ -60,7 +60,7 @@ import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.call.utils.getAccountsList
+import ru.mephi.voip.call.getAccountsList
 import ru.mephi.voip.ui.MainActivity
 import ru.mephi.voip.ui.SharedViewModel
 import ru.mephi.voip.ui.utils.*
