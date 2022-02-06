@@ -12,5 +12,4 @@ class CallViewModel : ObservableObject {
         self.api = api
         self.callerPhotoUrl = clientBuilder.PHOTO_REQUEST_URL_BY_PHONE + callerNumber
     }
-
 }

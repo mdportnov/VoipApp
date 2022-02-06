@@ -2,6 +2,7 @@ import SwiftUI
 import shared
 import Toaster
 
+
 struct CatalogScreen: View {
     @ObservedObject private(set) var viewModel: CatalogVM
     
@@ -9,6 +10,9 @@ struct CatalogScreen: View {
     
     @State private var searchType = SearchType.units
     @State private var searchTypeIsOn = true
+    
+    @EnvironmentObject private var viewRouter: ViewRouter
+    @EnvironmentObject private var state: AppState
     
     var body: some View {
         NavigationView {

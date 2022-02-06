@@ -9,6 +9,9 @@ struct AppointmentRow: View {
     
     @Environment(\.colorScheme) var colorScheme
     
+    @EnvironmentObject private var viewRouter: ViewRouter
+    @EnvironmentObject private var state: AppState
+    
     init(appointment: Appointment){
         self.appointment = appointment
         if(appointment.line == nil || appointment.line?.isEmpty == true){
@@ -50,13 +53,17 @@ struct AppointmentRow: View {
                     }
                     
                     HStack(alignment: .center){
-                        Button {
-                            // TODO
-                        } label: {
+                        Group{
                             Image(systemName: "phone").foregroundColor(.green)
+                            Text("SIP: ").bold().font(.system(size: fontSize))
+                            Text("\(appointment.lineShown ?? "")").font(.system(size: fontSize))
+                        }.onTapGesture {
+                            if let line = appointment.lineShown {
+                                viewRouter.open(.caller)
+                                state.inputLine = line
+                                state.isNumPadVisible = true
+                            }
                         }
-                        Text("SIP: ").bold().font(.system(size: fontSize))
-                        Text("\(appointment.lineShown ?? "")").font(.system(size: fontSize))
                         
                         Button {
                             withAnimation {
@@ -68,10 +75,10 @@ struct AppointmentRow: View {
                                 .animation(.spring(), value: infoIsVisible)
                         }
                         
-//                        Image(systemName: "info.circle").onTapGesture {
+                        //                        Image(systemName: "info.circle").onTapGesture {
                         
-//                            changeInfoIcon()
-//                        }.rotationEffect(.degrees(infoRotation)).foregroundColor(infoColor)
+                        //                            changeInfoIcon()
+                        //                        }.rotationEffect(.degrees(infoRotation)).foregroundColor(infoColor)
                     }
                 }
                 Spacer()

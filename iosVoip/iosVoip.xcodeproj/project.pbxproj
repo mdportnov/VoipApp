@@ -32,6 +32,7 @@
 		87A5DD6027AE9F4500A00109 /* KeyPad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD5C27AE9F4500A00109 /* KeyPad.swift */; };
 		87A5DD6127AE9F4500A00109 /* KeyPadButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD5D27AE9F4500A00109 /* KeyPadButton.swift */; };
 		87A5DD6227AE9F4500A00109 /* KeyPadRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD5E27AE9F4500A00109 /* KeyPadRow.swift */; };
+		87A5DD6427AF2A4800A00109 /* CallScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DD6327AF2A4800A00109 /* CallScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -73,6 +74,7 @@
 		87A5DD5C27AE9F4500A00109 /* KeyPad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPad.swift; sourceTree = "<group>"; };
 		87A5DD5D27AE9F4500A00109 /* KeyPadButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPadButton.swift; sourceTree = "<group>"; };
 		87A5DD5E27AE9F4500A00109 /* KeyPadRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPadRow.swift; sourceTree = "<group>"; };
+		87A5DD6327AF2A4800A00109 /* CallScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +184,7 @@
 		87A5DD4227AE9DF500A00109 /* Call */ = {
 			isa = PBXGroup;
 			children = (
+				87A5DD6327AF2A4800A00109 /* CallScreen.swift */,
 			);
 			path = Call;
 			sourceTree = "<group>";
@@ -312,6 +315,7 @@
 				87A5DD5827AE9DF500A00109 /* CallVM.swift in Sources */,
 				87A5DD4D27AE9DF500A00109 /* SettingRowView.swift in Sources */,
 				87A5DD5F27AE9F4500A00109 /* CallRow.swift in Sources */,
+				87A5DD6427AF2A4800A00109 /* CallScreen.swift in Sources */,
 				87A5DCDA27AD80CA00A00109 /* Reachabilty.swift in Sources */,
 				87A5DD4F27AE9DF500A00109 /* AppointmentRow.swift in Sources */,
 				87A5DD4C27AE9DF500A00109 /* SettingsScreen.swift in Sources */,

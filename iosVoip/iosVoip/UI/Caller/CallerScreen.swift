@@ -1,15 +1,14 @@
 import SwiftUI
 import shared
 import Combine
+import Toaster
 
 extension CallerViewModel : ObservableObject{}
 
 struct CallerScreen: View {
     @ObservedObject var viewModel: CallerViewModel
     
-    @State private var isNumPadVisible = false
-    
-    @State private var inputLine = ""
+    @EnvironmentObject private var state: AppState
     
     @Environment(\.colorScheme) var colorScheme
     
@@ -48,22 +47,22 @@ struct CallerScreen: View {
                 VStack{
                     Color.clear
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.accentColor))
-                        .overlay(Text(inputLine).background(colorScheme == .dark ? .black : .white))
+                        .overlay(Text(state.inputLine).background(colorScheme == .dark ? .black : .white))
                         .padding()
                         .background(colorScheme == .dark ? .black : .white)
                         .cornerRadius(30)
                         .shadow(color: .black.opacity(0.3), radius: 2)
                         .frame(height: 80)
-                    KeyPad(string: $inputLine)
+                    KeyPad(string: $state.inputLine)
                 }
-                .offset(y: self.isNumPadVisible ? 0 : UIScreen.main.bounds.height)
+                .offset(y: state.isNumPadVisible ? 0 : UIScreen.main.bounds.height)
                 .animation(.interactiveSpring(response: 0.3, dampingFraction: 0.86,
-                                              blendDuration: 0.25), value: isNumPadVisible)
+                                              blendDuration: 0.25), value: state.isNumPadVisible )
                 
                 HStack{
                     Spacer()
                     HStack{
-                        if isNumPadVisible {
+                        if state.isNumPadVisible  {
                             Button(action: {
                                 changeNumPadState()
                             }){
@@ -80,13 +79,13 @@ struct CallerScreen: View {
                         }
                         
                         Button(action: {
-                            if !isNumPadVisible {
+                            if !state.isNumPadVisible  {
                                 changeNumPadState()
                             } else {
                                 tryToCall(sipName: nil)
                             }
                         }){
-                            Image(systemName: self.isNumPadVisible == true ? "phone"  : "teletype.answer").resizable()
+                            Image(systemName: state.isNumPadVisible  == true ? "phone"  : "teletype.answer").resizable()
                                 .padding(20)
                                 .foregroundColor(.white)
                         }.frame(width: 60, height: 60)
@@ -102,24 +101,27 @@ struct CallerScreen: View {
     }
     
     func changeNumPadState(){
-        isNumPadVisible = !isNumPadVisible
+        state.isNumPadVisible.toggle()
     }
     
     func tryToCall(sipName: String?){
-        if(inputLine.count > 3){
-            viewModel.addRecord(sipNumber: inputLine, sipName: sipName, status: CallStatus.outcoming)
+        if(state.inputLine.count > 3){
+            viewModel.addRecord(sipNumber: state.inputLine, sipName: sipName, status: CallStatus.outcoming)
             updateCalls()
-            inputLine = ""
+            state.inputLine = ""
+            changeNumPadState()
         }
-        // else TODO
+        else{
+            Toast(text: "Введите номер длиннее", duration: Delay.long).show()
+        }
+        
     }
 }
 
 extension CallRecord : Identifiable{}
 
-//struct CallerScreen_Previews: PreviewProvider {
-//    let vm = DependenciesIosKt.createCallerVM()
-//    static var previews: some View {
-//        CallerScreen(viewModel: vm)
-//    }
-//}
+struct CallerScreen_Previews: PreviewProvider {
+    static var previews: some View {
+        CallerScreen(viewModel: .init())
+    }
+}

@@ -53,7 +53,9 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
             repository.getUnitByCodeStr(codeStr)
                 .onEach { resource ->
                     when (resource) {
+                        is Resource.Loading -> showProgressBar()
                         is Resource.Success -> {
+                            dismissProgressBar()
                             resource.data?.let { units ->
                                 units[0].scrollPosition = currScrollPos
                                 pushPageToCatalog(units[0])
@@ -68,7 +70,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                         is Resource.Error.NetworkError -> {
                             showSnackBar(appContext.getString(R.string.connection_lost))
                         }
-                        else -> {}
+                        else -> dismissProgressBar()
                     }
                 }.launchIn(this)
         }
@@ -79,7 +81,9 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
             if (type == SearchType.USERS)
                 repository.getUsersByName(query).onEach { resource ->
                     when (resource) {
+                        is Resource.Loading -> showProgressBar()
                         is Resource.Success -> {
+                            dismissProgressBar()
                             resource.data?.let { newPage ->
                                 pushPageToCatalog(newPage)
                                 scrollCatalogToStart()
@@ -93,12 +97,13 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                                 showSnackBar(it)
                             }
                         }
-                        else -> {}
+                        else -> dismissProgressBar()
                     }
                 }.launchIn(this)
             else
                 repository.getUnitsByName(query).onEach { resource ->
                     when (resource) {
+                        is Resource.Loading -> showProgressBar()
                         is Resource.Success -> {
                             resource.data?.let { newPage ->
                                 pushPageToCatalog(newPage)
@@ -133,6 +138,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     val eventsFlow = eventChannel.receiveAsFlow()
 
     private fun showSnackBar(text: String) {
+        dismissProgressBar()
         launch(ioDispatcher) {
             eventChannel.send(Event.ShowSnackBar(text))
         }

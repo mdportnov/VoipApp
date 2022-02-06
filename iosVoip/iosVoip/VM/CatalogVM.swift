@@ -50,6 +50,8 @@ class CatalogVM: ObservableObject {
     func performSearch(searchQuery: String, searchType: SearchType){
         self.loadingResource = ResourceLoading(data: nil)
         
+        let searchQuery = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         if searchType == SearchType.units{
             api.getUnitsByName(filterLike: searchQuery) { resource, error in
                 switch resource{

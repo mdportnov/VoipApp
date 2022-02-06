@@ -153,16 +153,6 @@ class CatalogFragment : Fragment(),
 
     //https://medium.com/mindorks/create-a-network-sensing-activity-in-android-614a1fa62a22
     private fun initViews() {
-//        (activity as MainActivity).binding.bottomNav.setOnItemSelectedListener { item: MenuItem ->
-//            when (item.itemId) {
-//                R.id.catalog -> if (viewModel.catalogStack.size > 1) viewModel.goToStartPage()
-//                R.id.calls -> findNavController().navigate(R.id.catalog_to_caller)
-//                R.id.profile -> findNavController().navigate(R.id.catalog_to_profile)
-//            }
-//
-//            true
-//        }
-
         toolbarBinding.switchSearchType.setCheckedChangeListener { current ->
             if (current == IconSwitch.Checked.LEFT) {
                 searchType = SearchType.USERS

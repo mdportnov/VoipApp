@@ -7,9 +7,6 @@ struct iOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     let api = KtorApiService()
-//    let searchDao = SearchDB()
-//    let catalogDao = CatalogDao()
-//    let catalogRepository = CatalogRepository()
     
     var body: some Scene {
         WindowGroup {
