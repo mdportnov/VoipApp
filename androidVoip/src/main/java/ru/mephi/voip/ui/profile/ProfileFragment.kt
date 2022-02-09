@@ -56,6 +56,7 @@ import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.sip.AccountStatus
@@ -68,7 +69,7 @@ import timber.log.Timber
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
 class ProfileFragment : Fragment() {
-    private val viewModel: ProfileViewModel by sharedViewModel()
+    private val viewModel: ProfileViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -230,7 +231,8 @@ class ProfileFragment : Fragment() {
             OutlinedButton(onClick = {
                 if (textLogin.toIntOrNull() == null || textPassword.isEmpty()) {
                     toast("Введены некоректные данные")
-                } else if (viewModel.accountRepository.getAccountsList().map { it.login }.contains(textLogin)) {
+                } else if (viewModel.accountRepository.getAccountsList().map { it.login }
+                        .contains(textLogin)) {
                     toast("Такой аккаунт уже существует")
                 } else {
                     viewModel.addNewAccount()
@@ -365,7 +367,8 @@ class ProfileFragment : Fragment() {
         val accountStatus by accountStatusLifeCycleAware.collectAsState(initial = AccountStatus.CHANGING)
         val isSipEnabled by viewModel.accountRepository.isSipEnabled.collectAsState()
 
-        val name = viewModel.accountRepository.displayName.collectAsState(NameItem("", "", "", "", "", ""))
+        val name =
+            viewModel.accountRepository.displayName.collectAsState(NameItem("", "", "", "", "", ""))
 
         val switchColor =
             colorResource(id = if (isSipEnabled) R.color.colorAccent else R.color.colorGreen)
@@ -469,9 +472,10 @@ class ProfileFragment : Fragment() {
                                 ) {
                                     Icon(
                                         when (accountStatus) {
-                                            AccountStatus.REGISTERED, AccountStatus.NO_CONNECTION,
-                                            AccountStatus.CHANGING, AccountStatus.LOADING -> Icons.Filled.CheckCircle
-                                            AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED ->
+                                            AccountStatus.REGISTERED, AccountStatus.NO_CONNECTION ->
+                                                Icons.Filled.CheckCircle
+                                            AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED,
+                                            AccountStatus.CHANGING, AccountStatus.LOADING ->
                                                 Icons.Filled.Refresh
                                         }, "Статус",
                                         tint = when (accountStatus) {

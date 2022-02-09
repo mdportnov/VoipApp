@@ -51,7 +51,8 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
     private val sp: SharedPreferences by inject()
 
     companion object {
-        lateinit var phone: AbtoPhone
+        var phone: AbtoPhone = (appContext as AbtoApplication).abtoPhone
+
         private const val REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124
         const val CHANNEL_ID: String = "CHANNEL"
     }
@@ -129,7 +130,6 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
 
     @Subscribe
     fun enableSip(messageEvent: Event.EnableAccount? = null) {
-        phone = (application as AbtoApplication).abtoPhone
         initAccount(phone)
         initPhone(phone)
     }
@@ -139,7 +139,6 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
         phone.unregister()
         phone.destroy()
     }
-
 
     override fun onStop() {
         super.onStop()

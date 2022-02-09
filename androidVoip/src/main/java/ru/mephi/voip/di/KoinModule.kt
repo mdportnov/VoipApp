@@ -10,6 +10,7 @@ import ru.mephi.shared.appContext
 import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.voip.call.abto.CallEventsReceiver
 import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.call.CallViewModel
 import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.profile.ProfileViewModel
@@ -40,4 +41,6 @@ val viewModels = module {
     single {
         AccountStatusRepository(androidApplication(), get(), get())
     }
+
+    single { CatalogRepository() }
 }

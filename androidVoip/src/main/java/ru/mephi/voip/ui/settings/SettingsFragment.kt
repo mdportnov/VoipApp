@@ -12,7 +12,7 @@ import androidx.preference.SwitchPreferenceCompat
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent
 import ru.mephi.shared.data.database.CatalogDao
-import ru.mephi.shared.data.repository.CatalogRepository
+import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
 import ru.mephi.voip.utils.ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE

@@ -7,7 +7,6 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +26,6 @@ import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.network.Resource
-import ru.mephi.shared.data.repository.CatalogRepository
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.call.*

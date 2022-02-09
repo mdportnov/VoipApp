@@ -18,7 +18,7 @@ import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repository.CallsRepository
-import ru.mephi.shared.data.repository.CatalogRepository
+import ru.mephi.voip.data.CatalogRepository
 
 class CallViewModel(
     app: Application, private val catalogRepository: CatalogRepository,

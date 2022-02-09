@@ -14,12 +14,9 @@ import ru.mephi.shared.data.database.dto.AppointmentKodein
 import ru.mephi.shared.data.database.dto.UnitMKodeIn
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.network.ApiHelper
-import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.shared.data.repository.CallsRepository
-import ru.mephi.shared.data.repository.CatalogRepository
 import ru.mephi.shared.getApplicationFilesDirectoryPath
 import ru.mephi.shared.vm.CallerViewModel
-import kotlin.math.sin
 
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
     startKoin {
@@ -38,10 +35,6 @@ val dispatcherModule = module {
 }
 
 val repositoryModule = module {
-    fun provideCatalogRepository(): CatalogRepository {
-        return CatalogRepository()
-    }
-
     fun provideCallsRepository(dao: CallsDB, api: ApiHelper): CallsRepository {
         return CallsRepository(dao)
     }
@@ -59,6 +52,5 @@ val repositoryModule = module {
     single { ApiHelper() }
     single { provideCatalogDB() }
     single { CatalogDao() }
-    single { provideCatalogRepository() }
     single { provideCallsRepository(get(), get()) }
 }

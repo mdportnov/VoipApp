@@ -1,9 +1,10 @@
-package ru.mephi.shared.data.repository
+package ru.mephi.voip.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import ru.mephi.shared.appContext
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.database.SearchDB
 import ru.mephi.shared.data.database.dto.toKodeIn
@@ -11,6 +12,7 @@ import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.*
+import ru.mephi.voip.utils.isOnline
 
 class CatalogRepository : KoinComponent {
     private val api: ApiHelper by inject()
@@ -115,7 +117,6 @@ class CatalogRepository : KoinComponent {
         val units = catalogDao.getUnitByCodeStr(codeStr)
 
         emit(Resource.Loading(units))
-
         when (val resource = api.getUnitByCodeStr(codeStr)) {
             is Resource.Error.NetworkError<*> -> {
                 emit(Resource.Error.NetworkError(exception = NetworkException()))
@@ -124,19 +125,24 @@ class CatalogRepository : KoinComponent {
                 emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
             }
             is Resource.Error.UndefinedError<*> -> {
-                emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+                if (isOnline(appContext))
+                    emit(Resource.Error.ServerNotRespondError(exception = UndefinedErrorException()))
+                else
+                    emit(Resource.Error.NetworkError(exception = NetworkException()))
             }
             is Resource.Success<*> -> {
                 if (!(resource.data as List<UnitM>).isNullOrEmpty()) {
                     units?.forEach {
                         catalogDao.deleteByCodeStr(it.code_str)
                     }
-                    resource.data.forEach {
+                    resource.data!!.forEach {
                         catalogDao.add(it.toKodeIn)
                     }
                 }
             }
-            else -> {}
+            is Resource.Error.NotFoundError -> emit(Resource.Error.NotFoundError())
+            is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
+            is Resource.Loading -> emit(Resource.Loading())
         }
 
         val newUnits = catalogDao.getUnitByCodeStr(codeStr)

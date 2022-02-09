@@ -41,6 +41,7 @@
     <string name="wrong_query">Неправильный запрос</string>
     <string name="enter_longer_query">Введите более длинный запрос</string>
     <string name="connection_lost">Интернет-соединение отсутствует</string>
+    <string name="smth_wrong">Что-то пошло не так</string>
     <string name="init_code_str">01 000 00</string>
     <string name="mephi_number">+7 (495) 788 56 99</string>
     <string name="call">Call</string>

@@ -1,6 +1,9 @@
 package ru.mephi.shared.data.network
 
+import io.ktor.client.*
+import io.ktor.client.features.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.UnitM
 import kotlin.coroutines.cancellation.CancellationException
@@ -10,18 +13,24 @@ class KtorApiService : BaseApiService {
 
     override suspend fun getUnitByCodeStr(codeStr: String): Resource<List<UnitM>?> {
         try {
-            val units: List<UnitM> = httpClient.get {
-                url {
-                    path("get_units_mobile_catalog.json")
-                    parameter("filter_code_str", codeStr)
+            val units: List<UnitM> =
+                httpClient.get {
+                    url {
+                        path("get_units_mobile_catalog.json")
+                        parameter("filter_code_str", codeStr)
+                    }
                 }
-            } ?: return Resource.Error.NetworkError(exception = NetworkException())
-
             if (units.isEmpty())
                 return Resource.Error.EmptyError(exception = EmptyUnitException())
             return Resource.Success(data = units)
-        } catch (e: Throwable) {
-            return Resource.Error.NetworkError(exception = NetworkException())
+        } catch (exception: Throwable) {
+            return when (exception) {
+                is NetworkException -> Resource.Error.NetworkError(exception = exception)
+                is NotFoundException -> Resource.Error.NotFoundError(exception = exception)
+                is ForbiddenException -> Resource.Error.ServerNotRespondError(exception = exception)
+                is EmptyUnitException -> Resource.Error.EmptyError(exception = exception)
+                else -> Resource.Error.UndefinedError()
+            }
         }
     }
 
@@ -35,8 +44,14 @@ class KtorApiService : BaseApiService {
             } ?: return Resource.Error.NetworkError(exception = NotFoundException(filterLike))
 
             return Resource.Success(data = unitOfUsers)
-        } catch (e: Throwable) {
-            return Resource.Error.UndefinedError(exception = NetworkException())
+        } catch (exception: Throwable) {
+            return when (exception) {
+                is NetworkException -> Resource.Error.NetworkError(exception = exception)
+                is NotFoundException -> Resource.Error.NotFoundError(exception = exception)
+                is ForbiddenException -> Resource.Error.ServerNotRespondError(exception = exception)
+                is EmptyUnitException -> Resource.Error.EmptyError(exception = exception)
+                else -> Resource.Error.UndefinedError()
+            }
         }
     }
 
@@ -53,8 +68,14 @@ class KtorApiService : BaseApiService {
                 return Resource.Error.NotFoundError(exception = NotFoundException(filterLike))
 
             return Resource.Success(data = units)
-        } catch (e: Throwable) {
-            return Resource.Error.UndefinedError(exception = NetworkException())
+        } catch (exception: Throwable) {
+            return when (exception) {
+                is NetworkException -> Resource.Error.NetworkError(exception = exception)
+                is NotFoundException -> Resource.Error.NotFoundError(exception = exception)
+                is ForbiddenException -> Resource.Error.ServerNotRespondError(exception = exception)
+                is EmptyUnitException -> Resource.Error.EmptyError(exception = exception)
+                else -> Resource.Error.UndefinedError()
+            }
         }
     }
 
@@ -70,8 +91,14 @@ class KtorApiService : BaseApiService {
             if (nameItems.isNullOrEmpty())
                 return Resource.Error.NotFoundError(exception = NotFoundException(query = phone))
             return Resource.Success(data = nameItems)
-        } catch (e: Throwable) {
-            return Resource.Error.UndefinedError(exception = NetworkException())
+        } catch (exception: Throwable) {
+            return when (exception) {
+                is NetworkException -> Resource.Error.NetworkError(exception = exception)
+                is NotFoundException -> Resource.Error.NotFoundError(exception = exception)
+                is ForbiddenException -> Resource.Error.ServerNotRespondError(exception = exception)
+                is EmptyUnitException -> Resource.Error.EmptyError(exception = exception)
+                else -> Resource.Error.UndefinedError()
+            }
         }
     }
 }
@@ -84,6 +111,11 @@ class EmptyUnitException : Exception() {
 class NetworkException : Exception() {
     override val message: String
         get() = "Интернет-соединение отсутствует"
+}
+
+class ForbiddenException : Exception() {
+    override val message: String
+        get() = "Доступ к ресурсу запрещён"
 }
 
 class NotFoundException(private val query: String) : Exception() {

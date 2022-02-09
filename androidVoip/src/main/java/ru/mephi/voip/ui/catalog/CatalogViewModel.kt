@@ -1,6 +1,7 @@
 package ru.mephi.voip.ui.catalog
 
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -12,7 +13,7 @@ import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.Resource
-import ru.mephi.shared.data.repository.CatalogRepository
+import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.R
 
 class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecutor() {
@@ -48,8 +49,11 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
         breadcrumbLiveData.postValue(breadcrumbStack)
     }
 
+    private var jobGoNext: Job? = null
+
     fun goNext(codeStr: String, currScrollPos: Int = 0) {
-        launch(ioDispatcher) {
+        jobGoNext?.cancel()
+        jobGoNext = launch(ioDispatcher) {
             repository.getUnitByCodeStr(codeStr)
                 .onEach { resource ->
                     when (resource) {
@@ -69,6 +73,9 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                         }
                         is Resource.Error.NetworkError -> {
                             showSnackBar(appContext.getString(R.string.connection_lost))
+                        }
+                        is Resource.Error.ServerNotRespondError -> {
+                            showSnackBar(appContext.getString(R.string.smth_wrong))
                         }
                         else -> dismissProgressBar()
                     }

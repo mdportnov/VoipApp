@@ -14,6 +14,9 @@ sealed class Resource<T>(val data: T? = null, val message: String? = null) {
         class NotFoundError<T>(exception: Exception? = null, data: T? = null) :
             Error<T>(exception, data)
 
+        class ServerNotRespondError<T>(exception: Exception? = null, data: T? = null) :
+            Error<T>(exception, data)
+
         class UndefinedError<T>(exception: Exception? = null, data: T? = null) :
             Error<T>(exception, data)
     }

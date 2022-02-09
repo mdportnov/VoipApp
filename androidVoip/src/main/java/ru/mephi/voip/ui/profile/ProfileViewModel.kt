@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import org.koin.core.component.KoinComponent
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.network.KtorClientBuilder
-import ru.mephi.shared.data.repository.CatalogRepository
+import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.call.AbtoViewModel
 import ru.mephi.voip.data.AccountStatusRepository
 

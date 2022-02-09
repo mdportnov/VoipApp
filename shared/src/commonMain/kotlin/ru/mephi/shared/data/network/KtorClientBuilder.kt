@@ -34,8 +34,21 @@ object KtorClientBuilder {
             }
             HttpResponseValidator {
                 handleResponseException { exception ->
-                        if (exception !is ClientRequestException) return@handleResponseException
+                    if (exception !is ClientRequestException) {
+                        print("UndefinedErrorException from request: $exception")
+                        throw UndefinedErrorException()
+                    }
                     val exceptionResponse = exception.response
+                    println("handleResponseException: $exceptionResponse with status: ${exceptionResponse.status}")
+                    when (exceptionResponse.status) {
+                        HttpStatusCode.Forbidden ->
+                            throw ForbiddenException()
+                        HttpStatusCode.BadGateway, HttpStatusCode.InternalServerError,
+                        HttpStatusCode.NotImplemented, HttpStatusCode.ServiceUnavailable,
+                        HttpStatusCode.GatewayTimeout -> {
+                            throw UndefinedErrorException()
+                        }
+                    }
                     if (exceptionResponse.status != HttpStatusCode.OK)
                         throw NetworkException()
                 }
