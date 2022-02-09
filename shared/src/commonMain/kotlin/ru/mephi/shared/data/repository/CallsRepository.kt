@@ -29,7 +29,7 @@ class CallsRepository(
     }
 
     init {
-        logAllCalls()
+//        logAllCalls()
     }
 
     fun getAllCallRecords() = dao.getAllCallRecords()

@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.utils
+package ru.mephi.voip.utils
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator

@@ -1,23 +1,14 @@
-package ru.mephi.voip.ui.utils
+package ru.mephi.voip.utils
 
 import android.app.Activity
 import android.content.Context
-import android.content.Context.VIBRATOR_SERVICE
 import android.content.Intent
-import android.content.res.Resources
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.Uri
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
-import timber.log.Timber
 
 fun showSnackBar(rootView: View, text: String) {
     val snackBar = CustomSnackBar(rootView, text, Snackbar.LENGTH_SHORT)

@@ -9,6 +9,7 @@ import org.koin.core.component.inject
 import ru.mephi.shared.di.initKoin
 import ru.mephi.shared.di.repositoryModule
 import ru.mephi.voip.di.koinModule
+import ru.mephi.voip.di.viewModels
 
 open class AbtoApp : AbtoApplication(), KoinComponent {
     private val callEventsReceiver: CallEventsReceiver by inject()
@@ -19,7 +20,7 @@ open class AbtoApp : AbtoApplication(), KoinComponent {
 
         initKoin {
             androidContext(this@AbtoApp)
-            modules(koinModule)
+            modules(koinModule, viewModels)
         }
 
         registerReceiver(callEventsReceiver, IntentFilter(AbtoPhone.ACTION_ABTO_CALL_EVENT))

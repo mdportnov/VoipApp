@@ -1,11 +1,8 @@
-package ru.mephi.voip.ui.utils
+package ru.mephi.voip.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
 import org.abtollc.sdk.AbtoPhone
 import timber.log.Timber
 

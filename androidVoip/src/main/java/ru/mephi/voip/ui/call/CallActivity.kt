@@ -59,7 +59,7 @@ import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
 import ru.mephi.voip.call.parseRemoteContact
-import ru.mephi.voip.ui.utils.toast
+import ru.mephi.voip.utils.toast
 import timber.log.Timber
 
 

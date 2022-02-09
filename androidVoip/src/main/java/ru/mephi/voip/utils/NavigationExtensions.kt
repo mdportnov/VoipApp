@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.utils
+package ru.mephi.voip.utils
 
 import android.content.Intent
 import android.util.SparseArray

@@ -5,13 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -22,10 +15,10 @@ import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.repository.CatalogRepository
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.utils.ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
-import ru.mephi.voip.ui.utils.PACKAGE_NAME
-import ru.mephi.voip.ui.utils.launchMailClientIntent
-import ru.mephi.voip.ui.utils.toast
+import ru.mephi.voip.utils.ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
+import ru.mephi.voip.utils.PACKAGE_NAME
+import ru.mephi.voip.utils.launchMailClientIntent
+import ru.mephi.voip.utils.toast
 
 
 class SettingsFragment : PreferenceFragmentCompat() {

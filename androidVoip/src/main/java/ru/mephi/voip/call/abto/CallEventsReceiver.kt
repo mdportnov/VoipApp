@@ -85,7 +85,7 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent {
             channelCall = NotificationChannel(
                 CHANNEL_CALL_ID,
                 context.getString(R.string.app_name) + "Call",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_LOW
             )
             channelCall!!.description = context.getString(R.string.app_name)
             val notificationManager =
@@ -118,15 +118,14 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent {
             PendingIntent.FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
         )
 
-        // Style for popup notification
         val bigText = NotificationCompat.BigTextStyle()
         bigText.bigText(remoteContact)
         bigText.setBigContentTitle(title)
 
-        // Create notification
         val builder = NotificationCompat.Builder(context, CHANNEL_CALL_ID)
         builder.setSmallIcon(R.drawable.ic_baseline_dialer_sip_24)
-//            .setColor(-0xff0100)
+            .setColor(-0xff0100)
+            .setAutoCancel(true)
             .setContentTitle(title)
             .setContentIntent(notificationPendingIntent)
             .setContentText(remoteContact)

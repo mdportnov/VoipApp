@@ -41,10 +41,10 @@ import ru.mephi.voip.databinding.FragmentCatalogBinding
 import ru.mephi.voip.databinding.ToolbarCatalogBinding
 import ru.mephi.voip.ui.catalog.adapter.BreadcrumbsAdapter
 import ru.mephi.voip.ui.catalog.adapter.DataAdapter
-import ru.mephi.voip.ui.utils.hideKeyboard
-import ru.mephi.voip.ui.utils.isOnline
-import ru.mephi.voip.ui.utils.showSnackBar
-import ru.mephi.voip.ui.utils.toast
+import ru.mephi.voip.utils.hideKeyboard
+import ru.mephi.voip.utils.isOnline
+import ru.mephi.voip.utils.showSnackBar
+import ru.mephi.voip.utils.toast
 
 fun isLetters(string: String): Boolean {
     return string.matches("^[a-zA-Zа-яА-Я ]*$".toRegex())
@@ -57,7 +57,6 @@ class CatalogFragment : Fragment(),
     private val viewModel: CatalogViewModel by inject()
     private lateinit var binding: FragmentCatalogBinding
     private lateinit var toolbarBinding: ToolbarCatalogBinding
-
     private var searchType = SearchType.USERS
 
     override fun onCreateView(

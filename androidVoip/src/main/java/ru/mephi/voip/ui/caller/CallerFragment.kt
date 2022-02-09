@@ -4,9 +4,9 @@ import android.Manifest
 import android.animation.ObjectAnimator
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.BlendMode
-import android.graphics.BlendModeColorFilter
+import android.graphics.Color
 import android.graphics.Insets
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -17,8 +17,7 @@ import android.view.WindowInsets
 import android.view.animation.OvershootInterpolator
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.checkSelfPermission
-import androidx.core.content.ContextCompat.getColor
+import androidx.core.content.ContextCompat.*
 import androidx.core.view.marginRight
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -34,26 +33,29 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.databinding.FragmentCallsBinding
 import ru.mephi.voip.databinding.ToolbarCallerBinding
-import ru.mephi.voip.ui.SharedViewModel
 import ru.mephi.voip.ui.caller.adapter.CallHistoryAdapter
 import ru.mephi.voip.ui.caller.adapter.SwipeToDeleteCallback
-import ru.mephi.voip.ui.utils.toast
+import ru.mephi.voip.utils.toast
 import timber.log.Timber
 import com.squareup.sqldelight.runtime.coroutines.asFlow
-import ru.mephi.voip.ui.utils.slideDown
-import ru.mephi.voip.ui.utils.slideUp
+import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.utils.slideDown
+import ru.mephi.voip.utils.slideUp
+import androidx.core.graphics.drawable.DrawableCompat
+
+import androidx.appcompat.content.res.AppCompatResources
+import ru.mephi.shared.appContext
 
 
 class CallerFragment : Fragment() {
-    private val sharedVM: SharedViewModel by sharedViewModel()
     private val viewModel: CallerViewModel by inject()
+    private val accountStatusRepository: AccountStatusRepository by inject()
 
     private lateinit var historyAdapter: CallHistoryAdapter
 
@@ -70,7 +72,6 @@ class CallerFragment : Fragment() {
     ): View {
         binding = FragmentCallsBinding.inflate(inflater, container, false)
         toolbarBinding = binding.toolbarCaller
-
         return binding.root
     }
 
@@ -79,48 +80,30 @@ class CallerFragment : Fragment() {
         checkPermissions()
         setupToolbar()
         initViews()
+        initStatusObserver()
+    }
 
-//        sharedViewModel.status.onStart { AccountStatus.LOADING }.asLiveData()
-//            .observe(this) { status ->
-//                toolbarBinding.statusText.text = status.status
-//                toolbarBinding.statusCircle.background.colorFilter = BlendModeColorFilter(
-//                    when (status) {
-//                        AccountStatus.REGISTERED -> getColor(
-//                            requireContext(),
-//                            R.color.colorGreen
-//                        )
-//                        AccountStatus.NO_CONNECTION,
-//                        AccountStatus.CHANGING, AccountStatus.LOADING -> getColor(
-//                            requireContext(),
-//                            R.color.colorGray
-//                        )
-//                        AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED ->
-//                            getColor(requireContext(), R.color.colorRed)
-//                    }, BlendMode.SRC_ATOP
-//                )
-//            }
-
+    private fun initStatusObserver() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                sharedVM.status?.collect { status ->
+                accountStatusRepository.status.collect { status ->
                     Timber.d("Getting status from SharedViewModel ${status.status}")
 
                     toolbarBinding.statusText.text = status.status
-                    toolbarBinding.statusCircle.background.colorFilter = BlendModeColorFilter(
-                        when (status) {
-                            AccountStatus.REGISTERED -> getColor(
-                                requireContext(),
-                                R.color.colorGreen
-                            )
-                            AccountStatus.NO_CONNECTION,
-                            AccountStatus.CHANGING, AccountStatus.LOADING -> getColor(
-                                requireContext(),
-                                R.color.colorGray
-                            )
+                    val unwrappedDrawable =
+                        AppCompatResources.getDrawable(context!!, R.drawable.shape_circle)!!
+                    val wrappedDrawable: Drawable = DrawableCompat.wrap(unwrappedDrawable)
+                    DrawableCompat.setTint(
+                        wrappedDrawable, when (status) {
+                            AccountStatus.REGISTERED ->
+                                getColor(appContext, R.color.colorGreen)
+                            AccountStatus.NO_CONNECTION, AccountStatus.CHANGING, AccountStatus.LOADING ->
+                                getColor(appContext, R.color.colorGray)
                             AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED ->
-                                getColor(requireContext(), R.color.colorRed)
-                        }, BlendMode.SRC_ATOP
+                                getColor(appContext, R.color.colorRed)
+                        }
                     )
+                    toolbarBinding.statusCircle.setBackgroundDrawable(wrappedDrawable)
                 }
             }
         }

@@ -72,10 +72,6 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name=".call.SipBackgroundService"
-            android:exported="false" />
-
         <receiver
             android:name=".call.abto.CallEventsReceiver"
             android:exported="true">

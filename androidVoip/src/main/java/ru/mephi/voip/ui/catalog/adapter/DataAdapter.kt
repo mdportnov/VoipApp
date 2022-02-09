@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
@@ -28,7 +27,7 @@ import ru.mephi.voip.R
 import ru.mephi.voip.databinding.ItemUnitBinding
 import ru.mephi.voip.databinding.ItemUserBinding
 import ru.mephi.voip.ui.catalog.CatalogViewModel
-import ru.mephi.voip.ui.utils.*
+import ru.mephi.voip.utils.*
 
 
 class DataAdapter(

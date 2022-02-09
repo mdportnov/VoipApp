@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.utils
+package ru.mephi.voip.utils
 
 import android.view.LayoutInflater
 import android.view.View

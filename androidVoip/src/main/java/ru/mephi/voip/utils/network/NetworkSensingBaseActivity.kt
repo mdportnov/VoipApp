@@ -1,23 +1,23 @@
-package ru.mephi.voip.ui.utils.network
+package ru.mephi.voip.utils.network
 
 import android.annotation.SuppressLint
 import android.view.View
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.utils.CustomSnackBar
+import ru.mephi.voip.utils.CustomSnackBar
 
 @SuppressLint("Registered")
-open class NetworkSensingBaseFragment : Fragment(),
+open class NetworkSensingBaseActivity : AppCompatActivity(),
     ConnectionStateMonitor.OnNetworkAvailableCallbacks {
-
     private var snackBar: CustomSnackBar? = null
     private var connectionStateMonitor: ConnectionStateMonitor? = null
     private lateinit var parentView: View
 
     override fun onResume() {
         super.onResume()
-        parentView = requireActivity().findViewById(R.id.main_container)
+        parentView = findViewById(R.id.main_container)
+
         if (snackBar == null)
             snackBar = CustomSnackBar(
                 parentView,
@@ -26,9 +26,8 @@ open class NetworkSensingBaseFragment : Fragment(),
             )
 
         if (connectionStateMonitor == null)
-            connectionStateMonitor = ConnectionStateMonitor(requireActivity(), this)
-
-        connectionStateMonitor?.enable()  //Register
+            connectionStateMonitor = ConnectionStateMonitor(this, this)
+        connectionStateMonitor?.enable()        //Register
 
         // Recheck network status manually whenever activity resumes
         if (connectionStateMonitor?.hasNetworkConnection() == false) onNegative()
@@ -36,20 +35,21 @@ open class NetworkSensingBaseFragment : Fragment(),
     }
 
     override fun onPause() {
+        snackBar?.dismiss()
         snackBar = null
-        connectionStateMonitor?.disable() //Unregister
+        connectionStateMonitor?.disable()
         connectionStateMonitor = null
         super.onPause()
     }
 
     override fun onPositive() {
-        requireActivity().runOnUiThread {
+        runOnUiThread {
             snackBar?.dismiss()
         }
     }
 
     override fun onNegative() {
-        requireActivity().runOnUiThread {
+        runOnUiThread {
             snackBar?.show()
         }
     }

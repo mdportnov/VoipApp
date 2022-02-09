@@ -60,10 +60,8 @@ import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.call.getAccountsList
 import ru.mephi.voip.ui.MainActivity
-import ru.mephi.voip.ui.SharedViewModel
-import ru.mephi.voip.ui.utils.*
+import ru.mephi.voip.utils.*
 import timber.log.Timber
 
 @ExperimentalComposeUiApi
@@ -71,14 +69,12 @@ import timber.log.Timber
 @ExperimentalMaterialApi
 class ProfileFragment : Fragment() {
     private val viewModel: ProfileViewModel by sharedViewModel()
-    private val sharedViewModel: SharedViewModel by sharedViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        sharedViewModel.fetchStatus()
         return ComposeView(requireContext()).apply {
             setContent {
                 ProfileScreen(findNavController())
@@ -88,6 +84,7 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.accountRepository.fetchStatus()
         Timber.d("ProfileFragment onViewCreated")
     }
 
@@ -233,7 +230,7 @@ class ProfileFragment : Fragment() {
             OutlinedButton(onClick = {
                 if (textLogin.toIntOrNull() == null || textPassword.isEmpty()) {
                     toast("Введены некоректные данные")
-                } else if (getAccountsList().map { it.login }.contains(textLogin)) {
+                } else if (viewModel.accountRepository.getAccountsList().map { it.login }.contains(textLogin)) {
                     toast("Такой аккаунт уже существует")
                 } else {
                     viewModel.addNewAccount()
@@ -255,12 +252,12 @@ class ProfileFragment : Fragment() {
 
     @Composable
     fun ScreenChangeAccount(onCloseBottomSheet: () -> Unit) {
-        val mList: MutableList<Account> by remember { mutableStateOf(getAccountsList()) }
+        val mList: MutableList<Account> by remember { mutableStateOf(viewModel.accountRepository.getAccountsList()) }
 
-        viewModel.accountList.observe(viewLifecycleOwner) {
+        viewModel.accountRepository.accountList.observe(viewLifecycleOwner) {
             mList.apply {
                 clear()
-                addAll(getAccountsList())
+                addAll(viewModel.accountRepository.getAccountsList())
             }
         }
 
@@ -357,18 +354,18 @@ class ProfileFragment : Fragment() {
             }
         )
 
-        val accountsCount by sharedViewModel.accountsCount.collectAsState()
-        val accountStatusLifeCycleAware = remember(sharedViewModel.status, lifecycle) {
-            sharedViewModel.status?.flowWithLifecycle(
+        val accountsCount by viewModel.accountRepository.accountsCount.collectAsState()
+        val accountStatusLifeCycleAware = remember(viewModel.accountRepository.status, lifecycle) {
+            viewModel.accountRepository.status.flowWithLifecycle(
                 lifecycle = viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED
             )
         }
 //        val accountStatus by sharedViewModel.status.collectAsState(initial = AccountStatus.CHANGING)
-        val accountStatus by accountStatusLifeCycleAware!!.collectAsState(initial = AccountStatus.CHANGING)
-        val isSipEnabled by sharedViewModel.isSipEnabled.collectAsState()
+        val accountStatus by accountStatusLifeCycleAware.collectAsState(initial = AccountStatus.CHANGING)
+        val isSipEnabled by viewModel.accountRepository.isSipEnabled.collectAsState()
 
-        val name = sharedViewModel.displayName.collectAsState(NameItem("", "", "", "", "", ""))
+        val name = viewModel.accountRepository.displayName.collectAsState(NameItem("", "", "", "", "", ""))
 
         val switchColor =
             colorResource(id = if (isSipEnabled) R.color.colorAccent else R.color.colorGreen)
@@ -457,7 +454,7 @@ class ProfileFragment : Fragment() {
                                         ),
                                     onClick = {
                                         if (accountStatus != AccountStatus.REGISTERED) {
-                                            if (sharedViewModel.isSipEnabled.value) {
+                                            if (viewModel.accountRepository.isSipEnabled.value) {
                                                 hapticFeedback.performHapticFeedback(
                                                     HapticFeedbackType.LongPress
                                                 )
@@ -516,7 +513,7 @@ class ProfileFragment : Fragment() {
                                 Switch(
                                     checked = isSipEnabled,
                                     onCheckedChange = {
-                                        sharedViewModel.toggleSipStatus()
+                                        viewModel.toggleSipStatus()
                                     },
                                     colors = SwitchDefaults.colors(
                                         checkedThumbColor = switchColor,
@@ -572,91 +569,90 @@ class ProfileFragment : Fragment() {
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        val annotatedText = buildAnnotatedString {
-                            withStyle(
-                                style = SpanStyle(
-                                    color = Color.Black,
-                                    fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp
+                        if (accountsCount == 0) {
+                            val annotatedText = buildAnnotatedString {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = Color.Black,
+                                        fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp
+                                    )
+                                ) {
+                                    append("Для получения доступа к ip-телефонии НИЯУ МИФИ оставьте заявку письмом на ")
+                                }
+
+                                addStyle(
+                                    style = ParagraphStyle(
+                                        textAlign = TextAlign.Center
+                                    ),
+                                    start = 0,
+                                    end = 74
                                 )
-                            ) {
-                                append("Для получения доступа к ip-телефонии НИЯУ МИФИ оставьте заявку письмом на ")
-                            }
 
-                            addStyle(
-                                style = ParagraphStyle(
-                                    textAlign = TextAlign.Center
-                                ),
-                                start = 0,
-                                end = 74
-                            )
-
-                            addStringAnnotation(
-                                "email",
-                                stringResource(R.string.support_email),
-                                start = 74,
-                                end = 88
-                            )
-                            withStyle(
-                                style = SpanStyle(
-                                    color = colorResource(id = R.color.colorPrimaryDark),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
-                                    textDecoration = TextDecoration.Underline
+                                addStringAnnotation(
+                                    "email",
+                                    stringResource(R.string.support_email),
+                                    start = 74,
+                                    end = 88
                                 )
-                            ) {
-                                append("ru.mephi.voip@mephi.ru")
-                            }
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = colorResource(id = R.color.colorPrimaryDark),
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
+                                        textDecoration = TextDecoration.Underline
+                                    )
+                                ) {
+                                    append("ru.mephi.voip@mephi.ru")
+                                }
 
-                            addStyle(
-                                style = ParagraphStyle(
-                                    textAlign = TextAlign.Center
-                                ),
-                                start = 74,
-                                end = 88 // ru.mephi.voip@mephi.ru
-                            )
-
-                            addStyle(
-                                style = ParagraphStyle(
-                                    textAlign = TextAlign.Center
-                                ),
-                                start = 88,
-                                end = 102 // или по номеру
-                            )
-
-                            withStyle(
-                                style = SpanStyle(fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp)
-                            ) {
-                                append(" или по номеру ")
-                            }
-
-                            addStringAnnotation(
-                                "phone",
-                                "+74957885699, 7777",
-                                start = 102,
-                                end = 131
-                            )
-
-                            withStyle(
-                                style = SpanStyle(
-                                    color = colorResource(id = R.color.colorPrimaryDark),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
-                                    textDecoration = TextDecoration.Underline,
+                                addStyle(
+                                    style = ParagraphStyle(
+                                        textAlign = TextAlign.Center
+                                    ),
+                                    start = 74,
+                                    end = 88 // ru.mephi.voip@mephi.ru
                                 )
-                            ) {
-                                append("+7 (495) 788 56 99, доб. 7777")
+
+                                addStyle(
+                                    style = ParagraphStyle(
+                                        textAlign = TextAlign.Center
+                                    ),
+                                    start = 88,
+                                    end = 102 // или по номеру
+                                )
+
+                                withStyle(
+                                    style = SpanStyle(fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp)
+                                ) {
+                                    append(" или по номеру ")
+                                }
+
+                                addStringAnnotation(
+                                    "phone",
+                                    "+74957885699, 7777",
+                                    start = 102,
+                                    end = 131
+                                )
+
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = colorResource(id = R.color.colorPrimaryDark),
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
+                                        textDecoration = TextDecoration.Underline,
+                                    )
+                                ) {
+                                    append("+7 (495) 788 56 99, доб. 7777")
+                                }
+
+                                addStyle(
+                                    style = ParagraphStyle(
+                                        textAlign = TextAlign.Center
+                                    ),
+                                    start = 102,
+                                    end = 131 // +7 (495) 788 56 99, доб. 7777
+                                )
                             }
-
-                            addStyle(
-                                style = ParagraphStyle(
-                                    textAlign = TextAlign.Center
-                                ),
-                                start = 102,
-                                end = 131 // +7 (495) 788 56 99, доб. 7777
-                            )
-                        }
-
-                        if (accountsCount == 0)
                             ClickableText(
                                 text = annotatedText,
                                 onClick = { offset ->
@@ -679,6 +675,7 @@ class ProfileFragment : Fragment() {
                                     }
                                 }
                             )
+                        }
                     }
                 }
 
@@ -686,7 +683,7 @@ class ProfileFragment : Fragment() {
                     modifier = Modifier
                         .fillMaxSize(), verticalArrangement = Arrangement.Bottom
                 ) {
-                    if (accountsCount > 1)
+                    if (accountsCount > 0)
                         ExtendedFloatingActionButton(
                             icon = { Icon(Icons.Filled.Edit, "", tint = Color.White) },
                             text = {

@@ -18,6 +18,7 @@ import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.shared.data.repository.CatalogRepository
 import ru.mephi.shared.getApplicationFilesDirectoryPath
+import ru.mephi.shared.vm.CallerViewModel
 import kotlin.math.sin
 
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
@@ -53,6 +54,7 @@ val repositoryModule = module {
         })
 
     single { SearchDB(get()) }
+    single { CallerViewModel() }
     single { CallsDB(get()) }
     single { ApiHelper() }
     single { provideCatalogDB() }
