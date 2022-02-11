@@ -1,6 +1,7 @@
 package ru.mephi.voip.ui.caller
 
 import android.app.Activity
+import android.graphics.Color
 import androidx.activity.compose.BackHandler
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.*
@@ -33,11 +34,13 @@ fun NumPad(
     limitation: Int,
     mutableInputState: String,
     mutableNumPadState: Boolean,
+    isPermissionGrantedState: Boolean,
     onLimitExceeded: (() -> Unit)? = null,
     onTapWhenUp: (String) -> Unit,
 ) {
     var inputVal by remember { mutableStateOf(mutableInputState) }
     var isNumPadStateUp by remember { mutableStateOf(mutableNumPadState) }
+    var isPermissionGranted by remember { mutableStateOf(isPermissionGrantedState) }
     val activity = (LocalContext.current as? Activity)
 
     BackHandler {
@@ -85,14 +88,13 @@ fun NumPad(
                 }
             }, backgroundColor = colorResource(id = R.color.colorGreen)
         ) {
-            val isPermissionGranted = false
             if (isNumPadStateUp)
                 Icon(
                     Icons.Default.Call,
                     contentDescription = "",
                     tint = colorResource(
                         id = if (isPermissionGranted)
-                            R.color.colorGreen else R.color.colorGray
+                            R.color.colorPrimary else R.color.colorGray
                     )
                 ) else
                 Icon(
@@ -100,7 +102,7 @@ fun NumPad(
                     contentDescription = "",
                     tint = colorResource(
                         id = if (isPermissionGranted)
-                            R.color.colorGreen else R.color.colorGray
+                            R.color.colorPrimary else R.color.colorGray
                     )
                 )
         }

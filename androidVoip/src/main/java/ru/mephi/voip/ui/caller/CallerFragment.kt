@@ -61,7 +61,7 @@ class CallerFragment : Fragment() {
     private lateinit var binding: FragmentCallsBinding
     private lateinit var toolbarBinding: ToolbarCallerBinding
 
-    private var isPermissionGranted = true
+    private var isPermissionGranted by mutableStateOf(true)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,11 +74,17 @@ class CallerFragment : Fragment() {
         binding.numPadCompose.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                NumPad(5, mutableInputState, mutableNumPadState, onTapWhenUp = { line ->
-                    CallActivity.create(requireContext(), line, false)
-                }, onLimitExceeded = {
-                    showSnackBar(this, "Превышен размер номера")
-                })
+                NumPad(
+                    5,
+                    mutableInputState,
+                    mutableNumPadState,
+                    isPermissionGranted,
+                    onTapWhenUp = { line ->
+                        CallActivity.create(requireContext(), line, false)
+                    },
+                    onLimitExceeded = {
+                        showSnackBar(this, "Превышен размер номера")
+                    })
             }
         }
         return binding.root
