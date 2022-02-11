@@ -11,7 +11,7 @@ val coroutinesVersion = "1.5.0-native-mt"
 val serializationVersion = "1.2.2"
 val ktorVersion = "1.6.1"
 val sqlDelightVersion = "1.5.3"
-val kodeinDbVersion = "0.8.1-beta"
+val kodeinDbVersion = "0.9.0-beta"
 val koinVersion = "3.1.2"
 
 kotlin {
@@ -38,7 +38,6 @@ kotlin {
                 implementation("io.insert-koin:koin-core:${koinVersion}")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
-
                 implementation("com.squareup.sqldelight:runtime:$sqlDelightVersion")
                 implementation("com.squareup.sqldelight:coroutines-extensions:$sqlDelightVersion")
                 implementation("org.kodein.db:kodein-db:$kodeinDbVersion")
@@ -47,6 +46,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+//                implementation("org.kodein.db:kodein-db-jvm:${kodeinDbVersion}")
                 implementation("com.squareup.sqldelight:android-driver:$sqlDelightVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
                 implementation("io.ktor:ktor-client-android:$ktorVersion")

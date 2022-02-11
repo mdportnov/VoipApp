@@ -28,10 +28,6 @@ class CallsRepository(
         }
     }
 
-    init {
-//        logAllCalls()
-    }
-
     fun getAllCallRecords() = dao.getAllCallRecords()
 
     fun addRecord(sipNumber: String, sipName: String? = null, status: CallStatus) {
@@ -60,9 +56,5 @@ class CallsRepository(
         dao.deleteRecords(record)
         println("After deletion: ")
         logAllCalls()
-    }
-
-    fun deleteRecords(vararg records: CallRecord) {
-        dao.deleteRecords(*records)
     }
 }

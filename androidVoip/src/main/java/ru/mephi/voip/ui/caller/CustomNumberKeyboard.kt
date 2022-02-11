@@ -40,7 +40,7 @@ fun NumPad(
 ) {
     var inputVal by remember { mutableStateOf(mutableInputState) }
     var isNumPadStateUp by remember { mutableStateOf(mutableNumPadState) }
-    var isPermissionGranted by remember { mutableStateOf(isPermissionGrantedState) }
+    val isPermissionGranted by remember { mutableStateOf(isPermissionGrantedState) }
     val activity = (LocalContext.current as? Activity)
 
     BackHandler {
@@ -56,7 +56,7 @@ fun NumPad(
     ) {
         AnimatedVisibility(
             visible = isNumPadStateUp,
-            enter = slideInVertically() + expandVertically(Alignment.Top)
+            enter = slideInVertically() + expandVertically()
                     + fadeIn(initialAlpha = 0.3f),
             exit = shrinkVertically() + fadeOut()
         ) {

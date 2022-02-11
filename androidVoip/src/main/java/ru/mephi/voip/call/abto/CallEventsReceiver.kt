@@ -131,7 +131,7 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent {
             .setContentText(remoteContact)
             .setDefaults(Notification.DEFAULT_ALL)
             .setStyle(bigText)
-            .setPriority(Notification.PRIORITY_MAX)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setSmallIcon(R.drawable.logo_voip)
             .addAction(R.drawable.ic_baseline_call_end_24, "Отклонить", pendingRejectCall)

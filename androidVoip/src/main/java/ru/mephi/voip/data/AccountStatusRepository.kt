@@ -1,5 +1,6 @@
 package ru.mephi.voip.data
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -35,7 +36,7 @@ import ru.mephi.voip.ui.MainActivity
 import timber.log.Timber
 
 class AccountStatusRepository(
-    app: Application, var sp: SharedPreferences, val repository: CatalogRepository
+    app: Application, var sp: SharedPreferences, private val repository: CatalogRepository
 ) : KoinComponent {
     val abtoApp = app as AbtoApp
     var phone: AbtoPhone = abtoApp.abtoPhone
@@ -74,19 +75,14 @@ class AccountStatusRepository(
 
     private fun saveAccounts(list: List<Account>) = encryptAccountJson(getAccountsJson(list))
 
-    fun switchSipStatus() {
-        sp.edit().putBoolean("is_sip_enabled", !sp.getBoolean("is_sip_enabled", false)).apply()
-        _isSipEnabled.value = !_isSipEnabled.value
-
-        if (_isSipEnabled.value)
-            enableAccount()
-        else disableAccount()
-    }
-
     fun fetchStatus(newStatus: AccountStatus? = null) {
-//        Timber.d("Switching Status from: \"${_status.value.status}\" to \"${newStatus?.status}\"")
         CoroutineScope(Dispatchers.Main).launch {
             _status.emit(AccountStatus.LOADING)
+
+            if (accountsCount.value == 0) {
+                _status.emit(AccountStatus.UNREGISTERED)
+                return@launch
+            }
 
             _status.replayCache.lastOrNull()?.let { lastStatus ->
                 Timber.d("Switching Status from: \"${lastStatus.status}\" to \"${newStatus?.status}\"")
@@ -186,9 +182,7 @@ class AccountStatusRepository(
 
         list.forEach { it.isActive = false }
 
-        list.add(
-            Account(newLogin, newPassword, true)
-        )
+        list.add(Account(newLogin, newPassword, true))
 
         _accountsCount.value = list.size
 
@@ -236,6 +230,7 @@ class AccountStatusRepository(
         return acc!!.login
     }
 
+    @SuppressLint("CommitPrefEdits")
     fun toggleSipStatus() {
         sp.edit().putBoolean("is_sip_enabled", !sp.getBoolean("is_sip_enabled", false)).apply()
         _isSipEnabled.value = !_isSipEnabled.value
@@ -258,5 +253,4 @@ class AccountStatusRepository(
         phone.destroy()
         fetchStatus(AccountStatus.UNREGISTERED)
     }
-
 }

@@ -30,18 +30,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val context = preferenceManager.context
         val screen = preferenceManager.createPreferenceScreen(context)
 
-//        layoutInflater.inflate(R.layout.toolbar_settings, activity?.findViewById(android.R.id.content) as ViewGroup?)
-//        val toolbar = activity?.findViewById(R.id.toolbar) as Toolbar
-////        (activity as AppCompatActivity).setSupportActionBar(toolbar)
-//
-//        val navController = findNavController()
-//        val appBarConfig = AppBarConfiguration(navController.graph)
-//        val navHostFragment = NavHostFragment.findNavController(this)
-//        NavigationUI.setupWithNavController(toolbar, navHostFragment, appBarConfig)
-
         val backgroundWorkPreference = SwitchPreferenceCompat(context).apply {
             key = getString(R.string.background_work_settings)
             title = "Работать в фоновом режиме"
+            isSingleLineTitle = false
         }
 
         val deleteHistoryPreference = Preference(context).apply {
@@ -90,13 +82,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
             onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { preference, newValue ->
                     val switched: Boolean = (preference as SwitchPreferenceCompat).isChecked
-                    if(newValue as Boolean){
+                    if (newValue as Boolean) {
                         if (!Settings.canDrawOverlays(context)) {
                             val intent = Intent(
                                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                                 Uri.parse("package:$PACKAGE_NAME")
                             )
-                            startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE)
+                            startActivityForResult(
+                                intent,
+                                ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
+                            )
                         }
                     }
                     preference.isChecked = !switched

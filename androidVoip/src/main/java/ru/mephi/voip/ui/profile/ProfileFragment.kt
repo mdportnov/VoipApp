@@ -55,7 +55,6 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
@@ -363,15 +362,15 @@ class ProfileFragment : Fragment() {
                 Lifecycle.State.STARTED
             )
         }
-//        val accountStatus by sharedViewModel.status.collectAsState(initial = AccountStatus.CHANGING)
         val accountStatus by accountStatusLifeCycleAware.collectAsState(initial = AccountStatus.CHANGING)
         val isSipEnabled by viewModel.accountRepository.isSipEnabled.collectAsState()
 
-        val name =
-            viewModel.accountRepository.displayName.collectAsState(NameItem("", "", "", "", "", ""))
+        val name = viewModel.accountRepository.displayName.collectAsState(NameItem())
 
-        val switchColor =
-            colorResource(id = if (isSipEnabled) R.color.colorAccent else R.color.colorGreen)
+        val switchColor = colorResource(
+            id = if (isSipEnabled)
+                R.color.colorAccent else R.color.colorGreen
+        )
 
         Scaffold(
             topBar = {
@@ -574,89 +573,7 @@ class ProfileFragment : Fragment() {
                         Spacer(modifier = Modifier.height(20.dp))
 
                         if (accountsCount == 0) {
-                            val annotatedText = buildAnnotatedString {
-                                withStyle(
-                                    style = SpanStyle(
-                                        color = Color.Black,
-                                        fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp
-                                    )
-                                ) {
-                                    append("Для получения доступа к ip-телефонии НИЯУ МИФИ оставьте заявку письмом на ")
-                                }
-
-                                addStyle(
-                                    style = ParagraphStyle(
-                                        textAlign = TextAlign.Center
-                                    ),
-                                    start = 0,
-                                    end = 74
-                                )
-
-                                addStringAnnotation(
-                                    "email",
-                                    stringResource(R.string.support_email),
-                                    start = 74,
-                                    end = 88
-                                )
-                                withStyle(
-                                    style = SpanStyle(
-                                        color = colorResource(id = R.color.colorPrimaryDark),
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
-                                        textDecoration = TextDecoration.Underline
-                                    )
-                                ) {
-                                    append("ru.mephi.voip@mephi.ru")
-                                }
-
-                                addStyle(
-                                    style = ParagraphStyle(
-                                        textAlign = TextAlign.Center
-                                    ),
-                                    start = 74,
-                                    end = 88 // ru.mephi.voip@mephi.ru
-                                )
-
-                                addStyle(
-                                    style = ParagraphStyle(
-                                        textAlign = TextAlign.Center
-                                    ),
-                                    start = 88,
-                                    end = 102 // или по номеру
-                                )
-
-                                withStyle(
-                                    style = SpanStyle(fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp)
-                                ) {
-                                    append(" или по номеру ")
-                                }
-
-                                addStringAnnotation(
-                                    "phone",
-                                    "+74957885699, 7777",
-                                    start = 102,
-                                    end = 131
-                                )
-
-                                withStyle(
-                                    style = SpanStyle(
-                                        color = colorResource(id = R.color.colorPrimaryDark),
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
-                                        textDecoration = TextDecoration.Underline,
-                                    )
-                                ) {
-                                    append("+7 (495) 788 56 99, доб. 7777")
-                                }
-
-                                addStyle(
-                                    style = ParagraphStyle(
-                                        textAlign = TextAlign.Center
-                                    ),
-                                    start = 102,
-                                    end = 131 // +7 (495) 788 56 99, доб. 7777
-                                )
-                            }
+                            val annotatedText = getAnnotatedText()
                             ClickableText(
                                 text = annotatedText,
                                 onClick = { offset ->
@@ -724,14 +641,96 @@ class ProfileFragment : Fragment() {
                         onClick = {
                             openSheet(BottomSheetScreen.ScreenAddNewAccount)
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-
-//                    navController.navigate(
-//                        R.id.action_navigation_profile_to_fragmentAdd,
-//                    )
                         }
                     )
                 }
             }
+        )
+    }
+
+    @Composable
+    private fun getAnnotatedText() = buildAnnotatedString  {
+        withStyle(
+            style = SpanStyle(
+                color = Color.Black,
+                fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp
+            )
+        ) {
+            append("Для получения доступа к ip-телефонии НИЯУ МИФИ оставьте заявку письмом на ")
+        }
+
+        addStyle(
+            style = ParagraphStyle(
+                textAlign = TextAlign.Center
+            ),
+            start = 0,
+            end = 74
+        )
+
+        addStringAnnotation(
+            "email",
+            stringResource(R.string.support_email),
+            start = 74,
+            end = 88
+        )
+
+        withStyle(
+            style = SpanStyle(
+                color = colorResource(id = R.color.colorPrimaryDark),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
+                textDecoration = TextDecoration.Underline,
+            )
+        ) {
+            append("voip@mephi.ru")
+        }
+
+        addStyle(
+            style = ParagraphStyle(
+                textAlign = TextAlign.Center
+            ),
+            start = 74,
+            end = 88 // ru.mephi.voip@mephi.ru
+        )
+
+        addStyle(
+            style = ParagraphStyle(
+                textAlign = TextAlign.Center
+            ),
+            start = 88,
+            end = 102 // или по номеру
+        )
+
+        withStyle(
+            style = SpanStyle(fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp)
+        ) {
+            append(" или по номеру ")
+        }
+
+        addStringAnnotation(
+            "phone",
+            "+74957885699, 7777",
+            start = 102,
+            end = 131
+        )
+
+        withStyle(
+            style = SpanStyle(
+                color = colorResource(id = R.color.colorPrimaryDark),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
+                textDecoration = TextDecoration.Underline,
+            )
+        ) {
+            append("+7 (495) 788 56 99, доб. 7777")
+        }
+
+        addStyle(
+            style = ParagraphStyle(
+                textAlign = TextAlign.Center
+            ),
+            start = 102,
+            end = 131 // +7 (495) 788 56 99, доб. 7777
         )
     }
 }

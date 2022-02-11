@@ -14,10 +14,8 @@ import ru.mephi.voip.data.AccountStatusRepository
 class ProfileViewModel(
     app: Application,
     override var sp: SharedPreferences,
-    val catalogRepository: CatalogRepository,
     val accountRepository: AccountStatusRepository
 ) : AbtoViewModel(app, sp), KoinComponent {
-
     val newLogin: MutableState<String> = mutableStateOf("")
     val newPassword: MutableState<String> = mutableStateOf("")
 

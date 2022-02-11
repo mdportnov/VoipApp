@@ -27,7 +27,7 @@ private fun spAccounts(): SharedPreferences =
 
 val viewModels = module {
     viewModel {
-        ProfileViewModel(androidApplication(), get(named("account_prefs")), get(), get())
+        ProfileViewModel(androidApplication(), get(named("account_prefs")), get())
     }
 
     viewModel {
