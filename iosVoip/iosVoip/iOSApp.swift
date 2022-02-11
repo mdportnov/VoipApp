@@ -1,6 +1,7 @@
 import SwiftUI
 import shared
 import Kingfisher
+import AbtoSipClientWrapper
 
 @main
 struct iOSApp: App {

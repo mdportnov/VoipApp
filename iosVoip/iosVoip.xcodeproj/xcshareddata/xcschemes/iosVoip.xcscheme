@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7555FF7A242A565900829871"
-               BuildableName = "iosVoip.app"
+               BuildableName = "VoIP.app"
                BlueprintName = "VoIP"
                ReferencedContainer = "container:iosVoip.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7555FF7A242A565900829871"
-            BuildableName = "iosVoip.app"
+            BuildableName = "VoIP.app"
             BlueprintName = "VoIP"
             ReferencedContainer = "container:iosVoip.xcodeproj">
          </BuildableReference>
@@ -69,7 +69,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7555FF7A242A565900829871"
-            BuildableName = "iosVoip.app"
+            BuildableName = "VoIP.app"
             BlueprintName = "VoIP"
             ReferencedContainer = "container:iosVoip.xcodeproj">
          </BuildableReference>

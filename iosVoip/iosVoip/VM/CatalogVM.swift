@@ -8,8 +8,6 @@ class CatalogVM: ObservableObject {
     
     var catalogStack = NSMutableArray()
     
-    let catalogRepository: CatalogRepository
-    
     let catalogDao: CatalogDao
     
     let api = KtorApiService()
@@ -19,7 +17,6 @@ class CatalogVM: ObservableObject {
     @Published var catalogTitle = "VoIP MEPhI"
     
     init() {
-        self.catalogRepository = CatalogRepository()
         self.catalogDao = CatalogDao()
         self.loadingResource = ResourceLoading<UnitM>(data: nil)
         self.currentCodeStr = startCodeStr
