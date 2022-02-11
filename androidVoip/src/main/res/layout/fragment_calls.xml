@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
@@ -14,7 +13,7 @@
             android:id="@+id/toolbar_caller"
             layout="@layout/toolbar_caller" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:animateLayoutChanges="true">
@@ -23,55 +22,14 @@
                 android:id="@+id/rv_call_records"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_call_record" />
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/num_pad_compose"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:layout_marginBottom="100dp"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="5dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintWidth_percent=".5">
-
-                <ru.mephi.voip.ui.caller.numpad.NumPad
-                    android:id="@+id/num_pad"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="5dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-            </androidx.cardview.widget.CardView>
-
-            <com.tuann.floatingactionbuttonexpandable.FloatingActionButtonExpandable
-                android:id="@+id/fab_open_numpad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:translationZ="30dp"
-                app:cornerRadius="56dp"
-                app:fab_bg_color="#4CAF50"
-                app:fab_content="Позвонить"
-                app:fab_expanded="true"
-                app:fab_icon="@drawable/ic_baseline_dialpad_24"
-                app:fab_text_color="@color/colorPrimary"
-                app:fab_text_size="20dp"
-                app:iconTint="@color/colorPrimary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:rippleColor="@drawable/bottom_nav_icon_color_selector" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_gravity="bottom" />
+        </FrameLayout>
     </LinearLayout>
-
 </layout>

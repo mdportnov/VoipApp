@@ -1,10 +1,8 @@
 package ru.mephi.voip.ui.caller
 
 import android.Manifest
-import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Insets
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -14,11 +12,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
-import android.view.animation.OvershootInterpolator
-import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.*
-import androidx.core.view.marginRight
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.core.content.ContextCompat.getColor
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.asLiveData
@@ -31,28 +34,24 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.call.CallActivity
+import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.FragmentCallsBinding
 import ru.mephi.voip.databinding.ToolbarCallerBinding
+import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.adapter.CallHistoryAdapter
 import ru.mephi.voip.ui.caller.adapter.SwipeToDeleteCallback
+import ru.mephi.voip.utils.showSnackBar
 import ru.mephi.voip.utils.toast
 import timber.log.Timber
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import ru.mephi.voip.data.AccountStatusRepository
-import ru.mephi.voip.utils.slideDown
-import ru.mephi.voip.utils.slideUp
-import androidx.core.graphics.drawable.DrawableCompat
 
-import androidx.appcompat.content.res.AppCompatResources
-import ru.mephi.shared.appContext
-
-
+@ExperimentalAnimationApi
 class CallerFragment : Fragment() {
     private val viewModel: CallerViewModel by inject()
     private val accountStatusRepository: AccountStatusRepository by inject()
@@ -63,7 +62,6 @@ class CallerFragment : Fragment() {
     private lateinit var toolbarBinding: ToolbarCallerBinding
 
     private var isPermissionGranted = true
-    var isNumPadUp = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,6 +70,17 @@ class CallerFragment : Fragment() {
     ): View {
         binding = FragmentCallsBinding.inflate(inflater, container, false)
         toolbarBinding = binding.toolbarCaller
+
+        binding.numPadCompose.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                NumPad(5, mutableInputState, mutableNumPadState, onTapWhenUp = { line ->
+                    CallActivity.create(requireContext(), line, false)
+                }, onLimitExceeded = {
+                    showSnackBar(this, "Превышен размер номера")
+                })
+            }
+        }
         return binding.root
     }
 
@@ -83,6 +92,7 @@ class CallerFragment : Fragment() {
         initStatusObserver()
     }
 
+    @SuppressLint("UnsafeRepeatOnLifecycleDetector")
     private fun initStatusObserver() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -91,7 +101,7 @@ class CallerFragment : Fragment() {
 
                     toolbarBinding.statusText.text = status.status
                     val unwrappedDrawable =
-                        AppCompatResources.getDrawable(context!!, R.drawable.shape_circle)!!
+                        AppCompatResources.getDrawable(appContext, R.drawable.shape_circle)!!
                     val wrappedDrawable: Drawable = DrawableCompat.wrap(unwrappedDrawable)
                     DrawableCompat.setTint(
                         wrappedDrawable, when (status) {
@@ -126,51 +136,25 @@ class CallerFragment : Fragment() {
 
         isPermissionGranted = permissions.size <= 0
         if (permissions.size > 0)
-            requestPermissions(
-                permissions.toTypedArray(), 1
-            )
+            requestPermissions(permissions.toTypedArray(), 1)
     }
+
+    private var mutableInputState by mutableStateOf("")
+    private var mutableNumPadState by mutableStateOf(false)
 
     private fun initViews() {
         val args: CallerFragmentArgs by navArgs()
 
-        // Убрать нумпад по кнопке назад, если он отображается
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            if (isNumPadUp)
-                changeNumPadVisibility()
-            else
-                requireActivity().finish()
-        }
-
-        binding.cardView.visibility = View.GONE
-
-        binding.fabOpenNumpad.setOnClickListener {
-            changeNumPadVisibility()
-        }
-
-        binding.numPad.setOnCancelButtonClickListener {
-            findNavController().navigateUp()
-            changeNumPadVisibility()
-        }
-
         if (!args.callerNumber.isNullOrEmpty()) {
             toolbarBinding.logoLeftImage.visibility = View.GONE
             toolbarBinding.textView.visibility = View.GONE
-            binding.numPad.setNumber(args.callerNumber!!)
+            mutableInputState = args.callerNumber!!
+            mutableNumPadState = true
             toast(args.callerName)
-            changeNumPadVisibility()
         } else {
             toolbarBinding.textView.visibility = View.VISIBLE
             toolbarBinding.logoLeftImage.visibility = View.VISIBLE
         }
-
-        if (isPermissionGranted)
-            binding.fabOpenNumpad.backgroundTintList =
-                ColorStateList.valueOf(getColor(requireContext(), R.color.colorGreen))
-        else
-            binding.fabOpenNumpad.backgroundTintList = ColorStateList.valueOf(
-                getColor(requireContext(), R.color.colorGray)
-            )
 
         binding.rvCallRecords.layoutManager =
             LinearLayoutManager(
@@ -184,76 +168,9 @@ class CallerFragment : Fragment() {
 
         binding.rvCallRecords.adapter = historyAdapter
 
-        viewModel.callHistory.asFlow().asLiveData().observe(this) { callHistory ->
+        viewModel.callHistory.asFlow().asLiveData().observe(viewLifecycleOwner) { callHistory ->
             historyAdapter.setRecords(callHistory.executeAsList())
         }
-    }
-
-    private fun getScreenWidth(): Int {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics = requireActivity().windowManager.currentWindowMetrics
-            val insets: Insets = windowMetrics.windowInsets
-                .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
-            windowMetrics.bounds.width() - insets.left - insets.right
-        } else {
-            val displayMetrics = DisplayMetrics()
-            requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-            displayMetrics.widthPixels
-        }
-    }
-
-    private fun changeNumPadVisibility() {
-        val screenW = getScreenWidth()
-        val margin = binding.fabOpenNumpad.marginRight
-        val fabWidth = binding.fabOpenNumpad.width
-        val mid = (screenW / 2 - margin).toFloat() - fabWidth / 5.5f
-
-        if (isNumPadUp) {
-            binding.cardView.slideDown()
-            binding.fabOpenNumpad.setOnClickListener {
-                changeNumPadVisibility()
-            }
-            binding.numPad.setOnCancelButtonClickListener {}
-
-            binding.fabOpenNumpad.expand()
-            binding.fabOpenNumpad.setIconActionButton(R.drawable.ic_baseline_dialpad_24)
-
-            val buttonAnimator =
-                ObjectAnimator.ofFloat(binding.fabOpenNumpad, "translationX", -mid, 0f)
-            buttonAnimator.duration = 500
-            buttonAnimator.interpolator = OvershootInterpolator()
-            buttonAnimator.start()
-        } else {
-            binding.fabOpenNumpad.setIconActionButton(R.drawable.ic_baseline_dialer_sip_24_white)
-            binding.fabOpenNumpad.collapse()
-
-            val buttonAnimator =
-                ObjectAnimator.ofFloat(binding.fabOpenNumpad, "translationX", 0f, -mid)
-            buttonAnimator.duration = 500
-            buttonAnimator.interpolator = OvershootInterpolator()
-            buttonAnimator.start()
-
-            binding.fabOpenNumpad.setOnClickListener {
-                if (binding.numPad.getInputNumber().length > 3)
-                    CallActivity.create(requireContext(), binding.numPad.getInputNumber(), false)
-                else
-                    toast(getString(R.string.no_name_error))
-            }
-
-            binding.numPad.setOnCancelButtonClickListener {
-                findNavController().navigateUp()
-                changeNumPadVisibility()
-            }
-
-            binding.cardView.slideUp()
-        }
-
-        isNumPadUp = !isNumPadUp
-    }
-
-    override fun onPause() {
-        super.onPause()
-        binding.numPad.clear()
     }
 
     private fun setupToolbar() {

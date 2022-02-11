@@ -63,7 +63,7 @@ fun View.slideUp() {
     val animate = TranslateAnimation(
         0F,
         0F,
-        this.height.toFloat() + 200,
+        height.toFloat() + 200,
         0F
     )
 
