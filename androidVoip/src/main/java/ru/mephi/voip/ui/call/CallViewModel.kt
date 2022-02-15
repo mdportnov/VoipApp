@@ -1,12 +1,7 @@
 package ru.mephi.voip.ui.call
 
-import android.app.Application
 import android.os.Handler
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +9,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.Resource
@@ -21,20 +17,22 @@ import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.voip.data.CatalogRepository
 
 class CallViewModel(
-    app: Application, private val catalogRepository: CatalogRepository,
+    private val catalogRepository: CatalogRepository,
     private val callsRepository: CallsRepository,
-) : AndroidViewModel(app) {
+) : MainIoExecutor() {
+    var number: String = ""
 
-    private var fetchNameJob: Job? = null
+    private var _callStatus = MutableStateFlow(CallStatus.NONE)
+    val callStatus: StateFlow<CallStatus> get() = _callStatus
 
-    private var _displayTime = mutableStateOf("")
-    val displayTime: State<String> get() = _displayTime
+    private var _callState = MutableStateFlow(CallState.NONE)
+    val callState: StateFlow<CallState> get() = _callState
+
+    private var _displayTime by mutableStateOf("")
+    val displayTime by derivedStateOf { _displayTime }
 
     private var _buttonsState = mutableStateOf(CallButtonsState.OUTGOING_CALL)
     val buttonsState: State<CallButtonsState> get() = _buttonsState
-
-    private var _callState = mutableStateOf(CallState.NONE)
-    val callState: State<CallState> get() = _callState
 
     private var _callHoldState = mutableStateOf(HoldState.NONE)
     val callHoldState: State<HoldState> get() = _callHoldState
@@ -48,10 +46,10 @@ class CallViewModel(
     private var _isSpeakerModeEnabled = MutableStateFlow(false)
     val isSpeakerModeEnabled: StateFlow<Boolean> get() = _isSpeakerModeEnabled
 
-    private var _callerName = mutableStateOf("")
-    val callerName: State<String> get() = _callerName
+    private var _callerName = MutableStateFlow("")
+    val callerName: StateFlow<String> get() = _callerName
 
-    private var _callerAppointment: MutableState<String?> = mutableStateOf("")
+    private var _callerAppointment = mutableStateOf("")
     val callerAppointment: State<String?> get() = _callerAppointment
 
     private var _callerUnit = mutableStateOf("")
@@ -68,22 +66,29 @@ class CallViewModel(
             var seconds = (mTotalTime / 1000).toInt()
             val minutes = seconds / 60
             seconds %= 60
-            if (seconds < 10)
-                _displayTime.value = "$minutes:0$seconds"
+            _displayTime = if (seconds < 10)
+                "$minutes:0$seconds"
             else
-                _displayTime.value = "$minutes:$seconds"
+                "$minutes:$seconds"
             mHandler.postDelayed(this, 1000)
         }
     }
 
-    fun saveInfoAboutCall(sipNumber: String, callStatus: CallStatus) {
+    fun changeCallStatus(callStatus: CallStatus) {
+        _callStatus.value = callStatus
+    }
+
+    fun saveInfoAboutCall(sipNumber: String) {
         addRecord(
             CallRecord(
                 sipNumber = sipNumber, sipName = _callerName.value,
-                status = callStatus, time = Clock.System.now().epochSeconds
+                status = _callStatus.value, time = Clock.System.now().epochSeconds
             )
         )
+        changeCallStatus(CallStatus.NONE)
     }
+
+    private var fetchNameJob: Job? = null
 
     /**
      * Retrieve info about call
@@ -94,7 +99,7 @@ class CallViewModel(
     fun retrieveInfoAboutCall(sipNumber: String) {
         fetchNameJob?.cancel()
 
-        viewModelScope.launch {
+        launch(ioDispatcher) {
             fetchNameJob = catalogRepository.getInfoByPhone(sipNumber)
                 .onEach { result ->
                     when (result) {
@@ -113,10 +118,10 @@ class CallViewModel(
                             }
                         }
                         is Resource.Error -> {
-                            _callerName.value = "..."
+//                            _callerName.value = "..."
                         }
                         is Resource.Loading -> {
-                            _callerName.value = "..."
+//                            _callerName.value = "..."
                         }
                     }
                 }.launchIn(this)
@@ -127,23 +132,16 @@ class CallViewModel(
         callsRepository.addRecord(callRecord)
     }
 
-    /**
-     * Check total time
-     *
-     */
-    fun checkTotalTime() {
-        if (mTotalTime != 0L) {
-            mHandler.removeCallbacks(mUpdateTimeTask)
-            mHandler.postDelayed(mUpdateTimeTask, 100)
-        }
+    private fun startTimer() {
+        stopTimer()
+        mPointTime = System.currentTimeMillis()
+        mHandler.postDelayed(mUpdateTimeTask, 100)
     }
 
-    private fun startTimer() {
-        if (mTotalTime == 0L) {
-            mPointTime = System.currentTimeMillis()
-            mHandler.removeCallbacks(mUpdateTimeTask)
-            mHandler.postDelayed(mUpdateTimeTask, 100)
-        }
+    fun stopTimer() {
+        mTotalTime = 0
+        _displayTime = ""
+        mHandler.removeCallbacks(mUpdateTimeTask)
     }
 
     /**
@@ -151,6 +149,7 @@ class CallViewModel(
      *
      */
     fun onCallConnected(number: String) {
+        this.number = number
         _callState.value = CallState.CONNECTED
         _buttonsState.value = CallButtonsState.CALL_PROCESS
         startTimer()

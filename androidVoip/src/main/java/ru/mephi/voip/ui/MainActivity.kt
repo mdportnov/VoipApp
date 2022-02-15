@@ -8,12 +8,13 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
+import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -27,12 +28,15 @@ import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.inject
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.popFromStackTill
+import ru.mephi.shared.push
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
 import ru.mephi.voip.call.getSipUsername
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.ActivityMainBinding
 import ru.mephi.voip.eventbus.Event
+import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.utils.network.NetworkSensingBaseActivity
 import ru.mephi.voip.utils.setupWithNavController
 import ru.mephi.voip.utils.showSnackBar
@@ -41,14 +45,11 @@ import timber.log.Timber
 class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
     EasyPermissions.PermissionCallbacks {
     private lateinit var binding: ActivityMainBinding
-
-    private val accountStatusRepository: AccountStatusRepository by inject()
-
+    private lateinit var currentNavController: LiveData<NavController>
     private lateinit var firebaseAnalytics: FirebaseAnalytics
 
-    private var currentNavController: LiveData<NavController>? = null
-
-    private val sp: SharedPreferences by inject()
+    private val accountStatusRepository: AccountStatusRepository by inject()
+    private val catalogViewModel: CatalogViewModel by inject()
 
     companion object {
         var phone: AbtoPhone = (appContext as AbtoApplication).abtoPhone
@@ -65,16 +66,11 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
         setupBottomNavigationBar()
     }
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
     override fun onResume() {
         super.onResume()
-        if (!sp.getBoolean(getString(R.string.background_work_settings), false)) {
-            if (sp.getBoolean(getString(R.string.sp_sip_enabled), false)) {
-                phone = (application as AbtoApplication).abtoPhone
+        phone = (application as AbtoApplication).abtoPhone
+        if (!accountStatusRepository.isBackgroundWork.value) {
+            if (accountStatusRepository.isSipEnabled.value) {
                 enableSip()
             }
         }
@@ -88,7 +84,9 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
         firebaseAnalytics = Firebase.analytics
         firebaseAnalytics.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
 
-        if (sp.getBoolean(getString(R.string.sp_sip_enabled), false))
+        EventBus.getDefault().register(this)
+
+        if (accountStatusRepository.isSipEnabled.value)
             enableSip()
 
         if (!hasPermissions())
@@ -101,15 +99,16 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
     override fun onDestroy() {
         super.onDestroy()
         // При полном закрытии приложения останавливаем Call-сервис
-        if (!sp.getBoolean("background_work", false)) {
+        if (!accountStatusRepository.isBackgroundWork.value || !accountStatusRepository.isSipEnabled.value) {
 //            abtoPhone.stopForeground() // Убираем уведомления, но abto сервис ещё работает
             disableSip()
         }
+        EventBus.getDefault().unregister(this)
     }
 
     private fun setupBottomNavigationBar() {
         val navGraphIds = listOf(
-            R.navigation.calls,
+            R.navigation.caller,
             R.navigation.catalog,
             R.navigation.profile
         )
@@ -121,11 +120,21 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
             intent = intent
         )
 
+        binding.bottomNav.setOnItemReselectedListener { item ->
+            when (item.itemId) {
+                R.id.catalog -> if (catalogViewModel.catalogStack.size > 1) {
+                    while (catalogViewModel.catalogStack.size > 1) {
+                        catalogViewModel.goToStartPage()
+                    }
+                }
+            }
+        }
+
         currentNavController = navController
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return currentNavController?.value?.navigateUp() ?: false
+        return currentNavController.value?.navigateUp() ?: false
     }
 
     @Subscribe
@@ -136,13 +145,9 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
 
     @Subscribe
     fun disableSip(messageEvent: Event.DisableAccount? = null) {
+        phone.stopForeground()
         phone.unregister()
         phone.destroy()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
     }
 
     private fun initAccount(abtoPhone: AbtoPhone) {
@@ -254,8 +259,7 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
 
     override fun onInitializeState(state: InitializeState?, message: String?) {
         when (state) {
-            InitializeState.START, InitializeState.INFO, InitializeState.WARNING -> {
-            }
+            InitializeState.START, InitializeState.INFO, InitializeState.WARNING -> {}
             InitializeState.FAIL -> AlertDialog.Builder(this)
                 .setTitle("Error")
                 .setMessage(message)

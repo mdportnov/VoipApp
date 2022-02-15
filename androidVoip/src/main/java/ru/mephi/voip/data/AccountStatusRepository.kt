@@ -57,6 +57,11 @@ class AccountStatusRepository(
         MutableStateFlow(sp.getBoolean(appContext.getString(R.string.sp_sip_enabled), false))
     val isSipEnabled: MutableStateFlow<Boolean> = _isSipEnabled
 
+    private var _isBackGroundWork = MutableStateFlow(
+        sp.getBoolean(appContext.getString(R.string.background_work_settings), false)
+    )
+    val isBackgroundWork: MutableStateFlow<Boolean> = _isBackGroundWork
+
     init {
         fetchStatus()
     }
@@ -78,12 +83,6 @@ class AccountStatusRepository(
     fun fetchStatus(newStatus: AccountStatus? = null) {
         CoroutineScope(Dispatchers.Main).launch {
             _status.emit(AccountStatus.LOADING)
-
-            if (accountsCount.value == 0) {
-                _status.emit(AccountStatus.UNREGISTERED)
-                return@launch
-            }
-
             _status.replayCache.lastOrNull()?.let { lastStatus ->
                 Timber.d("Switching Status from: \"${lastStatus.status}\" to \"${newStatus?.status}\"")
             }
@@ -98,6 +97,11 @@ class AccountStatusRepository(
 
             val list = getAccountsList()
             _accountsCount.value = list.size
+
+            if (accountsCount.value == 0) {
+                _status.emit(AccountStatus.UNREGISTERED)
+                return@launch
+            }
 
             if (newStatus == AccountStatus.REGISTERED)
                 fetchName()
@@ -232,7 +236,10 @@ class AccountStatusRepository(
 
     @SuppressLint("CommitPrefEdits")
     fun toggleSipStatus() {
-        sp.edit().putBoolean("is_sip_enabled", !sp.getBoolean("is_sip_enabled", false)).apply()
+        sp.edit().putBoolean(
+            appContext.getString(R.string.sp_sip_enabled),
+            !sp.getBoolean(appContext.getString(R.string.sp_sip_enabled), false)
+        ).apply()
         _isSipEnabled.value = !_isSipEnabled.value
 
         if (_isSipEnabled.value)
@@ -241,16 +248,13 @@ class AccountStatusRepository(
     }
 
     private fun enableAccount() {
-        EventBus.getDefault().post(Event.EnableAccount())
         phone.restartSip()
+        EventBus.getDefault().post(Event.EnableAccount())
         fetchStatus()
     }
 
     private fun disableAccount() {
         EventBus.getDefault().post(Event.DisableAccount())
-        phone.stopForeground()
-        phone.unregister()
-        phone.destroy()
         fetchStatus(AccountStatus.UNREGISTERED)
     }
 }

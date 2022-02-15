@@ -2,13 +2,13 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/calls"
-    app:startDestination="@id/navigation_calls">
+    android:id="@+id/caller"
+    app:startDestination="@id/navigation_caller">
     <fragment
-        android:id="@+id/navigation_calls"
+        android:id="@+id/navigation_caller"
         android:name="ru.mephi.voip.ui.caller.CallerFragment"
         android:label="@string/title_calls"
-        tools:layout="@layout/fragment_calls">
+        tools:layout="@layout/fragment_caller">
         <argument
             android:name="caller_name"
             android:defaultValue="@null"

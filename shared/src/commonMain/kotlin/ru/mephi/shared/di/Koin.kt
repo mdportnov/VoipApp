@@ -36,7 +36,7 @@ val dispatcherModule = module {
 
 val repositoryModule = module {
     fun provideCallsRepository(dao: CallsDB, api: ApiHelper): CallsRepository {
-        return CallsRepository(dao)
+        return CallsRepository(dao, api)
     }
 
     fun provideCatalogDB() = DB.open(getApplicationFilesDirectoryPath(),

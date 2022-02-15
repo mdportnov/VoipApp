@@ -1,9 +1,11 @@
 package ru.mephi.voip.ui.profile
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -50,7 +52,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
@@ -63,6 +66,14 @@ import ru.mephi.voip.R
 import ru.mephi.voip.ui.MainActivity
 import ru.mephi.voip.utils.*
 import timber.log.Timber
+
+//fun findMyNavController(activity: Activity): NavController {
+//    val navHostFragment = (activity as AppCompatActivity).supportFragmentManager.findFragmentById(
+//        R.id.nav_host_container
+//    ) as NavHostFragment
+//
+//    return navHostFragment.navController
+//}
 
 @ExperimentalComposeUiApi
 @ExperimentalCoilApi
@@ -649,7 +660,7 @@ class ProfileFragment : Fragment() {
     }
 
     @Composable
-    private fun getAnnotatedText() = buildAnnotatedString  {
+    private fun getAnnotatedText() = buildAnnotatedString {
         withStyle(
             style = SpanStyle(
                 color = Color.Black,

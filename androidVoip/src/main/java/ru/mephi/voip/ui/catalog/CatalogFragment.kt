@@ -1,5 +1,6 @@
 package ru.mephi.voip.ui.catalog
 
+import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.database.Cursor
 import android.database.MatrixCursor
@@ -41,14 +42,7 @@ import ru.mephi.voip.databinding.FragmentCatalogBinding
 import ru.mephi.voip.databinding.ToolbarCatalogBinding
 import ru.mephi.voip.ui.catalog.adapter.BreadcrumbsAdapter
 import ru.mephi.voip.ui.catalog.adapter.DataAdapter
-import ru.mephi.voip.utils.hideKeyboard
-import ru.mephi.voip.utils.isOnline
-import ru.mephi.voip.utils.showSnackBar
-import ru.mephi.voip.utils.toast
-
-fun isLetters(string: String): Boolean {
-    return string.matches("^[a-zA-Zа-яА-Я ]*$".toRegex())
-}
+import ru.mephi.voip.utils.*
 
 class CatalogFragment : Fragment(),
     OnRefreshListener, LifecycleOwner {
@@ -58,6 +52,20 @@ class CatalogFragment : Fragment(),
     private lateinit var binding: FragmentCatalogBinding
     private lateinit var toolbarBinding: ToolbarCatalogBinding
     private var searchType = SearchType.USERS
+
+    private val unitListUpdateObserver: Observer<Stack<UnitM>> =
+        Observer<Stack<UnitM>> {
+            retrieveCatalog()
+        }
+
+    private val breadcrumbsUpdateObserver: Observer<Stack<UnitM>> =
+        Observer<Stack<UnitM>> {
+            retrieveCatalog()
+        }
+
+    private fun initMainPageObserver() {
+        viewModel.goNext(getString(R.string.init_code_str))
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -70,6 +78,10 @@ class CatalogFragment : Fragment(),
             initMainPageObserver()
 
         return binding.root
+    }
+
+    override fun onRefresh() {
+        refreshData()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,6 +99,36 @@ class CatalogFragment : Fragment(),
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        retrieveCatalog()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupToolbar()
+        initViews()
+        initEventObservers()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun refreshData() {
+        if (isOnline(requireContext())) {
+            if (viewModel.catalogStack.isNullOrEmpty())
+                initMainPageObserver()
+        } else
+            showSnackBar(binding.root, getString(R.string.update_is_not_impossible))
+        unitsAdapter.notifyDataSetChanged()
+        binding.swiperefresh.isRefreshing = false
+    }
+
+    private fun retrieveCatalog() {
+        if (viewModel.catalogStack.isNotEmpty()) {
+            unitsAdapter.changeData(viewModel.catalogStack.peek()!!)
+            breadcrumbsAdapter.changeData(viewModel.breadcrumbStack.toMutableList())
+        }
+    }
+
     private fun scrollToPosition(toStart: Boolean = false) {
         if (toStart)
             (binding.rv.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
@@ -100,11 +142,23 @@ class CatalogFragment : Fragment(),
             }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupToolbar()
-        initViews()
-        initEventObservers()
+    private fun performSearch(query: String) {
+        // при нажатии на enter (search) на клавиатуре
+        requireActivity().hideKeyboard()
+        toolbarBinding.searchView.clearFocus()
+
+        viewModel.breadcrumbStack.lastOrNull()?.let {
+            if (it.shortname != query) {
+                if (searchType == SearchType.USERS) {
+                    viewModel.search(query, SearchType.USERS)
+                    retrieveCatalog()
+                }
+                if (searchType == SearchType.UNITS) {
+                    viewModel.search(query, SearchType.UNITS)
+                    retrieveCatalog()
+                }
+            }
+        }
     }
 
     private fun initEventObservers() {
@@ -130,15 +184,6 @@ class CatalogFragment : Fragment(),
                 }
             }
         }.launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
-    override fun onRefresh() {
-        refreshData()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        retrieveCatalog()
     }
 
     private fun setupToolbar() {
@@ -267,53 +312,4 @@ class CatalogFragment : Fragment(),
         binding.brv.smoothScrollToPosition(breadcrumbsAdapter.itemCount)
     }
 
-    private fun performSearch(query: String) {
-        // при нажатии на enter (search) на клавиатуре
-        requireActivity().hideKeyboard()
-        toolbarBinding.searchView.clearFocus()
-
-        viewModel.breadcrumbStack.lastOrNull()?.let {
-            if (it.shortname != query) {
-                if (searchType == SearchType.USERS) {
-                    viewModel.search(query, SearchType.USERS)
-                    retrieveCatalog()
-                }
-                if (searchType == SearchType.UNITS) {
-                    viewModel.search(query, SearchType.UNITS)
-                    retrieveCatalog()
-                }
-            }
-        }
-    }
-
-    private fun refreshData() {
-        if (isOnline(requireContext())) {
-            if (viewModel.catalogStack.isNullOrEmpty())
-                initMainPageObserver()
-        } else
-            showSnackBar(binding.root, getString(R.string.update_is_not_impossible))
-        unitsAdapter.notifyDataSetChanged()
-        binding.swiperefresh.isRefreshing = false
-    }
-
-    private val unitListUpdateObserver: Observer<Stack<UnitM>> =
-        Observer<Stack<UnitM>> {
-            retrieveCatalog()
-        }
-
-    private val breadcrumbsUpdateObserver: Observer<Stack<UnitM>> =
-        Observer<Stack<UnitM>> {
-            retrieveCatalog()
-        }
-
-    private fun initMainPageObserver() {
-        viewModel.goNext(getString(R.string.init_code_str))
-    }
-
-    private fun retrieveCatalog() {
-        if (viewModel.catalogStack.isNotEmpty()) {
-            unitsAdapter.changeData(viewModel.catalogStack.peek()!!)
-            breadcrumbsAdapter.changeData(viewModel.breadcrumbStack.toMutableList())
-        }
-    }
 }

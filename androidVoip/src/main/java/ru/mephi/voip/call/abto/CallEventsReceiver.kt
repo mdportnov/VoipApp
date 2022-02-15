@@ -14,29 +14,39 @@ import android.os.Bundle
 import android.os.RemoteException
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
+import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
+import org.abtollc.sdk.OnCallDisconnectedListener
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import ru.mephi.shared.data.model.CallStatus
+import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.voip.R
+import ru.mephi.voip.call.parseRemoteContact
 import ru.mephi.voip.ui.call.CallActivity
+import ru.mephi.voip.ui.call.CallButtonsState
+import ru.mephi.voip.ui.call.CallState
+import ru.mephi.voip.ui.call.CallViewModel
 import timber.log.Timber
 
-class CallEventsReceiver : BroadcastReceiver(), KoinComponent {
+class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnectedListener {
     lateinit var abtoApp: AbtoApp
+    lateinit var phone: AbtoPhone
     private val sp: SharedPreferences by inject()
+    private val callViewModel: CallViewModel by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
         abtoApp = context.applicationContext as AbtoApp
+        phone = abtoApp.abtoPhone
+        phone.setCallDisconnectedListener(this)
+
         val bundle = intent.extras ?: return
         when {
-            // Входящий звонок
             bundle.getBoolean(AbtoPhone.IS_INCOMING, false) -> {
-                Timber.d("INCOMING CALL")
+                Timber.d("INCOMING CALL")  // Входящий звонок
                 buildIncomingCallNotification(context, bundle)
             }
-
-            // Отклонение звонка
-            bundle.getBoolean(KEY_REJECT_CALL, false) -> {
+            bundle.getBoolean(KEY_REJECT_CALL, false) -> {  // Отклонение звонка
                 val callId = bundle.getInt(AbtoPhone.CALL_ID)
                 cancelIncCallNotification(context, callId)
                 try {
@@ -45,12 +55,52 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent {
                     e.printStackTrace()
                 }
             }
-            bundle.getInt(AbtoPhone.CODE) == -1 -> {
-                // Cancel call
+            bundle.getInt(AbtoPhone.CODE) == -1 -> {    // Cancel call
                 val callId = bundle.getInt(AbtoPhone.CALL_ID)
+//                callsRepository.addRecord(
+//                    sipNumber = parseRemoteContact(bundle.getString(AbtoPhone.REMOTE_CONTACT)!!).second,
+//                    status = CallStatus.MISSED
+//                )
                 cancelIncCallNotification(context, callId)
             }
         }
+    }
+
+    override fun onCallDisconnected(
+        callId: Int,
+        remoteContact: String?,
+        statusCode: Int,
+        statusMessage: String?
+    ) {
+        when (statusCode) {
+            200 -> callViewModel.changeCallState(CallState.NORMAL_CALL_CLEARING)
+            487 -> callViewModel.changeCallState(CallState.REQUEST_TERMINATED)
+            486 -> callViewModel.changeCallState(CallState.BUSY_HERE)
+        }
+
+        callViewModel.changeButtonState(CallButtonsState.CALL_ENDED)
+
+        when (callViewModel.callState.value) {
+            CallState.CALL_INCOMING -> callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_SIDE)
+            CallState.CALL_OUTGOING -> callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_SIDE)
+            CallState.NORMAL_CALL_CLEARING ->
+                if (callViewModel.mTotalTime < 2000) {
+                    // т.к. если разговор закончился по естесственной причине,
+                    // тоже будет NORMAL_CALL_CLEARING. Если обрывает связь собеседник,
+                    // соединение длится около 2с. В противном случае остается предыдущий статус (OUTGOING)
+                    callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_SIDE)
+                }
+            CallState.REQUEST_TERMINATED -> {
+                callViewModel.changeCallStatus(CallStatus.MISSED)
+            }
+            CallState.BUSY_HERE -> callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU)
+            else -> callViewModel.changeCallStatus(CallStatus.NONE)
+        }
+
+        callViewModel.saveInfoAboutCall(callViewModel.number)
+        callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU) // чтобы активность завершалась
+
+        Timber.d("call status code: $statusCode | msg: $statusMessage")
     }
 
     private fun buildIncomingCallNotification(context: Context, bundle: Bundle) {
@@ -59,23 +109,23 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent {
 
         // Проверка, что приложение сейчас в фоне и что есть разрешение на показ поверх других приложений
         // тогда открываем активность звонка и всё ок, иначе - уведомление для взаимодействия
-        if (abtoApp.isAppInBackground && Settings.canDrawOverlays(context)) {
-            if (sp.getBoolean(context.getString(R.string.call_screen_always_settings), false)) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-                return
-            }
-        }
-
-        if (!abtoApp.isAppInBackground && sp.getBoolean(
-                context.getString(R.string.call_screen_always_settings),
-                false
-            )
+        if (Settings.canDrawOverlays(context)
+            && sp.getBoolean(context.getString(R.string.call_screen_always_settings), false)
         ) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
             return
         }
+
+//        if (!abtoApp.isAppInBackground && sp.getBoolean(
+//                context.getString(R.string.call_screen_always_settings),
+//                false
+//            )
+//        ) {
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            context.startActivity(intent)
+//            return
+//        }
 
         val title = "Входящий звонок"
         val remoteContact = bundle.getString(AbtoPhone.REMOTE_CONTACT)

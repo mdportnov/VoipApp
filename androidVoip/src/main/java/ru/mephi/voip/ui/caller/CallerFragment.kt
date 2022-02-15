@@ -42,7 +42,7 @@ import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
-import ru.mephi.voip.databinding.FragmentCallsBinding
+import ru.mephi.voip.databinding.FragmentCallerBinding
 import ru.mephi.voip.databinding.ToolbarCallerBinding
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.adapter.CallHistoryAdapter
@@ -58,27 +58,30 @@ class CallerFragment : Fragment() {
 
     private lateinit var historyAdapter: CallHistoryAdapter
 
-    private lateinit var binding: FragmentCallsBinding
+    private lateinit var binding: FragmentCallerBinding
     private lateinit var toolbarBinding: ToolbarCallerBinding
 
     private var isPermissionGranted by mutableStateOf(true)
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onResume() {
+        super.onResume()
+        historyAdapter.notifyDataSetChanged()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentCallsBinding.inflate(inflater, container, false)
+        binding = FragmentCallerBinding.inflate(inflater, container, false)
         toolbarBinding = binding.toolbarCaller
 
         binding.numPadCompose.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 NumPad(
-                    5,
-                    mutableInputState,
-                    mutableNumPadState,
-                    isPermissionGranted,
+                    5, mutableInputState, mutableNumPadState, isPermissionGranted,
                     onTapWhenUp = { line ->
                         CallActivity.create(requireContext(), line, false)
                     },
@@ -185,6 +188,5 @@ class CallerFragment : Fragment() {
         val navHostFragment = NavHostFragment.findNavController(this)
         NavigationUI.setupWithNavController(toolbarBinding.toolbar, navHostFragment, appBarConfig)
         (activity as AppCompatActivity).setSupportActionBar(toolbarBinding.toolbar)
-//        (activity as AppCompatActivity).supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_backspace_24);
     }
 }

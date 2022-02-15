@@ -11,20 +11,20 @@
         tools:layout="@layout/fragment_catalog">
         <action
             android:id="@+id/catalog_to_caller"
-            app:destination="@id/navigation_calls" />
+            app:destination="@id/navigation_caller" />
         <action
             android:id="@+id/catalog_to_profile"
             app:destination="@id/navigation_profile" />
         <action
             android:id="@+id/callFromCatalogAction"
-            app:destination="@id/navigation_calls"
+            app:destination="@id/navigation_caller"
             app:enterAnim="@anim/slide_out_right"
             app:exitAnim="@anim/slide_in_left"
             app:popEnterAnim="@anim/slide_out_right"
             app:popExitAnim="@anim/slide_in_left" />
     </fragment>
     <fragment
-        android:id="@+id/navigation_calls"
+        android:id="@+id/navigation_caller"
         android:name="ru.mephi.voip.ui.caller.CallerFragment"
         android:label="CallsFragment" />
     <fragment

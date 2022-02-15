@@ -14,10 +14,8 @@ open class CallerViewModel : MainIoExecutor(), KoinComponent {
 
     fun addRecord(record: CallRecord) = repository.addRecord(record)
 
-    fun addRecord(sipNumber: String, sipName: String? = null, status: CallStatus) {
-        println("Added: $sipNumber")
+    fun addRecord(sipNumber: String, sipName: String? = null, status: CallStatus) =
         repository.addRecord(sipNumber, sipName, status)
-    }
 
     fun deleteAllRecords() = repository.deleteAllRecords()
 

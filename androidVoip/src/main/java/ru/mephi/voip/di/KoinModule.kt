@@ -30,8 +30,8 @@ val viewModels = module {
         ProfileViewModel(androidApplication(), get(named("account_prefs")), get())
     }
 
-    viewModel {
-        CallViewModel(androidApplication(), get(), get())
+    single {
+        CallViewModel(get(), get())
     }
 
     single {

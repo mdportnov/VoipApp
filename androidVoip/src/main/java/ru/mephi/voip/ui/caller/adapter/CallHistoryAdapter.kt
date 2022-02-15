@@ -1,11 +1,14 @@
 package ru.mephi.voip.ui.caller.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import org.abtollc.sdk.AbtoPhone
+import org.koin.core.component.KoinComponent
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.voip.R
@@ -19,7 +22,7 @@ import java.time.format.DateTimeFormatter
 
 
 class CallHistoryAdapter internal constructor(var context: Context) :
-    RecyclerView.Adapter<CallHistoryAdapter.CallHistoryViewHolder>() {
+    RecyclerView.Adapter<CallHistoryAdapter.CallHistoryViewHolder>(), KoinComponent {
 
     var allRecords = mutableListOf<CallRecord>()
 
@@ -86,17 +89,18 @@ class CallHistoryAdapter internal constructor(var context: Context) :
                             R.drawable.ic_baseline_call_declined_24
                         CallStatus.DECLINED_FROM_YOU ->
                             R.drawable.ic_baseline_call_declined_from_side_24
+                        else -> R.drawable.ic_baseline_error_24
                     }
                 )
 
                 call.setOnClickListener {
-                    if ((context as MainActivity).hasPermissions())
-                        CallActivity.create(
-                            this.root.context,
-                            binding.sipNumber.text.toString(),
-                            false
-                        )
-                    else
+                    if ((context as MainActivity).hasPermissions()) {
+                        val intent = Intent(context, CallActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        intent.putExtra(AbtoPhone.IS_INCOMING, false)
+                        intent.putExtra(AbtoPhone.REMOTE_CONTACT, binding.sipNumber.text.toString())
+                        context.startActivity(intent)
+                    } else
                         (context as MainActivity).requestPermissions()
                 }
 
@@ -110,6 +114,6 @@ class CallHistoryAdapter internal constructor(var context: Context) :
 fun stringFromDate(time: Long): String {
     val dtfCustom: DateTimeFormatter =
         DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
-    val dateTime = LocalDateTime.ofEpochSecond(time, 0, ZoneOffset.UTC)
+    val dateTime = LocalDateTime.ofEpochSecond(time, 0, ZoneOffset.of("+03:00"))
     return dateTime.format(dtfCustom)
 }

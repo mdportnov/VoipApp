@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.TypedValue.COMPLEX_UNIT_SP
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -18,34 +19,10 @@ import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.call.CallActivity
 
-
 class SwipeToDeleteCallback(private var adapter: CallHistoryAdapter) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
     private val callRepository: CallsRepository by inject(CallsRepository::class.java)
-
-    private var icon: Drawable = ContextCompat.getDrawable(
-        adapter.context,
-        R.drawable.ic_baseline_delete_24
-    )!!
-
-    private var background: ColorDrawable = ColorDrawable(Color.RED)
-
-    private fun changeDirection(dX: Float) {
-        if (dX < 0) {
-            icon = ContextCompat.getDrawable(
-                adapter.context,
-                R.drawable.ic_baseline_call_24
-            )!!
-            background = ColorDrawable(Color.GREEN)
-        } else {
-            icon = ContextCompat.getDrawable(
-                adapter.context,
-                R.drawable.ic_baseline_delete_24
-            )!!
-            background = ColorDrawable(Color.RED)
-        }
-    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onChildDraw(
@@ -61,8 +38,10 @@ class SwipeToDeleteCallback(private var adapter: CallHistoryAdapter) :
         RecyclerViewSwipeDecorator.Builder(
             c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive
         )
-            .addBackgroundColor(appContext.getColor(R.color.colorAccent))
-            .addActionIcon(R.drawable.ic_baseline_delete_24)
+            .addSwipeRightBackgroundColor(appContext.getColor(R.color.colorAccent))
+            .addSwipeRightActionIcon(R.drawable.ic_baseline_delete_24)
+            .setSwipeRightActionIconTint(appContext.getColor(R.color.colorPrimary))
+            .setSwipeLeftActionIconTint(appContext.getColor(R.color.colorPrimary))
             .addSwipeLeftBackgroundColor(appContext.getColor(R.color.colorGreen))
             .addSwipeLeftActionIcon(R.drawable.ic_baseline_call_24)
             .create()
