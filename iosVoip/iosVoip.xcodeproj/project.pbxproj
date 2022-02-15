@@ -42,7 +42,6 @@
 		87A5DD7F27B6A16D00A00109 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A5DD7E27B6A16D00A00109 /* Accelerate.framework */; };
 		87A5DD8127B6A17200A00109 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A5DD8027B6A17200A00109 /* AudioToolbox.framework */; };
 		87A5DD8227B6A19B00A00109 /* AbtoSipClientWrapper.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A5DD6E27B6A0DC00A00109 /* AbtoSipClientWrapper.xcframework */; };
-		87A5DDBA27B6A64D00A00109 /* abto_keepawake.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDAA27B6A64D00A00109 /* abto_keepawake.wav */; };
 		87A5DDBB27B6A64D00A00109 /* abto_dtmf-pound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDAB27B6A64D00A00109 /* abto_dtmf-pound.wav */; };
 		87A5DDBC27B6A64D00A00109 /* abto_dtmf-star.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDAC27B6A64D00A00109 /* abto_dtmf-star.wav */; };
 		87A5DDBD27B6A64D00A00109 /* abto_dtmf-9.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDAD27B6A64D00A00109 /* abto_dtmf-9.wav */; };
@@ -56,10 +55,12 @@
 		87A5DDC527B6A64D00A00109 /* abto_dtmf-6.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDB527B6A64D00A00109 /* abto_dtmf-6.wav */; };
 		87A5DDC627B6A64D00A00109 /* abto_dtmf-0.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDB627B6A64D00A00109 /* abto_dtmf-0.wav */; };
 		87A5DDC727B6A64D00A00109 /* abto_dtmf-1.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDB727B6A64D00A00109 /* abto_dtmf-1.wav */; };
-		87A5DDC827B6A64D00A00109 /* abto_keepawake.caf in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDB827B6A64D00A00109 /* abto_keepawake.caf */; };
 		87A5DDC927B6A64D00A00109 /* abto_dtmf-7.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDB927B6A64D00A00109 /* abto_dtmf-7.wav */; };
-		87A5DDCB27B6A8A000A00109 /* abto_keepawake.caf in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDCA27B6A89300A00109 /* abto_keepawake.caf */; };
 		87A5DDCE27B6A9E800A00109 /* GenDefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DDCD27B6A9E800A00109 /* GenDefs.swift */; };
+		87A5DDD227B6AC7B00A00109 /* AbtoPhoneEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DDCF27B6AC7B00A00109 /* AbtoPhoneEvent.swift */; };
+		87A5DDD327B6AC7B00A00109 /* AbtoCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DDD027B6AC7B00A00109 /* AbtoCall.swift */; };
+		87A5DDD427B6AC7B00A00109 /* AbtoCallKitProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DDD127B6AC7B00A00109 /* AbtoCallKitProvider.swift */; };
+		87A5DDD627B6AC9B00A00109 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DDD527B6AC9B00A00109 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -99,7 +100,6 @@
 		87A5DD7E27B6A16D00A00109 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		87A5DD8027B6A17200A00109 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		87A5DDA627B6A5F200A00109 /* VoIP-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VoIP-Bridging-Header.h"; sourceTree = "<group>"; };
-		87A5DDAA27B6A64D00A00109 /* abto_keepawake.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = abto_keepawake.wav; sourceTree = "<group>"; };
 		87A5DDAB27B6A64D00A00109 /* abto_dtmf-pound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "abto_dtmf-pound.wav"; sourceTree = "<group>"; };
 		87A5DDAC27B6A64D00A00109 /* abto_dtmf-star.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "abto_dtmf-star.wav"; sourceTree = "<group>"; };
 		87A5DDAD27B6A64D00A00109 /* abto_dtmf-9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "abto_dtmf-9.wav"; sourceTree = "<group>"; };
@@ -113,10 +113,12 @@
 		87A5DDB527B6A64D00A00109 /* abto_dtmf-6.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "abto_dtmf-6.wav"; sourceTree = "<group>"; };
 		87A5DDB627B6A64D00A00109 /* abto_dtmf-0.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "abto_dtmf-0.wav"; sourceTree = "<group>"; };
 		87A5DDB727B6A64D00A00109 /* abto_dtmf-1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "abto_dtmf-1.wav"; sourceTree = "<group>"; };
-		87A5DDB827B6A64D00A00109 /* abto_keepawake.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = abto_keepawake.caf; sourceTree = "<group>"; };
 		87A5DDB927B6A64D00A00109 /* abto_dtmf-7.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "abto_dtmf-7.wav"; sourceTree = "<group>"; };
-		87A5DDCA27B6A89300A00109 /* abto_keepawake.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = abto_keepawake.caf; path = "../../../../../Developer/ABTO_iOS_VoIP_SDK_trial(20210527)/AbtoSipClientWrapper.xcframework/ios-arm64_armv7/AbtoSipClientWrapper.framework/Resources/abto_keepawake.caf"; sourceTree = "<group>"; };
 		87A5DDCD27B6A9E800A00109 /* GenDefs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenDefs.swift; sourceTree = "<group>"; };
+		87A5DDCF27B6AC7B00A00109 /* AbtoPhoneEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AbtoPhoneEvent.swift; sourceTree = "<group>"; };
+		87A5DDD027B6AC7B00A00109 /* AbtoCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AbtoCall.swift; sourceTree = "<group>"; };
+		87A5DDD127B6AC7B00A00109 /* AbtoCallKitProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AbtoCallKitProvider.swift; sourceTree = "<group>"; };
+		87A5DDD527B6AC9B00A00109 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,9 +178,10 @@
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
 				7555FF8C242A565B00829871 /* Info.plist */,
 				2152FB032600AC8F00CF470E /* iOSApp.swift */,
-				058557D7273AAEEB004C7B11 /* Preview Content */,
 				87A5DCD927AD80CA00A00109 /* Reachabilty.swift */,
 				87A5DDA627B6A5F200A00109 /* VoIP-Bridging-Header.h */,
+				058557D7273AAEEB004C7B11 /* Preview Content */,
+				87A5DDD527B6AC9B00A00109 /* AppDelegate.swift */,
 			);
 			path = iosVoip;
 			sourceTree = "<group>";
@@ -276,7 +279,6 @@
 		87A5DDA927B6A63B00A00109 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				87A5DDCA27B6A89300A00109 /* abto_keepawake.caf */,
 				87A5DDB627B6A64D00A00109 /* abto_dtmf-0.wav */,
 				87A5DDB727B6A64D00A00109 /* abto_dtmf-1.wav */,
 				87A5DDB127B6A64D00A00109 /* abto_dtmf-2.wav */,
@@ -289,8 +291,6 @@
 				87A5DDAD27B6A64D00A00109 /* abto_dtmf-9.wav */,
 				87A5DDAB27B6A64D00A00109 /* abto_dtmf-pound.wav */,
 				87A5DDAC27B6A64D00A00109 /* abto_dtmf-star.wav */,
-				87A5DDB827B6A64D00A00109 /* abto_keepawake.caf */,
-				87A5DDAA27B6A64D00A00109 /* abto_keepawake.wav */,
 				87A5DDB227B6A64D00A00109 /* abto_ringbacktone.wav */,
 				87A5DDAE27B6A64D00A00109 /* abto_ringtone.mp3 */,
 			);
@@ -300,6 +300,9 @@
 		87A5DDCC27B6A9D600A00109 /* Abto */ = {
 			isa = PBXGroup;
 			children = (
+				87A5DDD027B6AC7B00A00109 /* AbtoCall.swift */,
+				87A5DDD127B6AC7B00A00109 /* AbtoCallKitProvider.swift */,
+				87A5DDCF27B6AC7B00A00109 /* AbtoPhoneEvent.swift */,
 				87A5DDCD27B6A9E800A00109 /* GenDefs.swift */,
 			);
 			path = Abto;
@@ -375,8 +378,6 @@
 			files = (
 				87A5DDBF27B6A64D00A00109 /* abto_dtmf-8.wav in Resources */,
 				87A5DDBE27B6A64D00A00109 /* abto_ringtone.mp3 in Resources */,
-				87A5DDC827B6A64D00A00109 /* abto_keepawake.caf in Resources */,
-				87A5DDBA27B6A64D00A00109 /* abto_keepawake.wav in Resources */,
 				87A5DDBD27B6A64D00A00109 /* abto_dtmf-9.wav in Resources */,
 				87A5DDC527B6A64D00A00109 /* abto_dtmf-6.wav in Resources */,
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
@@ -390,7 +391,6 @@
 				87A5DDC127B6A64D00A00109 /* abto_dtmf-2.wav in Resources */,
 				87A5DDC227B6A64D00A00109 /* abto_ringbacktone.wav in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
-				87A5DDCB27B6A8A000A00109 /* abto_keepawake.caf in Resources */,
 				87A5DDC427B6A64D00A00109 /* abto_dtmf-5.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -425,12 +425,14 @@
 				87A5DD5127AE9DF500A00109 /* UnitRow.swift in Sources */,
 				87A5DD5627AE9DF500A00109 /* ProfileView.swift in Sources */,
 				87A5DD5827AE9DF500A00109 /* CallVM.swift in Sources */,
+				87A5DDD427B6AC7B00A00109 /* AbtoCallKitProvider.swift in Sources */,
 				87A5DD4D27AE9DF500A00109 /* SettingRowView.swift in Sources */,
 				87A5DD5F27AE9F4500A00109 /* CallRow.swift in Sources */,
 				87A5DD6427AF2A4800A00109 /* CallScreen.swift in Sources */,
 				87A5DCDA27AD80CA00A00109 /* Reachabilty.swift in Sources */,
 				87A5DD4F27AE9DF500A00109 /* AppointmentRow.swift in Sources */,
 				87A5DD4C27AE9DF500A00109 /* SettingsScreen.swift in Sources */,
+				87A5DDD227B6AC7B00A00109 /* AbtoPhoneEvent.swift in Sources */,
 				87A5DD5027AE9DF500A00109 /* CatalogScreen.swift in Sources */,
 				87A5DD5927AE9DF500A00109 /* CatalogVM.swift in Sources */,
 				87A5DD6227AE9F4500A00109 /* KeyPadRow.swift in Sources */,
@@ -441,8 +443,10 @@
 				87A5DD6027AE9F4500A00109 /* KeyPad.swift in Sources */,
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
 				87A5DD5327AE9DF500A00109 /* CallerScreen.swift in Sources */,
+				87A5DDD627B6AC9B00A00109 /* AppDelegate.swift in Sources */,
 				87A5DD5727AE9DF500A00109 /* NewAccountView.swift in Sources */,
 				87A5DD5227AE9DF500A00109 /* MainRouter.swift in Sources */,
+				87A5DDD327B6AC7B00A00109 /* AbtoCall.swift in Sources */,
 				87A5DD5427AE9DF500A00109 /* GrowingButton.swift in Sources */,
 				87A5DD5A27AE9DF500A00109 /* ProfileVM.swift in Sources */,
 			);
