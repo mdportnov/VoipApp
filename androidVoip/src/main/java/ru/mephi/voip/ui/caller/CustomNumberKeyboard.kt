@@ -1,11 +1,8 @@
 package ru.mephi.voip.ui.caller
 
 import android.app.Activity
-import android.graphics.Color
 import androidx.activity.compose.BackHandler
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -25,8 +22,6 @@ import ru.mephi.voip.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import ru.mephi.shared.appContext
-
 
 @ExperimentalAnimationApi
 @Composable

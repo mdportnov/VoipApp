@@ -43,7 +43,7 @@ struct MainRouter: View {
                     Text("Каталог")
                 }.tag(Tab.catalog)
             
-            ProfileScreen(viewModel: .init(api: api))
+            ProfileScreen(viewModel: .init(api: api, userSettings: UserSettings()))
                 .tabItem{
                     Image(systemName: "person.crop.circle")
                     Text("Профиль")

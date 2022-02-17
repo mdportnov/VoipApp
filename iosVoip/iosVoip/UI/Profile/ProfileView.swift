@@ -1,11 +1,20 @@
 import SwiftUI
 import Kingfisher
 
+let lightGreyColor = Color(red: 239.0/255.0, green: 243.0/255.0, blue: 244.0/255.0, opacity: 1.0)
+
 struct ProfileView: View {
     @ObservedObject private(set) var viewModel: ProfileViewModel
+    @State var isLoginControlVisible = false
+    @State var buttonText = "Добавить аккаунт"
+    
+    init(viewModel: ProfileViewModel){
+        self.viewModel = viewModel
+        buttonText = isLoginControlVisible ? "Добавить" : "Добавить аккаунт"
+    }
     
     var body: some View {
-        VStack{
+        VStack(alignment: .center){
             HStack{
                 Image("logo_voip").shadow(color: .black.opacity(0.3), radius: 3)
                 ZStack(alignment: .bottomTrailing){
@@ -29,7 +38,6 @@ struct ProfileView: View {
                         Image(systemName: "checkmark.circle").foregroundColor(.green)
                     }
                 }
-                
             }
             VStack(alignment: .leading){
                 HStack{
@@ -44,12 +52,26 @@ struct ProfileView: View {
                     Text("Статус: ").foregroundColor(.orange).bold()
                     Text(viewModel.sipStatus.status).bold()
                 }
-            }
+                if isLoginControlVisible {
+                        TextField("SIP USER ID", text: $viewModel.username)
+                            .keyboardType(.numberPad)
+                            .padding(10.0)
+                            .background(lightGreyColor)
+                            .cornerRadius(5.0)
+                        SecureField("SIP PASSWORD", text: $viewModel.password)
+                            .padding(10.0)
+                            .background(lightGreyColor)
+                            .cornerRadius(5.0)
+                }
+            }.padding(10.0)
             Spacer()
             HStack(alignment: .center){
                 Spacer()
-                Button("Добавить аккаунт") {
-                   
+                Button(buttonText) {
+                    UIApplication.shared.endEditing()
+                    isLoginControlVisible.toggle()
+                    self.buttonText = isLoginControlVisible ? "Добавить" : "Добавить аккаунт"
+                    viewModel.addNewAccount()
                 }.buttonStyle(GrowingButton())
             }.padding()
         }
@@ -66,8 +88,14 @@ struct ProfileView: View {
     }
 }
 
-struct ProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileView(viewModel: .init(api: .init()))
+extension UIApplication {
+    func endEditing() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
+
+//struct ProfileView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ProfileView(viewModel: .init(api: .init()))
+//    }
+//}
