@@ -42,7 +42,10 @@ import ru.mephi.voip.databinding.FragmentCatalogBinding
 import ru.mephi.voip.databinding.ToolbarCatalogBinding
 import ru.mephi.voip.ui.catalog.adapter.BreadcrumbsAdapter
 import ru.mephi.voip.ui.catalog.adapter.DataAdapter
-import ru.mephi.voip.utils.*
+import ru.mephi.voip.utils.hideKeyboard
+import ru.mephi.voip.utils.isOnline
+import ru.mephi.voip.utils.showSnackBar
+import ru.mephi.voip.utils.toast
 
 class CatalogFragment : Fragment(),
     OnRefreshListener, LifecycleOwner {
@@ -197,6 +200,18 @@ class CatalogFragment : Fragment(),
 
     //https://medium.com/mindorks/create-a-network-sensing-activity-in-android-614a1fa62a22
     private fun initViews() {
+//        toolbarBinding.switchSearchType.setOnCheckedChangeListener { radioGroup, id ->
+//            when (id) {
+//                R.id.users -> {
+//                    searchType = SearchType.USERS
+//                    toolbarBinding.searchView.queryHint = getString(R.string.search_of_appointments)
+//                }
+//                R.id.units -> {
+//                    searchType = SearchType.UNITS
+//                    toolbarBinding.searchView.queryHint = getString(R.string.search_of_units)
+//                }
+//            }
+//        }
         toolbarBinding.switchSearchType.setCheckedChangeListener { current ->
             if (current == IconSwitch.Checked.LEFT) {
                 searchType = SearchType.USERS
@@ -253,11 +268,8 @@ class CatalogFragment : Fragment(),
                 override fun onQueryTextSubmit(query: String): Boolean {
                     if (isOnline(appContext))
                         if (query.length >= 3) {
-                            if (isLetters(query)) {
-                                performSearch(query)
-                                viewModel.addSearchRecord(SearchRecord(null, query, searchType))
-                            } else
-                                toast(getString(R.string.wrong_query))
+                            performSearch(query)
+                            viewModel.addSearchRecord(SearchRecord(null, query, searchType))
                         } else
                             toast(getString(R.string.enter_longer_query))
                     else

@@ -33,7 +33,6 @@ import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.ActivityMainBinding
 import ru.mephi.voip.eventbus.Event
 import ru.mephi.voip.ui.catalog.CatalogViewModel
-import ru.mephi.voip.ui.settings.SettingsFragment
 import ru.mephi.voip.utils.network.NetworkSensingBaseActivity
 import ru.mephi.voip.utils.setupWithNavController
 import ru.mephi.voip.utils.showSnackBar
@@ -97,11 +96,14 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
     override fun onDestroy() {
         super.onDestroy()
         // При полном закрытии приложения останавливаем Call-сервис
-        if (!accountStatusRepository.isBackgroundWork.value || !accountStatusRepository.isSipEnabled.value) {
-//            abtoPhone.stopForeground() // Убираем уведомления, но abto сервис ещё работает
+        if (!accountStatusRepository.isBackgroundWork.value) {
             disableSip()
+            EventBus.getDefault().unregister(this)
         }
-        EventBus.getDefault().unregister(this)
+        if (!accountStatusRepository.isSipEnabled.value) {
+            disableSip()
+            EventBus.getDefault().unregister(this)
+        }
     }
 
     private fun setupBottomNavigationBar() {
@@ -125,9 +127,6 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
                         catalogViewModel.goToStartPage()
                     }
                 }
-//                R.id.profile -> {
-//                    if(binding.bottomNav.)
-//                }
             }
         }
 
@@ -146,9 +145,11 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
 
     @Subscribe
     fun disableSip(messageEvent: Event.DisableAccount? = null) {
-        phone.stopForeground()
-        phone.unregister()
-        phone.destroy()
+        if (phone.isActive) {
+            phone.stopForeground()
+            phone.unregister()
+            phone.destroy()
+        }
     }
 
     private fun initAccount(abtoPhone: AbtoPhone) {

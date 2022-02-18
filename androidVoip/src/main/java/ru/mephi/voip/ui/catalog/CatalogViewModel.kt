@@ -13,8 +13,8 @@ import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.Resource
-import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.R
+import ru.mephi.voip.data.CatalogRepository
 
 class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecutor() {
     var catalogStack: Stack<UnitM> = mutableListOf()
@@ -112,6 +112,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                     when (resource) {
                         is Resource.Loading -> showProgressBar()
                         is Resource.Success -> {
+                            dismissProgressBar()
                             resource.data?.let { newPage ->
                                 pushPageToCatalog(newPage)
                                 scrollCatalogToStart()

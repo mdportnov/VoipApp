@@ -35,11 +35,19 @@ open class NetworkSensingBaseActivity : AppCompatActivity(),
     }
 
     override fun onPause() {
+        super.onPause()
         snackBar?.dismiss()
         snackBar = null
         connectionStateMonitor?.disable()
         connectionStateMonitor = null
-        super.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        snackBar?.dismiss()
+        snackBar = null
+        connectionStateMonitor?.disable()
+        connectionStateMonitor = null
     }
 
     override fun onPositive() {
