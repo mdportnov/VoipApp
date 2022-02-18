@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
@@ -165,7 +166,6 @@ class ProfileFragment : Fragment() {
     fun ScreenAddNewAccount(scaffoldState: BottomSheetScaffoldState) {
         var textLogin = viewModel.newLogin.value
         val textPassword = viewModel.newPassword.value
-        val localContext = LocalContext.current
         val hapticFeedback = LocalHapticFeedback.current
         val maxNumberLength = 6
         val (focusRequester) = FocusRequester.createRefs()
@@ -207,6 +207,8 @@ class ProfileFragment : Fragment() {
                 }
             )
 
+            var passwordVisibility by remember { mutableStateOf(false) }
+
             OutlinedTextField(
                 singleLine = true,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -218,7 +220,7 @@ class ProfileFragment : Fragment() {
                 keyboardActions = KeyboardActions(
                     onDone = { keyboardController?.hide() }
                 ),
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .fillMaxWidth()
@@ -227,6 +229,17 @@ class ProfileFragment : Fragment() {
                 value = textPassword,
                 onValueChange = {
                     viewModel.onNewAccountInputChange(password = it)
+                },
+                trailingIcon = {
+                    val image = if (passwordVisibility)
+                        Icons.Filled.Visibility
+                    else Icons.Filled.VisibilityOff
+
+                    IconButton(onClick = {
+                        passwordVisibility = !passwordVisibility
+                    }) {
+                        Icon(imageVector  = image, "")
+                    }
                 }
             )
 

@@ -104,6 +104,7 @@ class AccountStatusRepository(
 
             if (accountsCount.value == 0) {
                 _status.emit(AccountStatus.UNREGISTERED)
+                _isSipEnabled.value = false
                 return@launch
             }
 

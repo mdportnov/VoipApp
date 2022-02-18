@@ -14,8 +14,8 @@ android {
         applicationId = "ru.mephi.voip"
         minSdk = 23
         targetSdk = 30 // 31 causes error with pendingIntents and abto
-        versionCode = 12
-        versionName = "0.4.0"
+        versionCode = 13
+        versionName = "0.5.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         signingConfig = signingConfigs.getByName("debug")
@@ -82,6 +82,7 @@ dependencies {
     implementation("com.google.android.material:material:1.5.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.compose.material:material:1.1.0")
+    implementation("androidx.compose.material:material-icons-extended:1.1.0")
 
     implementation("io.coil-kt:coil:1.4.0")
     implementation("io.coil-kt:coil-compose:1.3.2")

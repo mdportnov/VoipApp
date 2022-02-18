@@ -117,16 +117,6 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
             return
         }
 
-//        if (!abtoApp.isAppInBackground && sp.getBoolean(
-//                context.getString(R.string.call_screen_always_settings),
-//                false
-//            )
-//        ) {
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//            context.startActivity(intent)
-//            return
-//        }
-
         val title = "Входящий звонок"
         val remoteContact = bundle.getString(AbtoPhone.REMOTE_CONTACT)
         val callId = bundle.getInt(AbtoPhone.CALL_ID)
