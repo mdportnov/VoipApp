@@ -65,6 +65,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.preference:preference:1.1.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.2")

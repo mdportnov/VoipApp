@@ -1,11 +1,10 @@
 package ru.mephi.voip.ui.profile
 
-import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -53,27 +52,20 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.MainActivity
+import ru.mephi.voip.ui.settings.SettingsActivity
 import ru.mephi.voip.utils.*
 import timber.log.Timber
-
-//fun findMyNavController(activity: Activity): NavController {
-//    val navHostFragment = (activity as AppCompatActivity).supportFragmentManager.findFragmentById(
-//        R.id.nav_host_container
-//    ) as NavHostFragment
-//
-//    return navHostFragment.navController
-//}
 
 @ExperimentalComposeUiApi
 @ExperimentalCoilApi
@@ -404,9 +396,10 @@ class ProfileFragment : Fragment() {
                             modifier = Modifier.align(alignment = Alignment.TopEnd),
                             onClick = {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                navController.navigate(
-                                    R.id.action_navigation_profile_to_settingsFragment,
-                                )
+                                startActivity(Intent(appContext, SettingsActivity::class.java))
+//                                navController.navigate(
+//                                    R.id.action_navigation_profile_to_settingsFragment,
+//                                )
                             }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_baseline_settings_24),

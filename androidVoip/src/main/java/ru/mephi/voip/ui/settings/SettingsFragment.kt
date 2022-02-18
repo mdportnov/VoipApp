@@ -5,16 +5,18 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent
+import ru.mephi.shared.appContext
 import ru.mephi.shared.data.database.CatalogDao
-import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
+import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.utils.ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
 import ru.mephi.voip.utils.PACKAGE_NAME
 import ru.mephi.voip.utils.launchMailClientIntent
@@ -34,16 +36,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
             key = getString(R.string.background_work_settings)
             title = "Работать в фоновом режиме"
             isSingleLineTitle = false
+            icon = appContext.getDrawable(R.drawable.ic_baseline_cloud_24)
         }
 
         val deleteHistoryPreference = Preference(context).apply {
             key = "delete_search_history"
             title = "Удалить историю запросов"
+            icon = appContext.getDrawable(R.drawable.ic_baseline_delete_sweep_24)
         }
 
         val deleteCatalogCachePreference = Preference(context).apply {
             key = "delete_catalog_cache_history"
             title = "Удалить кэш каталога"
+            icon = appContext.getDrawable(R.drawable.ic_baseline_playlist_remove_24)
         }
 
         val voipSettings = PreferenceCategory(context).apply {
@@ -79,6 +84,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 "Если sip-клиент активен, то при активации этой " +
                         "функции будет появляться экран входящего вызова. " +
                         "Если функция отключена, будет выводиться только уведомление."
+            icon = appContext.getDrawable(R.drawable.ic_baseline_add_to_home_screen_24)
             onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { preference, newValue ->
                     val switched: Boolean = (preference as SwitchPreferenceCompat).isChecked
@@ -103,18 +109,21 @@ class SettingsFragment : PreferenceFragmentCompat() {
             key = "version"
             summary = BuildConfig.VERSION_NAME
             title = "Версия"
+            icon = AppCompatResources.getDrawable(appContext, R.drawable.ic_baseline_info_24)
         }
 
         val developedByPreference = Preference(context).apply {
             key = "developed"
             summary = "НИЯУ МИФИ, Управление информатизации"
             title = "Разработано"
+            icon = appContext.getDrawable(R.drawable.ic_baseline_auto_fix_high_24)
         }
 
         val feedbackPreference = Preference(context).apply {
             key = "feedback"
             summary = "Сообщить о технических вопросах или предложить новые функции"
             title = "Отправить фидбэк"
+            icon = appContext.getDrawable(R.drawable.ic_baseline_send_24)
             setOnPreferenceClickListener {
                 context.launchMailClientIntent(resources.getString(R.string.support_email))
                 true

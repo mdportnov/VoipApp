@@ -10,11 +10,9 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
-import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -28,8 +26,6 @@ import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.inject
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
-import ru.mephi.shared.popFromStackTill
-import ru.mephi.shared.push
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
 import ru.mephi.voip.call.getSipUsername
@@ -37,10 +33,12 @@ import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.ActivityMainBinding
 import ru.mephi.voip.eventbus.Event
 import ru.mephi.voip.ui.catalog.CatalogViewModel
+import ru.mephi.voip.ui.settings.SettingsFragment
 import ru.mephi.voip.utils.network.NetworkSensingBaseActivity
 import ru.mephi.voip.utils.setupWithNavController
 import ru.mephi.voip.utils.showSnackBar
 import timber.log.Timber
+
 
 class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
     EasyPermissions.PermissionCallbacks {
@@ -127,6 +125,9 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
                         catalogViewModel.goToStartPage()
                     }
                 }
+//                R.id.profile -> {
+//                    if(binding.bottomNav.)
+//                }
             }
         }
 

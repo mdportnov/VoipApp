@@ -311,5 +311,4 @@ class CatalogFragment : Fragment(),
 
         binding.brv.smoothScrollToPosition(breadcrumbsAdapter.itemCount)
     }
-
 }
