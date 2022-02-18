@@ -11,11 +11,12 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import org.koin.android.ext.android.inject
-import org.koin.java.KoinJavaComponent
+import org.koin.core.component.KoinComponent
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
+import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.utils.ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
 import ru.mephi.voip.utils.PACKAGE_NAME
@@ -23,9 +24,10 @@ import ru.mephi.voip.utils.launchMailClientIntent
 import ru.mephi.voip.utils.toast
 
 
-class SettingsFragment : PreferenceFragmentCompat() {
+class SettingsFragment : PreferenceFragmentCompat(), KoinComponent {
     private val catalogRepository: CatalogRepository by inject()
-    private val catalogDao: CatalogDao by KoinJavaComponent.inject(CatalogDao::class.java)
+    private val catalogDao: CatalogDao by inject()
+    private val accountStatusRepository: AccountStatusRepository by inject()
 
     @SuppressLint("NewApi")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -33,10 +35,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val screen = preferenceManager.createPreferenceScreen(context)
 
         val backgroundWorkPreference = SwitchPreferenceCompat(context).apply {
-            key = getString(R.string.background_work_settings)
+            key = getString(R.string.sp_background_enabled)
             title = "Работать в фоновом режиме"
             isSingleLineTitle = false
             icon = appContext.getDrawable(R.drawable.ic_baseline_cloud_24)
+            onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    val switched: Boolean = (preference as SwitchPreferenceCompat).isChecked
+                    accountStatusRepository.changeBackGroundWork(newValue as Boolean)
+                    preference.isChecked = !switched
+                    true
+                }
         }
 
         val deleteHistoryPreference = Preference(context).apply {

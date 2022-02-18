@@ -32,7 +32,6 @@
     <string name="add_new_account">Добавить новый аккаунт</string>
     <string name="add_account">Добавить</string>
     <string name="change_account">Сменить аккаунт</string>
-
     <string name="domain">pbx.mephi.ru</string>
     <string name="search_of_appointments">Поиск сотрудников…</string>
     <string name="search_of_units">Поиск подразделений…</string>
@@ -53,7 +52,7 @@
 
     <string name="sp_sip_enabled">is_sip_enabled</string>
     <string name="call_screen_always_settings">call_screen_always</string>
-    <string name="background_work_settings">background_work</string>
+    <string name="sp_background_enabled">background_work</string>
     <string name="input_number">Введите номер</string>
     <string name="title_activity_settings">SettingsActivity</string>
 </resources>

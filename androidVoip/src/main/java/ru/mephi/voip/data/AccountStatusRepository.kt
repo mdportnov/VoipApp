@@ -56,12 +56,15 @@ class AccountStatusRepository(
 
     private var _isSipEnabled =
         MutableStateFlow(sp.getBoolean(appContext.getString(R.string.sp_sip_enabled), false))
-    val isSipEnabled: MutableStateFlow<Boolean> = _isSipEnabled
+    val isSipEnabled: StateFlow<Boolean> = _isSipEnabled
 
-    private var _isBackGroundWork = MutableStateFlow(
-        sp.getBoolean(appContext.getString(R.string.background_work_settings), false)
-    )
-    val isBackgroundWork: MutableStateFlow<Boolean> = _isBackGroundWork
+    private var _isBackGroundWork =
+        MutableStateFlow(sp.getBoolean(appContext.getString(R.string.sp_background_enabled), false))
+    val isBackgroundWork: StateFlow<Boolean> = _isBackGroundWork
+
+    fun changeBackGroundWork(isWorking: Boolean) {
+        _isBackGroundWork.value = isWorking
+    }
 
     init {
         fetchStatus()
