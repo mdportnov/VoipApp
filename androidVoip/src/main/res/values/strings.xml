@@ -47,29 +47,13 @@
     <string name="call">Call</string>
     <string name="email">Email:</string>
     <string name="call_via_phone">Звонок через телефон</string>
-    <string name="sp_sip_enabled">is_sip_enabled</string>
     <string name="disable_sip">Выключить SIP</string>
     <string name="enable_sip">Включить SIP</string>
     <string name="support_email">voip@mephi.ru</string>
-    <string name="not_found">По запросу ничего не найдено</string>
 
+    <string name="sp_sip_enabled">is_sip_enabled</string>
     <string name="call_screen_always_settings">call_screen_always</string>
     <string name="background_work_settings">background_work</string>
     <string name="input_number">Введите номер</string>
     <string name="title_activity_settings">SettingsActivity</string>
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>

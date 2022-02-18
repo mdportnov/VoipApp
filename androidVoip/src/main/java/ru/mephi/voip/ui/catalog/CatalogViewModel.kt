@@ -69,7 +69,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                             showSnackBar(appContext.getString(R.string.empty_unit))
                         }
                         is Resource.Error.NotFoundError -> {
-                            showSnackBar(appContext.getString(R.string.not_found))
+                            showSnackBar(resource.message!!)
                         }
                         is Resource.Error.NetworkError -> {
                             showSnackBar(appContext.getString(R.string.connection_lost))
@@ -156,7 +156,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
         eventChannel.send(Event.ProgressBar.Dismiss)
     }
 
-    fun showProgressBar() = launch(ioDispatcher) {
+    private fun showProgressBar() = launch(ioDispatcher) {
         eventChannel.send(Event.ProgressBar.Show)
     }
 

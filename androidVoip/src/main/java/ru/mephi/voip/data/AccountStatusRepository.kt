@@ -111,6 +111,8 @@ class AccountStatusRepository(
 
             if (isSipEnabled.value)
                 updateNotificationStatus(_status.value)
+            else
+                disableAccount()
         }
     }
 
@@ -238,10 +240,8 @@ class AccountStatusRepository(
 
     @SuppressLint("CommitPrefEdits")
     fun toggleSipStatus() {
-        sp.edit().putBoolean(
-            appContext.getString(R.string.sp_sip_enabled),
-            !sp.getBoolean(appContext.getString(R.string.sp_sip_enabled), false)
-        ).apply()
+        val key = appContext.getString(R.string.sp_sip_enabled)
+        sp.edit().putBoolean(key, !sp.getBoolean(key, false)).apply()
         _isSipEnabled.value = !_isSipEnabled.value
 
         if (_isSipEnabled.value)

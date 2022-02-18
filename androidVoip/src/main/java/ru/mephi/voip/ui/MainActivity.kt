@@ -145,11 +145,9 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
 
     @Subscribe
     fun disableSip(messageEvent: Event.DisableAccount? = null) {
-        if (phone.isActive) {
-            phone.stopForeground()
-            phone.unregister()
-            phone.destroy()
-        }
+        phone.stopForeground()
+        phone.unregister()
+        phone.destroy()
     }
 
     private fun initAccount(abtoPhone: AbtoPhone) {
