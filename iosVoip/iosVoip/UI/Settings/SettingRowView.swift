@@ -6,7 +6,6 @@ struct SettingRowView: View {
     var info: String?
     
     var body: some View {
-        
         HStack (spacing : 15) {
             Image(systemName: systemImageName).frame(width: 30)
             VStack(alignment: .leading){
@@ -17,8 +16,6 @@ struct SettingRowView: View {
                 }
             }
         }
-        
-        
     }
 }
 

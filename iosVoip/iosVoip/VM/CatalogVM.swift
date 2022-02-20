@@ -25,6 +25,10 @@ class CatalogVM: ObservableObject {
         getUnitByCodeStr(codeStr: startCodeStr)
     }
 
+    func deleteCache() {
+        catalogDao.deleteAll()
+    }
+
     func getSearchRecords() -> [SearchRecord] {
         searchDB.getAll()
     }
@@ -49,6 +53,7 @@ class CatalogVM: ObservableObject {
         }
 
         CommonUtilsKt.pop(catalogStack)
+        currentCodeStr = (catalogStack.lastObject as! UnitM).code_str
 
         if catalogStack.count >= 1 {
             let prevUnit = CommonUtilsKt.peek(catalogStack) as? UnitM
@@ -123,7 +128,7 @@ class CatalogVM: ObservableObject {
                 }
             }
         }
-//        addSearchRecord(searchRecord: SearchRecord(id: nil, name: searchQuery, type: searchType))
+        addSearchRecord(searchRecord: SearchRecord(id: nil, name: searchQuery, type: searchType))
     }
 
     func getUnitByCodeStr(codeStr: String) {

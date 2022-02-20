@@ -5,6 +5,7 @@ struct SettingsScreen: View {
     @ObservedObject var userSettings: UserSettings
     @State private var showingAlertDeleteHistory = false
     @State private var showingAlertDeleteCache = false
+    @State private var showingAlertDeleteCalls = false
 
     init(userSettings: UserSettings) {
         self.userSettings = userSettings
@@ -28,7 +29,6 @@ struct SettingsScreen: View {
                             }
                         }
 
-
                         NavigationLink(destination: EmptyView(), label: {
                             SettingRowView(title: "SIP настройки",
                                     systemImageName: "phone")
@@ -46,19 +46,44 @@ struct SettingsScreen: View {
                                 .onTapGesture {
                                     showingAlertDeleteHistory.toggle()
                                 }
-                                .alert("Вы действительно хотите очистить историю запросов?", isPresented: $showingAlertDeleteHistory) {
-                                    Button("Да", role: .cancel) {
-                                    }
+                                .alert(isPresented: $showingAlertDeleteHistory) {
+                                    Alert(
+                                            title: Text("Вы действительно хотите очистить историю запросов?"),
+                                            message: Text("Вы их вводили при поиске в каталоге"),
+                                            primaryButton: .destructive(Text("Да")) {
+                                                userSettings.deleteSearchHistory()
+                                            },
+                                            secondaryButton: .cancel(Text("Нет"))
+                                    )
                                 }
-
                         SettingRowView(title: "Удалить кэш каталога",
                                 systemImageName: "lineweight")
                                 .onTapGesture {
                                     showingAlertDeleteCache.toggle()
                                 }
-                                .alert("Вы действительно хотите очистить кэш каталога?", isPresented: $showingAlertDeleteCache) {
-                                    Button("Да", role: .cancel) {
-                                    }
+                                .alert(isPresented: $showingAlertDeleteCache) {
+                                    Alert(
+                                            title: Text("Вы действительно хотите очистить кэш каталога?"),
+                                            message: Text("Загруженные данные для офлайн доступа к каталогу"),
+                                            primaryButton: .destructive(Text("Да")) {
+                                                userSettings.deleteCatalogCache()
+                                            },
+                                            secondaryButton: .cancel(Text("Нет"))
+                                    )
+                                }
+                        SettingRowView(title: "Удалить записи звонков",
+                                systemImageName: "phone.arrow.right")
+                                .onTapGesture {
+                                    showingAlertDeleteCalls.toggle()
+                                }
+                                .alert(isPresented: $showingAlertDeleteCalls) {
+                                    Alert(
+                                            title: Text("Вы действительно хотите удалить записи звонков?"),
+                                            primaryButton: .destructive(Text("Да")) {
+                                                userSettings.deleteCallsHistory()
+                                            },
+                                            secondaryButton: .cancel(Text("Нет"))
+                                    )
                                 }
                     }
 
@@ -91,6 +116,6 @@ struct SettingsScreen: View {
 
 struct SettingsScreen_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsScreen(userSettings: UserSettings())
+        SettingsScreen(userSettings: UserSettings(callerVM: .init(), catalogVM: .init()))
     }
 }

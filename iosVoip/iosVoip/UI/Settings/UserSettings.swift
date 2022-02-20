@@ -1,9 +1,9 @@
 import Foundation
 import Combine
 import Toaster
+import shared
 
 class Account: Identifiable, Codable {
-//    var id = UUID()
     var login: String = ""
     var password: String = ""
     var isActive: Bool = false
@@ -18,6 +18,28 @@ class Account: Identifiable, Codable {
 class UserSettings: ObservableObject {
     let savedAccountsKey = "SavedAccounts"
     let activeAccountKey = "ActiveAccount"
+
+    let searchDB = SearchDB()
+    var callerViewModel: CallerViewModel
+    var catalogViewModel: CatalogVM
+
+    init(callerVM: CallerViewModel, catalogVM: CatalogVM) {
+        callerViewModel = callerVM
+        catalogViewModel = catalogVM
+
+        activeAccount = UserDefaults.standard.object(forKey: activeAccountKey) as? Account ?? Account(login: "", password: "", isActive: false)
+        isBackground = UserDefaults.standard.object(forKey: "isBackground") as? Bool ?? true
+
+        accounts = []
+        accounts.append(Account(login: "09024", password: "wT8WzGjoUUptxkcu", isActive: true))
+
+        if let data = UserDefaults.standard.data(forKey: savedAccountsKey) {
+            if let decoded = try? JSONDecoder().decode([Account].self, from: data) {
+                accounts = decoded
+                return
+            }
+        }
+    }
 
     @Published var accounts: [Account]
 
@@ -48,7 +70,7 @@ class UserSettings: ObservableObject {
         save()
     }
 
-    func save(){
+    func save() {
         if let encoded = try? JSONEncoder().encode(accounts) {
             UserDefaults.standard.set(encoded, forKey: savedAccountsKey)
         }
@@ -62,18 +84,15 @@ class UserSettings: ObservableObject {
         save()
     }
 
-    init() {
-        activeAccount = UserDefaults.standard.object(forKey: activeAccountKey) as? Account ?? Account(login: "", password: "", isActive: false)
-        isBackground = UserDefaults.standard.object(forKey: "isBackground") as? Bool ?? true
+    func deleteSearchHistory() {
+        searchDB.deleteAll()
+    }
 
-        accounts = []
-        accounts.append(Account(login: "09024", password: "wT8WzGjoUUptxkcu", isActive: true))
+    func deleteCallsHistory() {
+        callerViewModel.deleteAllRecords()
+    }
 
-        if let data = UserDefaults.standard.data(forKey: savedAccountsKey) {
-            if let decoded = try? JSONDecoder().decode([Account].self, from: data) {
-                accounts = decoded
-                return
-            }
-        }
+    func deleteCatalogCache() {
+        catalogViewModel.deleteCache()
     }
 }

@@ -24,6 +24,6 @@ struct NewAccountView: View {
 
 struct NewAccountView_Previews: PreviewProvider {
     static var previews: some View {
-        NewAccountView(viewModel: .init(api: .init(), userSettings: UserSettings()))
+        NewAccountView(viewModel: .init(api: .init(), userSettings: UserSettings(callerVM: .init(), catalogVM: .init())))
     }
 }

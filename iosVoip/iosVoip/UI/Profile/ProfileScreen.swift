@@ -28,6 +28,6 @@ struct ProfileScreen: View {
 
 struct ProfileScreen_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileScreen(viewModel: .init(api: .init(), userSettings: UserSettings()))
+        ProfileScreen(viewModel: .init(api: .init(), userSettings: UserSettings(callerVM: .init(), catalogVM: .init())))
     }
 }
