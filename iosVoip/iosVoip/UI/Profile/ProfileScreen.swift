@@ -9,7 +9,7 @@ struct ProfileScreen: View {
     var body: some View {
         NavigationView{
             ProfileView(viewModel: viewModel)
-                .navigationTitle("Профиль")
+                .navigationBarTitle("Профиль")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action:  {

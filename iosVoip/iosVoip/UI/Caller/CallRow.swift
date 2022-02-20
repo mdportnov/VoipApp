@@ -5,12 +5,12 @@ import Kingfisher
 struct CallRow: View {
     var callRecord: CallRecord
     var viewModel: CallerViewModel?
-    
+
     init(callRecord: CallRecord, viewModel: CallerViewModel?) {
         self.callRecord = callRecord
         self.viewModel = viewModel
     }
-    
+
     var body: some View {
         HStack(alignment: .center) {
             KFImage(URL(string: "https://sd.mephi.ru/api/6/get_photo_mobile.jpg?api_key=theiTh0Wohtho$uquie)kooc&phone=" + callRecord.sipNumber)!)
@@ -22,13 +22,13 @@ struct CallRow: View {
                 .cacheMemoryOnly()
                 .scaledToFit()
                 .frame(width: 70)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: 30))
             Spacer()
             VStack(alignment: .leading) {
                 if callRecord.sipName != nil {
                     Text(callRecord.sipName!).bold()
                 }
-                
+
                 HStack(alignment: .center) {
                     Image(systemName: "phone.down").foregroundColor(.red)
                     Text(stringFromDate(Date(timeIntervalSince1970: TimeInterval(callRecord.time)))).font(.system(size: 10)).multilineTextAlignment(.leading).lineLimit(2)

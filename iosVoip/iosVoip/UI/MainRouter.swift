@@ -27,9 +27,11 @@ struct MainRouter: View {
 
     var callerViewModel = CallerViewModel()
     var catalogViewModel = CatalogVM()
+    var userSettings : UserSettings
 
     init(api: KtorApiService) {
         self.api = api
+        userSettings = UserSettings(callerVM: callerViewModel, catalogVM: catalogViewModel)
     }
 
     var body: some View {
@@ -48,8 +50,7 @@ struct MainRouter: View {
                     }
                     .tag(Tab.catalog)
 
-            ProfileScreen(viewModel: .init(api: api, userSettings:
-            UserSettings(callerVM: callerViewModel, catalogVM: catalogViewModel)))
+            ProfileScreen(viewModel: .init(api: api, userSettings: userSettings))
                     .tabItem {
                         Image(systemName: "person.crop.circle")
                         Text("Профиль")

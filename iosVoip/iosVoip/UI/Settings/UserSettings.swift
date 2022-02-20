@@ -27,11 +27,9 @@ class UserSettings: ObservableObject {
         callerViewModel = callerVM
         catalogViewModel = catalogVM
 
-        activeAccount = UserDefaults.standard.object(forKey: activeAccountKey) as? Account ?? Account(login: "", password: "", isActive: false)
         isBackground = UserDefaults.standard.object(forKey: "isBackground") as? Bool ?? true
-
         accounts = []
-        accounts.append(Account(login: "09024", password: "wT8WzGjoUUptxkcu", isActive: true))
+        activeAccount = UserDefaults.standard.object(forKey: activeAccountKey) as? Account ?? Account(login: "", password: "", isActive: false)
 
         if let data = UserDefaults.standard.data(forKey: savedAccountsKey) {
             if let decoded = try? JSONDecoder().decode([Account].self, from: data) {
@@ -48,7 +46,6 @@ class UserSettings: ObservableObject {
             if let encoded = try? JSONEncoder().encode(activeAccount) {
                 UserDefaults.standard.set(encoded, forKey: activeAccountKey)
             }
-            changeActiveAccount(activeAccount.login)
         }
     }
 
@@ -59,15 +56,20 @@ class UserSettings: ObservableObject {
     }
 
     func changeActiveAccount(_ login: String) {
+        var newAccounts: [Account] = []
+
         accounts.forEach { account in
             if account.login == login {
-                account.isActive = true
+                activeAccount = Account(login: account.login, password: account.password, isActive: true)
+                newAccounts.append(activeAccount)
             } else {
-                account.isActive = false
+                newAccounts.append(Account(login: account.login, password: account.password, isActive: false))
             }
         }
-        Toast(text: "Активный аккаунт: \(activeAccount.login)", duration: Delay.short).show()
+
+        accounts = newAccounts
         save()
+        Toast(text: "Активный аккаунт: \(activeAccount.login)", duration: Delay.short).show()
     }
 
     func save() {
@@ -81,6 +83,13 @@ class UserSettings: ObservableObject {
             account.isActive = false
         }
         accounts.append(Account(login: username, password: password, isActive: true))
+        save()
+    }
+
+    func deleteAccount(accountToDelete: Account) {
+        accounts = accounts.filter { account in
+            account.login != accountToDelete.login
+        }
         save()
     }
 
