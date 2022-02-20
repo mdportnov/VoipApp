@@ -3,8 +3,8 @@ package ru.mephi.shared.data.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-class SearchRecord(
-    val id: Long?,
+data class SearchRecord(
+    val id: Long? = null,
     val name: String,
     val type: SearchType
 )

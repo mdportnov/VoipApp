@@ -157,7 +157,7 @@ class CatalogRepository : KoinComponent {
 
     fun containsSearchRecord(searchRecord: SearchRecord) = dao.isExists(searchRecord.name)
 
-    fun addSearchRecord(record: SearchRecord) = dao.insertAll(record)
+    fun addSearchRecord(record: SearchRecord) = dao.insert(record)
 
     fun deleteAllSearchRecords() = dao.deleteAll()
 }

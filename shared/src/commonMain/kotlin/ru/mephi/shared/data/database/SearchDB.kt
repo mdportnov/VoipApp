@@ -1,27 +1,26 @@
 package ru.mephi.shared.data.database
 
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mephi.shared.AppDatabase
-import ru.mephi.shared.data.database.interfaces.ISearchRecordsDao
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.SearchType
 
-class SearchDB(databaseDriverFactory: DatabaseDriverFactory) :
-    ISearchRecordsDao {
+class SearchDB : KoinComponent {
+    private val databaseDriverFactory: DatabaseDriverFactory by inject()
     private val database = AppDatabase(databaseDriverFactory.createDriver())
     private val dbQuery = database.appDatabaseQueries
 
-    override fun getAll(): List<SearchRecord> =
+    fun getAll(): List<SearchRecord> =
         dbQuery.getAllSearches { id, name, type ->
             SearchRecord(id, name, SearchType.valueOf(type))
         }.executeAsList()
 
-    override fun insertAll(vararg record: SearchRecord) {
-        dbQuery.transaction {
-            record.forEach { dbQuery.insertAllSearches(it.id, it.name, it.type.name) }
-        }
+    fun insert(record: SearchRecord) {
+        dbQuery.insertAllSearches(record.id, record.name, record.type.name)
     }
 
-    override fun deleteRecords(vararg record: SearchRecord) {
+    fun deleteRecords(vararg record: SearchRecord) {
         dbQuery.transaction {
             record.forEach {
                 dbQuery.deleteSearchById(it.id)
@@ -29,10 +28,10 @@ class SearchDB(databaseDriverFactory: DatabaseDriverFactory) :
         }
     }
 
-    override fun deleteAll() {
+    fun deleteAll() {
         dbQuery.deleteAllSearches()
     }
 
-    override fun isExists(name: String) =
+    fun isExists(name: String) =
         dbQuery.isExistsSearch(name).executeAsOne()
 }

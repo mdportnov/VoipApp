@@ -46,7 +46,7 @@ val repositoryModule = module {
             +NameItem.serializer()
         })
 
-    single { SearchDB(get()) }
+    single { SearchDB() }
     single { CallerViewModel() }
     single { CallsDB(get()) }
     single { ApiHelper() }

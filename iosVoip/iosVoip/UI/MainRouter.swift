@@ -37,7 +37,7 @@ struct MainRouter: View {
                     Text("Звонки")
                 }.tag(Tab.caller)
             
-            CatalogScreen(viewModel: .init())
+            CatalogScreen(vm: .init())
                 .tabItem{
                     Image(systemName: "house.fill")
                     Text("Каталог")

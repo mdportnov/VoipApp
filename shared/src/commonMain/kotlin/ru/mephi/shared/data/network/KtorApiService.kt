@@ -43,6 +43,10 @@ class KtorApiService : BaseApiService {
                 }
             } ?: return Resource.Error.NetworkError(exception = NotFoundException(filterLike))
 
+            if (unitOfUsers.appointments.isNullOrEmpty()) {
+                return Resource.Error.EmptyError(exception = NotFoundException(filterLike))
+            }
+
             return Resource.Success(data = unitOfUsers)
         } catch (exception: Throwable) {
             return when (exception) {

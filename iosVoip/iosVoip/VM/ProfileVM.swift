@@ -27,14 +27,6 @@ class ProfileViewModel: ObservableObject {
         sipNumber = userSettings.activeAccount.login
         photoUrl = clientBuilder.PHOTO_REQUEST_URL_BY_PHONE + userSettings.activeAccount.login
         getNameByPhone(phone: sipNumber)
-//
-//        $username.debounce(for: 0.8, scheduler: RunLoop.main)
-//                .removeDuplicates()
-//                .map {
-//                    input in input.count >= 4
-//                }
-//                .assign(to: \.isValid, on: self)
-//                .store(in: &cancellableSet)
     }
 
     func addNewAccount() {
