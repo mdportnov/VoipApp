@@ -73,25 +73,5 @@ struct IncomingInterfaceView: View {
                 Toast(text: resource?.message, duration: Delay.short).show()
             }
         }
-
-//        if let name = nameItem?.display_name {
-//            update.remoteHandle = CXHandle(type: .generic, value: name)
-//            providerDelegate?.reportIncomingCall(with: uuid, remoteUserID: name) { error in
-//                if let error = error {
-//                    print(error.localizedDescription)
-//                } else {
-//                    print("Ring Ring...")
-//                }
-//            }
-//        } else {
-//            update.remoteHandle = CXHandle(type: .generic, value: callerPhone)
-//            providerDelegate?.reportIncomingCall(with: uuid, remoteUserID: callerPhone) { error in
-//                if let error = error {
-//                    print(error.localizedDescription)
-//                } else {
-//                    print("Ring Ring...")
-//                }
-//            }
-//        }
     }
 }

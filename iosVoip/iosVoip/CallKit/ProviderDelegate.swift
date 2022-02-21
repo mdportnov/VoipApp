@@ -2,8 +2,7 @@ import AVFoundation
 import UIKit
 import CallKit
 
-typealias ErrorHandler = ((NSError?) -> ())
-
+typealias ErrorHandler = (NSError?) -> ()
 
 extension Notification.Name {
     static let DidCallEnd = Notification.Name("DidCallEnd")
@@ -52,14 +51,12 @@ class ProviderDelegate: NSObject, CXProviderDelegate {
     }
 
     func endCall(with uuid: UUID, endedAt: Date, reason: CXCallEndedReason) {
-        self.provider.reportCall(with: uuid, endedAt: endedAt, reason: reason)
+        provider.reportCall(with: uuid, endedAt: endedAt, reason: reason)
     }
 
     func connectedCall(with uuid: UUID) {
-        self.provider.reportOutgoingCall(with: uuid, connectedAt: Date())
+        provider.reportOutgoingCall(with: uuid, connectedAt: Date())
     }
-
-
 
     func providerDidReset(_ provider: CXProvider) {
         // 1. Stop audio
@@ -76,8 +73,8 @@ class ProviderDelegate: NSObject, CXProviderDelegate {
         // configure audio session
 
         // If I am caller, add the call to callManager and `reportOutgoingCall(with:connecteAt)` with `CXProvider`
-        self.callManager.addCall(uuid: action.callUUID)
-        self.connectedCall(with: action.callUUID)
+        callManager.addCall(uuid: action.callUUID)
+        connectedCall(with: action.callUUID)
 
         action.fulfill()
     }
@@ -121,9 +118,7 @@ class ProviderDelegate: NSObject, CXProviderDelegate {
     }
 
     func provider(_ provider: CXProvider, perform action: CXSetMutedCallAction) {
-
         // Stop / start audio by using `action.isMuted`
-
         action.fulfill()
     }
 

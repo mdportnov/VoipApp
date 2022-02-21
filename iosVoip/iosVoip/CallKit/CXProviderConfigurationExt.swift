@@ -4,7 +4,7 @@ import CallKit
 extension CXProviderConfiguration {
 
     static var custom: CXProviderConfiguration {
-        let configuration = CXProviderConfiguration(localizedName: "App Name Here")
+        let configuration = CXProviderConfiguration(localizedName: "VoIP MEPhI Caller")
 
         // Native call log shows video icon if it was video call.
         configuration.supportsVideo = true

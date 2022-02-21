@@ -1,12 +1,8 @@
 package ru.mephi.shared.data.network
 
-import io.ktor.client.*
-import io.ktor.client.features.*
 import io.ktor.client.request.*
-import io.ktor.http.*
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.UnitM
-import kotlin.coroutines.cancellation.CancellationException
 
 class KtorApiService : BaseApiService {
     private var httpClient = KtorClientBuilder.createHttpClient()

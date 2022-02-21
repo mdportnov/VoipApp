@@ -11,7 +11,6 @@ extension CXCallUpdate {
 
     func onFailed(with uuid: UUID) {
         let remoteHandle = CXHandle(type: .generic, value: "Unknown")
-
         self.remoteHandle = remoteHandle
         localizedCallerName = "Unknown"
     }
