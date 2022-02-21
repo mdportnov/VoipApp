@@ -1,9 +1,3 @@
-//
-//  AbtoCallKitPushKitProvider.swift
-//
-//  Copyright © 2021 ABTO Software. All rights reserved.
-//
-
 import UIKit
 import AVFoundation
 import CallKit
@@ -14,9 +8,7 @@ let kInitialCallIndex = 100
 let kMaxCallIndex  = 100 + 1000
 
 protocol AbtoCallKitProviderDelegate {
-
     // MARK: Delegate to cover SIP parsing for CallKit
-    
     // extract information from SIP INVITE message
     func sipCallMatchId(_ inviteRequest: String?, andRemoteContact remoteContact: String?) -> String?
     func sipCallerName(_ inviteRequest: String?, andRemoteContact remoteContact: String?) -> String?

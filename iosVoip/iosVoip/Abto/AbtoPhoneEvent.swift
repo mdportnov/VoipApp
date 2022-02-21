@@ -1,9 +1,3 @@
-//
-//  AbtoPhoneEvent.swift
-//
-//  Copyright © 2021 ABTO Software. All rights reserved.
-//
-
 import Foundation
 
 enum AbtoPhoneEvent {

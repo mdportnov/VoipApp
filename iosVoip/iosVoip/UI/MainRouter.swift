@@ -3,7 +3,7 @@ import shared
 
 
 enum Tab {
-    case caller, catalog, profile, settings
+    case caller, catalog, profile, settings, test
 }
 
 class ViewRouter: ObservableObject {
@@ -24,10 +24,10 @@ struct MainRouter: View {
     var api: KtorApiService
     @StateObject private var viewRouter = ViewRouter()
     @StateObject private var appState = AppState()
-
     var callerViewModel = CallerViewModel()
     var catalogViewModel = CatalogVM()
-    var userSettings : UserSettings
+    var userSettings: UserSettings
+    @EnvironmentObject var callManager: CallManager
 
     init(api: KtorApiService) {
         self.api = api
@@ -42,6 +42,7 @@ struct MainRouter: View {
                         Text("Звонки")
                     }
                     .tag(Tab.caller)
+                    .environmentObject(callManager)
 
             CatalogScreen(vm: catalogViewModel)
                     .tabItem {
@@ -56,6 +57,12 @@ struct MainRouter: View {
                         Text("Профиль")
                     }
                     .tag(Tab.profile)
+
+            DialView().tabItem {
+                        Image(systemName: "testtube.2")
+                        Text("Тест")
+                    }
+                    .tag(Tab.test)
         }
                 .accentColor(.orange)
                 .environmentObject(viewRouter)

@@ -61,6 +61,15 @@
 		87A5DDD327B6AC7B00A00109 /* AbtoCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DDD027B6AC7B00A00109 /* AbtoCall.swift */; };
 		87A5DDD427B6AC7B00A00109 /* AbtoCallKitProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DDD127B6AC7B00A00109 /* AbtoCallKitProvider.swift */; };
 		87A5DDD627B6AC9B00A00109 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5DDD527B6AC9B00A00109 /* AppDelegate.swift */; };
+		BFF890C52413385BFF2F3CDC /* CXCallUpdateExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF89A73A6BEBF8225C28984 /* CXCallUpdateExt.swift */; };
+		BFF890F986E3D906F22FC99F /* CallManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF893291DDCEE79B41C9625 /* CallManager.swift */; };
+		BFF8958F2015B85436872355 /* CXProviderConfigurationExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF897E7FFEE8C24B8CA1C9E /* CXProviderConfigurationExt.swift */; };
+		BFF896EBFCBA93A7BA34DC82 /* CXProviderExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF8909B880C243A59DF0F59 /* CXProviderExt.swift */; };
+		BFF898C650E7A0F752F85D9D /* CallInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF8916A47109C3B09960DCD /* CallInterfaceView.swift */; };
+		BFF89A390A853A70986B73FF /* DialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF8971B3D7FCC6FB03AA447 /* DialView.swift */; };
+		BFF89CC1639E59AEA051BE82 /* OutgoingInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF8991764C6144F3E823C88 /* OutgoingInterfaceView.swift */; };
+		BFF89CC247FB4C694AFB8AD9 /* IncomingInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF89831ADFE4D5B10BB51BC /* IncomingInterfaceView.swift */; };
+		BFF89FCA043C826F3C97C22A /* ProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF89E78E1C787D4903BDC0F /* ProviderDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -119,6 +128,15 @@
 		87A5DDD027B6AC7B00A00109 /* AbtoCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AbtoCall.swift; sourceTree = "<group>"; };
 		87A5DDD127B6AC7B00A00109 /* AbtoCallKitProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AbtoCallKitProvider.swift; sourceTree = "<group>"; };
 		87A5DDD527B6AC9B00A00109 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		BFF8909B880C243A59DF0F59 /* CXProviderExt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CXProviderExt.swift; sourceTree = "<group>"; };
+		BFF8916A47109C3B09960DCD /* CallInterfaceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallInterfaceView.swift; sourceTree = "<group>"; };
+		BFF893291DDCEE79B41C9625 /* CallManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallManager.swift; sourceTree = "<group>"; };
+		BFF8971B3D7FCC6FB03AA447 /* DialView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DialView.swift; sourceTree = "<group>"; };
+		BFF897E7FFEE8C24B8CA1C9E /* CXProviderConfigurationExt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CXProviderConfigurationExt.swift; sourceTree = "<group>"; };
+		BFF89831ADFE4D5B10BB51BC /* IncomingInterfaceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingInterfaceView.swift; sourceTree = "<group>"; };
+		BFF8991764C6144F3E823C88 /* OutgoingInterfaceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingInterfaceView.swift; sourceTree = "<group>"; };
+		BFF89A73A6BEBF8225C28984 /* CXCallUpdateExt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CXCallUpdateExt.swift; sourceTree = "<group>"; };
+		BFF89E78E1C787D4903BDC0F /* ProviderDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProviderDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +200,7 @@
 				87A5DDA627B6A5F200A00109 /* VoIP-Bridging-Header.h */,
 				058557D7273AAEEB004C7B11 /* Preview Content */,
 				87A5DDD527B6AC9B00A00109 /* AppDelegate.swift */,
+				BFF89AAC896726B6C0EC0C0E /* CallKit */,
 			);
 			path = iosVoip;
 			sourceTree = "<group>";
@@ -306,6 +325,30 @@
 				87A5DDCD27B6A9E800A00109 /* GenDefs.swift */,
 			);
 			path = Abto;
+			sourceTree = "<group>";
+		};
+		BFF89AAC896726B6C0EC0C0E /* CallKit */ = {
+			isa = PBXGroup;
+			children = (
+				BFF893291DDCEE79B41C9625 /* CallManager.swift */,
+				BFF89E78E1C787D4903BDC0F /* ProviderDelegate.swift */,
+				BFF897E7FFEE8C24B8CA1C9E /* CXProviderConfigurationExt.swift */,
+				BFF89A73A6BEBF8225C28984 /* CXCallUpdateExt.swift */,
+				BFF8909B880C243A59DF0F59 /* CXProviderExt.swift */,
+				BFF89EC454B23F29EFC9370E /* UI */,
+			);
+			path = CallKit;
+			sourceTree = "<group>";
+		};
+		BFF89EC454B23F29EFC9370E /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				BFF8916A47109C3B09960DCD /* CallInterfaceView.swift */,
+				BFF89831ADFE4D5B10BB51BC /* IncomingInterfaceView.swift */,
+				BFF8991764C6144F3E823C88 /* OutgoingInterfaceView.swift */,
+				BFF8971B3D7FCC6FB03AA447 /* DialView.swift */,
+			);
+			path = UI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -449,6 +492,15 @@
 				87A5DDD327B6AC7B00A00109 /* AbtoCall.swift in Sources */,
 				87A5DD5427AE9DF500A00109 /* GrowingButton.swift in Sources */,
 				87A5DD5A27AE9DF500A00109 /* ProfileVM.swift in Sources */,
+				BFF890F986E3D906F22FC99F /* CallManager.swift in Sources */,
+				BFF89FCA043C826F3C97C22A /* ProviderDelegate.swift in Sources */,
+				BFF8958F2015B85436872355 /* CXProviderConfigurationExt.swift in Sources */,
+				BFF890C52413385BFF2F3CDC /* CXCallUpdateExt.swift in Sources */,
+				BFF896EBFCBA93A7BA34DC82 /* CXProviderExt.swift in Sources */,
+				BFF898C650E7A0F752F85D9D /* CallInterfaceView.swift in Sources */,
+				BFF89CC247FB4C694AFB8AD9 /* IncomingInterfaceView.swift in Sources */,
+				BFF89CC1639E59AEA051BE82 /* OutgoingInterfaceView.swift in Sources */,
+				BFF89A390A853A70986B73FF /* DialView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

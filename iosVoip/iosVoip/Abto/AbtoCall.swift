@@ -1,15 +1,8 @@
-//
-//  AbtoCall.swift
-//
-//  Copyright © 2021 ABTO Software. All rights reserved.
-//
-
 import UIKit
 import CallKit
 import AbtoSipClientWrapper
 
 final class AbtoCall {
-    
     // MARK: Metadata Properties
     
     let abtoPhone: AbtoPhoneInterface
@@ -40,7 +33,6 @@ final class AbtoCall {
     var finishBlock: ((_ call: AbtoCall, _ code: Int, _ message: String) -> Void)?
     
     // MARK: Call State Properties
-    
     var startDate: Date? {
         didSet {
             stateDidChange?()
