@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
+import timber.log.Timber
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class ConnectionStateMonitor(
@@ -37,11 +38,13 @@ class ConnectionStateMonitor(
 
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
+        Timber.d("onAvailable")
         onNetworkAvailableCallbacks.onPositive()
     }
 
     override fun onLost(network: Network) {
         super.onLost(network)
+        Timber.d("onLost")
         onNetworkAvailableCallbacks.onNegative()
     }
 

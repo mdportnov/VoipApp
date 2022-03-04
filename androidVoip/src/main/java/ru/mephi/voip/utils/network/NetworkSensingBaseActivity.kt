@@ -44,10 +44,10 @@ open class NetworkSensingBaseActivity : AppCompatActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
-        snackBar?.dismiss()
-        snackBar = null
-        connectionStateMonitor?.disable()
-        connectionStateMonitor = null
+//        snackBar?.dismiss()
+//        snackBar = null
+//        connectionStateMonitor?.disable()
+//        connectionStateMonitor = null
     }
 
     override fun onPositive() {

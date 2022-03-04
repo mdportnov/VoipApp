@@ -3,6 +3,10 @@ package ru.mephi.shared.data.network
 import io.ktor.client.request.*
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.UnitM
+import ru.mephi.shared.data.network.exception.EmptyUnitException
+import ru.mephi.shared.data.network.exception.ForbiddenException
+import ru.mephi.shared.data.network.exception.NetworkException
+import ru.mephi.shared.data.network.exception.NotFoundException
 
 class KtorApiService : BaseApiService {
     private var httpClient = KtorClientBuilder.createHttpClient()
@@ -101,29 +105,36 @@ class KtorApiService : BaseApiService {
             }
         }
     }
+
+    override suspend fun getUserByPhone(phone: String): Resource<UnitM> {
+        try {
+            val userUnit: UnitM = httpClient.get {
+                url {
+                    path("get_subscribers_mobile_by_phone.json")
+                    parameter("filter_extension", phone)
+                }
+            } ?: return Resource.Error.NetworkError(exception = NetworkException())
+
+            if (userUnit.appointments.isNullOrEmpty())
+                return Resource.Error.NotFoundError(exception = NotFoundException(query = phone))
+            return Resource.Success(data = userUnit)
+        } catch (exception: Throwable) {
+            return when (exception) {
+                is NetworkException -> Resource.Error.NetworkError(exception = exception)
+                is NotFoundException -> Resource.Error.NotFoundError(exception = exception)
+                is ForbiddenException -> Resource.Error.ServerNotRespondError(exception = exception)
+                is EmptyUnitException -> Resource.Error.EmptyError(exception = exception)
+                else -> Resource.Error.UndefinedError()
+            }
+        }
+    }
 }
 
-class EmptyUnitException : Exception() {
-    override val message: String
-        get() = "Пустой пункт"
-}
 
-class NetworkException : Exception() {
-    override val message: String
-        get() = "Интернет-соединение отсутствует"
-}
 
-class ForbiddenException : Exception() {
-    override val message: String
-        get() = "Доступ к ресурсу запрещён"
-}
 
-class NotFoundException(private val query: String) : Exception() {
-    override val message: String
-        get() = "По запросу \"${query}\" ничего не найдено"
-}
 
-class UndefinedErrorException : Exception() {
-    override val message: String
-        get() = "Что-то пошло не так"
-}
+
+
+
+

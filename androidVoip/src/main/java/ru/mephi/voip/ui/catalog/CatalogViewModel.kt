@@ -1,5 +1,6 @@
 package ru.mephi.voip.ui.catalog
 
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -86,27 +87,50 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     fun search(query: String, type: SearchType) {
         launch(ioDispatcher) {
             if (type == SearchType.USERS)
-                repository.getUsersByName(query).onEach { resource ->
-                    when (resource) {
-                        is Resource.Loading -> showProgressBar()
-                        is Resource.Success -> {
-                            dismissProgressBar()
-                            resource.data?.let { newPage ->
-                                pushPageToCatalog(newPage)
-                                scrollCatalogToStart()
+                if (query.isDigitsOnly()) {
+                    repository.getUserByPhone(query).onEach { resource ->
+                        when (resource) {
+                            is Resource.Loading -> showProgressBar()
+                            is Resource.Success -> {
+                                dismissProgressBar()
+                                resource.data?.let { newPage ->
+                                    pushPageToCatalog(newPage)
+                                    scrollCatalogToStart()
+                                }
                             }
-                        }
-                        is Resource.Error.NotFoundError -> {
-                            resource.message?.let { showSnackBar(it) }
-                        }
-                        is Resource.Error.UndefinedError -> {
-                            resource.message?.let {
-                                showSnackBar(it)
+                            is Resource.Error.NotFoundError -> {
+                                resource.message?.let { showSnackBar(it) }
                             }
+                            is Resource.Error.UndefinedError -> {
+                                resource.message?.let {
+                                    showSnackBar(it)
+                                }
+                            }
+                            else -> dismissProgressBar()
                         }
-                        else -> dismissProgressBar()
-                    }
-                }.launchIn(this)
+                    }.launchIn(this)
+                } else
+                    repository.getUsersByName(query).onEach { resource ->
+                        when (resource) {
+                            is Resource.Loading -> showProgressBar()
+                            is Resource.Success -> {
+                                dismissProgressBar()
+                                resource.data?.let { newPage ->
+                                    pushPageToCatalog(newPage)
+                                    scrollCatalogToStart()
+                                }
+                            }
+                            is Resource.Error.NotFoundError -> {
+                                resource.message?.let { showSnackBar(it) }
+                            }
+                            is Resource.Error.UndefinedError -> {
+                                resource.message?.let {
+                                    showSnackBar(it)
+                                }
+                            }
+                            else -> dismissProgressBar()
+                        }
+                    }.launchIn(this)
             else
                 repository.getUnitsByName(query).onEach { resource ->
                     when (resource) {

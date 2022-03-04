@@ -83,7 +83,14 @@ class CallerFragment : Fragment() {
                 NumPad(
                     5, mutableInputState, mutableNumPadState, isPermissionGranted,
                     onTapWhenUp = { line ->
-                        CallActivity.create(requireContext(), line, false)
+                        if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                            CallActivity.create(requireContext(), line, false)
+                        } else {
+                            showSnackBar(
+                                binding.root,
+                                "Нет активного аккаунта для совершения звонка"
+                            )
+                        }
                     },
                     onLimitExceeded = {
                         showSnackBar(this, "Превышен размер номера")

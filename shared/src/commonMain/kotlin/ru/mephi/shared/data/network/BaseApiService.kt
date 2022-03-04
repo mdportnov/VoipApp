@@ -18,4 +18,7 @@ interface BaseApiService {
 
     // get_displayname.json?api_key=КЛЮЧ&line=9295
     suspend fun getInfoByPhone(phone: String): Resource<List<NameItem>>
+
+    // get_subscribers_mobile_by_phone.json?api_key=КЛЮЧ&filter_extension=9295
+    suspend fun getUserByPhone(phone: String): Resource<UnitM>
 }

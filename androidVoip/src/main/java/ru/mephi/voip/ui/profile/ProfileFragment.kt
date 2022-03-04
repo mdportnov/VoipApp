@@ -86,12 +86,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel.accountRepository.fetchStatus()
-        Timber.d("ProfileFragment onViewCreated")
-    }
-
     //https://dev.to/davidibrahim/how-to-use-multiple-bottom-sheets-in-android-compose-382p
     @ExperimentalMaterialApi
     @ExperimentalComposeUiApi

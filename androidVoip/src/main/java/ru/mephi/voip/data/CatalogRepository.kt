@@ -12,6 +12,10 @@ import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.*
+import ru.mephi.shared.data.network.exception.EmptyUnitException
+import ru.mephi.shared.data.network.exception.NetworkException
+import ru.mephi.shared.data.network.exception.NotFoundException
+import ru.mephi.shared.data.network.exception.UndefinedErrorException
 import ru.mephi.voip.utils.isOnline
 
 class CatalogRepository : KoinComponent {
@@ -150,6 +154,35 @@ class CatalogRepository : KoinComponent {
             newUnits == null -> emit(Resource.Error.NetworkError(exception = NetworkException()))
             newUnits.isEmpty() -> emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
             else -> emit(Resource.Success(newUnits))
+        }
+    }
+
+    suspend fun getUserByPhone(phone: String): Flow<Resource<UnitM>> = flow {
+        emit(Resource.Loading())
+
+        try {
+            when (val resource = api.getUserByPhone(phone)) {
+                is Resource.Error.NetworkError -> {
+                    emit(Resource.Error.NetworkError(exception = NetworkException()))
+                }
+                is Resource.Error.EmptyError<*> -> {
+                    emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
+                }
+                is Resource.Error.UndefinedError<*> -> {
+                    emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+                }
+                is Resource.Success<*> -> {
+                    val unitOfUsers = (resource.data as UnitM)
+                    unitOfUsers.shortname = phone
+                    if (unitOfUsers.appointments.isNullOrEmpty())
+                        emit(Resource.Error.NotFoundError(NotFoundException(phone)))
+                    else
+                        emit(Resource.Success(unitOfUsers))
+                }
+                else -> {}
+            }
+        } catch (exception: Exception) {
+            emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
         }
     }
 

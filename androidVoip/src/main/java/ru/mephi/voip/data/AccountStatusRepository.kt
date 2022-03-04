@@ -87,6 +87,16 @@ class AccountStatusRepository(
     fun fetchStatus(newStatus: AccountStatus? = null) {
         CoroutineScope(Dispatchers.Main).launch {
             _status.emit(AccountStatus.LOADING)
+
+            val list = getAccountsList()
+            _accountsCount.value = list.size
+
+            if (accountsCount.value == 0) {
+                _status.emit(AccountStatus.UNREGISTERED)
+                _isSipEnabled.value = false
+                return@launch
+            }
+
             _status.replayCache.lastOrNull()?.let { lastStatus ->
                 Timber.d("Switching Status from: \"${lastStatus.status}\" to \"${newStatus?.status}\"")
             }
@@ -99,18 +109,9 @@ class AccountStatusRepository(
             } else if (newStatus != null)
                 _status.value = newStatus
 
-            val list = getAccountsList()
-            _accountsCount.value = list.size
-
-            if (accountsCount.value == 0) {
-                _status.emit(AccountStatus.UNREGISTERED)
-                _isSipEnabled.value = false
-                return@launch
-            }
-
             if (newStatus == AccountStatus.REGISTERED)
                 fetchName()
-            else if (newStatus == AccountStatus.UNREGISTERED)
+            else if (newStatus == AccountStatus.UNREGISTERED || newStatus == AccountStatus.REGISTRATION_FAILED)
                 _displayName.emit(null)
 
             if (isSipEnabled.value)

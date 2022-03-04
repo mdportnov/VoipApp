@@ -9,6 +9,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
 import kotlinx.serialization.json.Json
+import ru.mephi.shared.data.network.exception.ForbiddenException
+import ru.mephi.shared.data.network.exception.NetworkException
+import ru.mephi.shared.data.network.exception.UndefinedErrorException
 
 private val json = Json {
     ignoreUnknownKeys = true

@@ -8,14 +8,19 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import org.abtollc.sdk.AbtoPhone
+import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
+import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
+import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.databinding.ItemCallRecordBinding
 import ru.mephi.voip.ui.MainActivity
 import ru.mephi.voip.ui.catalog.adapter.BaseViewHolder
+import ru.mephi.voip.utils.showSnackBar
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -24,6 +29,7 @@ import java.time.format.DateTimeFormatter
 class CallHistoryAdapter internal constructor(var context: Context) :
     RecyclerView.Adapter<CallHistoryAdapter.CallHistoryViewHolder>(), KoinComponent {
 
+    private val accountStatusRepository: AccountStatusRepository by inject()
     var allRecords = mutableListOf<CallRecord>()
 
     override fun onCreateViewHolder(
@@ -95,11 +101,14 @@ class CallHistoryAdapter internal constructor(var context: Context) :
 
                 call.setOnClickListener {
                     if ((context as MainActivity).hasPermissions()) {
-                        val intent = Intent(context, CallActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        intent.putExtra(AbtoPhone.IS_INCOMING, false)
-                        intent.putExtra(AbtoPhone.REMOTE_CONTACT, binding.sipNumber.text.toString())
-                        context.startActivity(intent)
+                        if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                            CallActivity.create(context, binding.sipNumber.text.toString(), false)
+                        } else {
+                            showSnackBar(
+                                binding.root,
+                                "Нет активного аккаунта для совершения звонка"
+                            )
+                        }
                     } else
                         (context as MainActivity).requestPermissions()
                 }

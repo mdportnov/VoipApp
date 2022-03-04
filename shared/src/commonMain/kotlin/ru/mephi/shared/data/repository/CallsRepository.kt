@@ -40,7 +40,7 @@ class CallsRepository(
                         else
                             dao.insertAll(
                                 CallRecord(
-                                    null,
+                                    null ,
                                     sipNumber,
                                     resource.data[0].display_name,
                                     status,

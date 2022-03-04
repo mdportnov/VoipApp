@@ -10,10 +10,11 @@
 
     <TextView
         android:id="@+id/snack_bar_text"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:maxLines="3"
+        android:textAlignment="center"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
         android:textColor="@color/colorPrimary"
         android:textStyle="bold"
