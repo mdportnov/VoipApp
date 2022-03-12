@@ -1,6 +1,7 @@
 package ru.mephi.voip.call.abto
 
 import android.content.IntentFilter
+import androidx.compose.animation.ExperimentalAnimationApi
 import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
 import org.koin.android.ext.koin.androidContext

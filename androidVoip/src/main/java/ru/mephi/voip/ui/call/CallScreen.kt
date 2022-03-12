@@ -1,5 +1,6 @@
-package ru.mephi.voip.ui.caller
+package ru.mephi.voip.ui.call
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,14 +10,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,26 +40,34 @@ import okhttp3.OkHttpClient
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.call.CallButtonsState
-import ru.mephi.voip.ui.call.CallViewModel
-import ru.mephi.voip.ui.call.HoldState
-import ru.mephi.voip.utils.toast
+import ru.mephi.voip.ui.NumPadState
+import ru.mephi.voip.ui.caller.NumPad
 
 private val buttonSize = 100.dp
 private val iconSize = 30.dp
 
 private fun getImageUrl(number: String) = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + number
 
+@ExperimentalCoilApi
 @Composable
 fun CallScreen(
-    viewModel: CallViewModel, number: String,
-    pickUp: () -> Unit, holdCall: () -> Unit, hangUp: () -> Unit,
+    viewModel: CallViewModel,
+    pickUp: () -> Unit,
+    holdCall: () -> Unit,
+    hangUp: () -> Unit,
+    stopActivity: () -> Unit,
 ) {
-    val timeState = viewModel.displayTime
+    val timeState = viewModel.displayTime.value
     val holdState = viewModel.callHoldState.value
     val callerName = viewModel.callerName.value
     val callerAppointment = viewModel.callerAppointment.value
     val callerUnit = viewModel.callerUnit.value
+
+    val activity = (LocalContext.current as? Activity)
+
+    var mutableInputState by remember {
+        mutableStateOf("")
+    }
 
     // https://medium.com/@lbenevento/handling-statusbar-colors-when-using-modalbottomsheets-in-jetpack-compose-181ece86cbcc
     val systemUiController = rememberSystemUiController()
@@ -80,13 +89,13 @@ fun CallScreen(
         }.build()
 
     val request = ImageRequest.Builder(appContext)
-        .data(getImageUrl(number))
+        .data(getImageUrl(viewModel.number))
         .build()
 
     imageLoader.enqueue(request)
 
     val blurPainter = rememberImagePainter(
-        data = getImageUrl(number),
+        data = getImageUrl(viewModel.number),
         imageLoader = imageLoader,
         builder = {
             crossfade(200)
@@ -95,7 +104,7 @@ fun CallScreen(
     )
 
     val callerPhotoPainter = rememberImagePainter(
-        data = getImageUrl(number),
+        data = getImageUrl(viewModel.number),
         imageLoader = imageLoader,
         builder = {
             crossfade(200)
@@ -151,152 +160,168 @@ fun CallScreen(
         }
     }
 
-    ConstraintLayout(
-        constraintSet, modifier = Modifier.fillMaxSize()
-    ) {
-        Image(
-            painter = blurPainter,
-            contentDescription = "",
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier
-                .fillMaxWidth()
-                .layoutId("blurredImage")
-        )
-
-        Image(
-            painter = callerPhotoPainter,
-            contentDescription = "",
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier
-                .size(300.dp)
-                .layoutId("mainImage")
-        )
-
-        Column(
-            horizontalAlignment = Alignment.Start, modifier = Modifier
-                .background(brush = Brush.verticalGradient(gradient))
-                .padding(20.dp)
-                .fillMaxWidth()
-                .layoutId("info")
-        ) {
-            Text(
-                text = callerName, textAlign = TextAlign.Left,
-                fontSize = 20.sp, fontWeight = FontWeight.Medium
-            )
-            callerAppointment?.let { appointment ->
-                Text(
-                    text = appointment.replaceFirstChar(Char::titlecase),
-                    textAlign = TextAlign.Left,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            Text(
-                text = callerUnit, textAlign = TextAlign.Left,
-                fontSize = 20.sp, fontWeight = FontWeight.Medium
-            )
-
-            holdState.status?.let {
-                Text(text = it, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-
-        ButtonsRow(
-            Modifier
-                .fillMaxWidth()
-                .layoutId("options"),
-            viewModel = viewModel, pickUp, holdCall, hangUp
-        )
-
-        val constraintSetTopBar = ConstraintSet {
-            val back = createRefFor("back")
-            val num = createRefFor("number")
-            val time = createRefFor("time")
-
-            createHorizontalChain(back, num, time, chainStyle = ChainStyle.SpreadInside)
-
-            constrain(back) {
-                centerHorizontallyTo(parent)
-                width = Dimension.wrapContent
-                height = Dimension.fillToConstraints
-            }
-
-            constrain(num) {
-                centerHorizontallyTo(parent)
-                width = Dimension.wrapContent
-                height = Dimension.fillToConstraints
-            }
-
-            constrain(time) {
-                centerHorizontallyTo(parent)
-                width = Dimension.wrapContent
-                height = Dimension.fillToConstraints
-            }
-        }
-
+    Box {
         ConstraintLayout(
-            constraintSetTopBar,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 33.dp)
-                .layoutId("topRow"),
+            constraintSet, modifier = Modifier.fillMaxSize()
         ) {
-            IconButton(
+            Image(
+                painter = blurPainter,
+                contentDescription = "",
+                contentScale = ContentScale.FillWidth,
                 modifier = Modifier
-                    .padding(16.dp, 0.dp, 0.dp, 8.dp)
-                    .background(
-                        colorResource(id = R.color.colorPrimary),
-                        CircleShape
-                    )
-                    .layoutId("back"),
-                onClick = { /* TODO */ }
-            ) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    contentDescription = "back",
-                    tint = colorResource(id = R.color.colorBlack),
-                )
-            }
+                    .fillMaxWidth()
+                    .layoutId("blurredImage")
+            )
 
-            Box(
+            Image(
+                painter = callerPhotoPainter,
+                contentDescription = "",
+                contentScale = ContentScale.FillWidth,
                 modifier = Modifier
-                    .background(
-                        colorResource(id = R.color.colorPrimary),
-                        CircleShape
-                    )
-                    .padding(20.dp, 10.dp)
-                    .layoutId("number")
+                    .size(300.dp)
+                    .layoutId("mainImage")
+            )
+
+            Column(
+                horizontalAlignment = Alignment.Start, modifier = Modifier
+                    .background(brush = Brush.verticalGradient(gradient))
+                    .padding(20.dp)
+                    .fillMaxWidth()
+                    .layoutId("info")
             ) {
                 Text(
-                    text = number, textAlign = TextAlign.Left,
-                    fontSize = 20.sp, fontWeight = FontWeight.Bold
+                    text = callerName, textAlign = TextAlign.Left,
+                    fontSize = 20.sp, fontWeight = FontWeight.Medium
                 )
+                callerAppointment?.let { appointment ->
+                    Text(
+                        text = appointment.replaceFirstChar(Char::titlecase),
+                        textAlign = TextAlign.Left,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Text(
+                    text = callerUnit, textAlign = TextAlign.Left,
+                    fontSize = 20.sp, fontWeight = FontWeight.Medium
+                )
+
+                holdState.status?.let {
+                    Text(text = it, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
             }
 
-            if (timeState.isNotBlank())
+            ButtonsRow(
+                Modifier
+                    .fillMaxWidth()
+                    .layoutId("options"),
+                viewModel, pickUp, holdCall, hangUp
+            )
+
+            val constraintSetTopBar = ConstraintSet {
+                val back = createRefFor("back")
+                val num = createRefFor("number")
+                val time = createRefFor("time")
+
+                createHorizontalChain(back, num, time, chainStyle = ChainStyle.SpreadInside)
+
+                constrain(back) {
+                    centerHorizontallyTo(parent)
+                    width = Dimension.wrapContent
+                    height = Dimension.fillToConstraints
+                }
+
+                constrain(num) {
+                    centerHorizontallyTo(parent)
+                    width = Dimension.wrapContent
+                    height = Dimension.fillToConstraints
+                }
+
+                constrain(time) {
+                    centerHorizontallyTo(parent)
+                    width = Dimension.wrapContent
+                    height = Dimension.fillToConstraints
+                }
+            }
+
+            ConstraintLayout(
+                constraintSetTopBar,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 33.dp)
+                    .layoutId("topRow"),
+            ) {
+                IconButton(
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp, 0.dp, 8.dp)
+                        .background(
+                            colorResource(id = R.color.colorPrimary),
+                            CircleShape
+                        )
+                        .layoutId("back"),
+                    onClick = {
+                        stopActivity()
+                    }
+                ) {
+                    Icon(
+                        Icons.Filled.ArrowBack,
+                        contentDescription = "back",
+                        tint = colorResource(id = R.color.colorBlack),
+                    )
+                }
+
                 Box(
                     modifier = Modifier
-                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
                         .background(
                             colorResource(id = R.color.colorPrimary),
                             CircleShape
                         )
                         .padding(20.dp, 10.dp)
-                        .layoutId("time")
+                        .layoutId("number")
                 ) {
                     Text(
-                        text = timeState,
+                        text = viewModel.number, textAlign = TextAlign.Left,
                         fontSize = 20.sp, fontWeight = FontWeight.Bold
                     )
                 }
+
+                if (timeState.isNotBlank())
+                    Box(
+                        modifier = Modifier
+                            .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                            .background(
+                                colorResource(id = R.color.colorPrimary),
+                                CircleShape
+                            )
+                            .padding(20.dp, 10.dp)
+                            .layoutId("time")
+                    ) {
+                        Text(
+                            text = timeState,
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold
+                        )
+                    }
+            }
         }
+
+        if (viewModel.numPadState.value == NumPadState.UP)
+            NumPad(
+                limitation = 5,
+                mutableInputState = mutableInputState,
+                mutableNumPadState = true,
+                isPermissionGrantedState = true,
+                onTapWhenUp = {}
+            )
     }
 }
 
 @Composable
 private fun ButtonsRow(
-    modifier: Modifier, viewModel: CallViewModel,
-    pickUp: () -> Unit, holdCall: () -> Unit, hangUp: () -> Unit,
+    modifier: Modifier,
+    viewModel: CallViewModel,
+    pickUp: () -> Unit,
+    holdCall: () -> Unit,
+    hangUp: () -> Unit,
 ) {
     val micMuteState = viewModel.isMicMuted.collectAsState()
     val volumeState = viewModel.isSpeakerModeEnabled.collectAsState()
@@ -455,30 +480,32 @@ private fun ButtonsRow(
                     )
                 }
 
-//                Button(
-//                    onClick = { appContext.toast("Будет добавлено в ближайшем будущем") },
-//                    modifier = Modifier
-//                        .padding(8.dp)
-//                        .size(buttonSize)
-//                        .clickable { },
-//                    colors = ButtonDefaults.buttonColors(
-////                        colorResource(
-////                            id = if (holdState == HoldState.LOCAL_HOLD)
-////                                R.color.colorAccent
-////                            else R.color.colorGray
-////                        )
-//                    ),
-//                    elevation = ButtonDefaults.elevation(),
-//                    shape = RoundedCornerShape(20.dp),
-//                ) {
-//                    Icon(
-//                        painter = painterResource(
-//                            R.drawable.ic_baseline_dialpad_24
-//                        ),
-//                        contentDescription = null,
-//                        modifier = Modifier.size(iconSize)
-//                    )
-//                }
+                Button(
+                    onClick = {
+                        viewModel.toggleNumPad()
+                    },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(buttonSize)
+                        .clickable { },
+                    colors = ButtonDefaults.buttonColors(
+                        colorResource(
+                            id = if (viewModel.numPadState.value == NumPadState.UP)
+                                R.color.colorAccent
+                            else R.color.colorGray
+                        )
+                    ),
+                    elevation = ButtonDefaults.elevation(),
+                    shape = RoundedCornerShape(20.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            R.drawable.ic_baseline_swap_calls_24
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier.size(iconSize)
+                    )
+                }
             }
     }
 }

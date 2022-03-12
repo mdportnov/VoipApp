@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 
-@ExperimentalAnimationApi
 @Composable
 fun NumPad(
     limitation: Int,

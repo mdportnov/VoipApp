@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -19,12 +20,11 @@ import org.abtollc.sdk.OnCallHeldListener.HoldState
 import org.abtollc.sdk.OnCallHeldListener.HoldState.*
 import org.abtollc.sdk.OnInitializeListener.InitializeState
 import org.koin.android.ext.android.inject
+import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.CallStatus
+import ru.mephi.voip.R
 import ru.mephi.voip.call.parseRemoteContact
-import ru.mephi.voip.ui.caller.CallScreen
 import ru.mephi.voip.utils.toast
-import timber.log.Timber
-
 
 class CallActivity : AppCompatActivity(), LifecycleOwner,
     OnCallConnectedListener, OnInitializeListener,
@@ -37,6 +37,14 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             intent.putExtra(AbtoPhone.IS_INCOMING, isIncoming)
             intent.putExtra(AbtoPhone.REMOTE_CONTACT, name)
+            intent.putExtra(context.getString(R.string.isCallStillGoingOn), false)
+            context.startActivity(intent)
+        }
+
+        fun open(context: Context) {
+            val intent = Intent(context, CallActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.putExtra(context.getString(R.string.isCallStillGoingOn), true)
             context.startActivity(intent)
         }
     }
@@ -47,27 +55,37 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
     private lateinit var mWakeLock: WakeLock
 
     private var bIsIncoming: Boolean = false
+    private var isCallStillGoingOn: Boolean = false
 
     private lateinit var phone: AbtoPhone
-    private var activeCallId = AbtoPhone.INVALID_CALL_ID
-
-    override fun onDestroy() {
-        super.onDestroy()
-        callViewModel.stopTimer()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initWakeLocks()
-        callViewModel.changeCallStatus(CallStatus.NONE)
-        callViewModel.number =
-            parseRemoteContact(intent.getStringExtra(AbtoPhone.REMOTE_CONTACT)!!).second
+        isCallStillGoingOn =
+            intent.getBooleanExtra(appContext.getString(R.string.isCallStillGoingOn), false)
+
+        if (!isCallStillGoingOn) {
+            callViewModel.changeButtonState(CallButtonsState.INCOMING_CALL)
+            callViewModel.changeCallStatus(CallStatus.NONE)
+            callViewModel.number =
+                parseRemoteContact(intent.getStringExtra(AbtoPhone.REMOTE_CONTACT)!!).second
+        } else
+            callViewModel.changeButtonState(CallButtonsState.CALL_PROCESS)
 
         setContent {
-            CallScreen(callViewModel, callViewModel.number, ::pickUp, ::holdCall, ::hangUp)
+            CallScreen(
+                callViewModel,
+                ::pickUp,
+                ::holdCall,
+                ::hangUp,
+                ::stopActivity
+            )
         }
 
         callViewModel.retrieveInfoAboutCall(callViewModel.number)
+
+        callViewModel.showStatusBar()
 
         initPhoneListeners()
         initPhoneStates()
@@ -83,8 +101,13 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         bIsIncoming = intent.getBooleanExtra(AbtoPhone.IS_INCOMING, false)
         val startedFromService = intent.getBooleanExtra(AbtoPhone.ABTO_SERVICE_MARKER, false)
 
-        if (bIsIncoming) AbtoCallEventsReceiver.cancelIncCallNotification(this, activeCallId)
-        activeCallId = intent.getIntExtra(AbtoPhone.CALL_ID, AbtoPhone.INVALID_CALL_ID)
+        if (bIsIncoming) AbtoCallEventsReceiver.cancelIncCallNotification(
+            this, callViewModel.activeCallId
+        )
+
+        if (!isCallStillGoingOn)
+            callViewModel.activeCallId =
+                intent.getIntExtra(AbtoPhone.CALL_ID, AbtoPhone.INVALID_CALL_ID)
 
         if (startedFromService) {
             phone.initialize(true)
@@ -92,11 +115,8 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         } else
             answerCallByIntent()
 
-//        callViewModel.checkTotalTime()
-        callViewModel.changeButtonState(CallButtonsState.INCOMING_CALL)
-
         // Если мы совершаем исходящий
-        if (!bIsIncoming)
+        if (!bIsIncoming && !isCallStillGoingOn)
             startOutgoingCallByIntent()
     }
 
@@ -147,8 +167,8 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         }
         try {
             if (bIsIncoming) {
-                phone.rejectCall(activeCallId)
-            } else phone.hangUp(activeCallId)
+                phone.rejectCall(callViewModel.activeCallId)
+            } else phone.hangUp(callViewModel.activeCallId)
         } finally {
             stopActivity()
         }
@@ -160,12 +180,17 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         finish()
     }
 
+    private fun stopCall() {
+
+    }
+
     override fun onCallConnected(callId: Int, remoteContact: String) {
         callViewModel.onCallConnected(callViewModel.number)
     }
 
     override fun onRemoteAlerting(callId: Int, statusCode: Int, accId: Long) {
-        if (activeCallId == AbtoPhone.INVALID_CALL_ID) activeCallId = callId
+        if (callViewModel.activeCallId == AbtoPhone.INVALID_CALL_ID) callViewModel.activeCallId =
+            callId
 
         when (statusCode) {
             OnRemoteAlertingListener.TRYING -> callViewModel.changeCallState(CallState.TRYING)
@@ -202,14 +227,14 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
     private fun pickUp() {
         try {
             callViewModel.changeButtonState(CallButtonsState.CALL_PROCESS)
-            phone.answerCall(activeCallId, CallState.CONNECTED.statusCode, false)
+            phone.answerCall(callViewModel.activeCallId, CallState.CONNECTED.statusCode, false)
             callViewModel.changeCallStatus(CallStatus.INCOMING)
         } catch (e: RemoteException) {
         }
     }
 
     private fun holdCall() {
-        phone.holdRetriveCall(activeCallId)
+        phone.holdRetriveCall(callViewModel.activeCallId)
     }
 
     private fun startOutgoingCallByIntent() {
@@ -219,16 +244,16 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         callViewModel.changeButtonState(CallButtonsState.OUTGOING_CALL)
 
         try {
-            activeCallId =
+            callViewModel.activeCallId =
                 phone.startCall(sipNumber, phone.currentAccountId)
         } catch (e: RemoteException) {
-            activeCallId = -1
+            callViewModel.activeCallId = -1
             e.printStackTrace()
         }
 
         // Verify returned callId.
         // End this activity when call can't be started.
-        if (activeCallId == -1) {
+        if (callViewModel.activeCallId == -1) {
             toast("Не получается позвонить контакту: $sipNumber")
             stopActivity()
         }

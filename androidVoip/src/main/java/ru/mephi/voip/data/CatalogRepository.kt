@@ -171,6 +171,9 @@ class CatalogRepository : KoinComponent {
                 is Resource.Error.UndefinedError<*> -> {
                     emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
                 }
+                is Resource.Error.NotFoundError<*> -> {
+                    emit(Resource.Error.NotFoundError(exception = NotFoundException(phone)))
+                }
                 is Resource.Success<*> -> {
                     val unitOfUsers = (resource.data as UnitM)
                     unitOfUsers.shortname = phone

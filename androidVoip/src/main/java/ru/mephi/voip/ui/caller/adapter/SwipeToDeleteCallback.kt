@@ -1,13 +1,9 @@
 package ru.mephi.voip.ui.caller.adapter
 
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Build
-import android.util.TypedValue.COMPLEX_UNIT_SP
+import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -16,13 +12,16 @@ import org.koin.java.KoinJavaComponent.inject
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.repository.CallsRepository
+import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
+import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
 
 class SwipeToDeleteCallback(private var adapter: CallHistoryAdapter) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
     private val callRepository: CallsRepository by inject(CallsRepository::class.java)
+    private val accountStatusRepository: AccountStatusRepository by inject(AccountStatusRepository::class.java)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onChildDraw(
@@ -63,10 +62,20 @@ class SwipeToDeleteCallback(private var adapter: CallHistoryAdapter) :
 
         when (direction) {
             ItemTouchHelper.LEFT -> {
-                CallActivity.create(
-                    viewHolder.itemView.context, adapter.allRecords[position]
-                        .sipNumber, false
-                )
+                adapter.notifyDataSetChanged()
+
+                if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                    CallActivity.create(
+                        viewHolder.itemView.context, adapter.allRecords[position]
+                            .sipNumber, false
+                    )
+                } else {
+                    Toast.makeText(
+                        appContext,
+                        "Нет активного аккаунта для совершения звонка",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
             ItemTouchHelper.RIGHT -> {
                 deletedRecord = adapter.deleteItem(position)
@@ -83,4 +92,6 @@ class SwipeToDeleteCallback(private var adapter: CallHistoryAdapter) :
             }
         }
     }
+
+
 }

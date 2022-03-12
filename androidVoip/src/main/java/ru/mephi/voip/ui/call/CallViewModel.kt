@@ -9,18 +9,42 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import org.abtollc.sdk.AbtoPhone
 import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.voip.data.CatalogRepository
+import ru.mephi.voip.ui.NumPadState
 
 class CallViewModel(
     private val catalogRepository: CatalogRepository,
     private val callsRepository: CallsRepository,
 ) : MainIoExecutor() {
+    var activeCallId = AbtoPhone.INVALID_CALL_ID
     var number: String = ""
+    private var _numPadState = mutableStateOf(NumPadState.DOWN)
+    val numPadState: State<NumPadState> get() = _numPadState
+
+    fun toggleNumPad() {
+        _numPadState.value =
+            if (_numPadState.value == NumPadState.DOWN)
+                NumPadState.UP
+            else
+                NumPadState.DOWN
+    }
+
+    private var _isStatusBarShowed = MutableStateFlow(false)
+    val isStatusBarShowed: StateFlow<Boolean> get() = _isStatusBarShowed
+
+    fun hideStatusBar() {
+        _isStatusBarShowed.value = false
+    }
+
+    fun showStatusBar() {
+        _isStatusBarShowed.value = true
+    }
 
     private var _callStatus = MutableStateFlow(CallStatus.NONE)
     val callStatus: StateFlow<CallStatus> get() = _callStatus
@@ -28,8 +52,8 @@ class CallViewModel(
     private var _callState = MutableStateFlow(CallState.NONE)
     val callState: StateFlow<CallState> get() = _callState
 
-    private var _displayTime by mutableStateOf("")
-    val displayTime by derivedStateOf { _displayTime }
+    private var _displayTime = mutableStateOf("")
+    val displayTime: State<String> get() = _displayTime
 
     private var _buttonsState = mutableStateOf(CallButtonsState.OUTGOING_CALL)
     val buttonsState: State<CallButtonsState> get() = _buttonsState
@@ -46,8 +70,8 @@ class CallViewModel(
     private var _isSpeakerModeEnabled = MutableStateFlow(false)
     val isSpeakerModeEnabled: StateFlow<Boolean> get() = _isSpeakerModeEnabled
 
-    private var _callerName = MutableStateFlow("")
-    val callerName: StateFlow<String> get() = _callerName
+    private var _callerName = mutableStateOf("")
+    val callerName: State<String> get() = _callerName
 
     private var _callerAppointment = mutableStateOf("")
     val callerAppointment: State<String?> get() = _callerAppointment
@@ -66,12 +90,20 @@ class CallViewModel(
             var seconds = (mTotalTime / 1000).toInt()
             val minutes = seconds / 60
             seconds %= 60
-            _displayTime = if (seconds < 10)
+            _displayTime.value = if (seconds < 10)
                 "$minutes:0$seconds"
             else
                 "$minutes:$seconds"
             mHandler.postDelayed(this, 1000)
         }
+    }
+
+    fun stopCall() {
+        stopTimer()
+        hideStatusBar()
+        _callerUnit.value = ""
+        _callerAppointment.value = ""
+        _callerName.value = ""
     }
 
     fun changeCallStatus(callStatus: CallStatus) {
@@ -81,7 +113,8 @@ class CallViewModel(
     fun saveInfoAboutCall(sipNumber: String) {
         addRecord(
             CallRecord(
-                sipNumber = sipNumber, sipName = _callerName.value,
+                sipNumber = sipNumber, sipName =
+                if (_callerName.value.isEmpty()) sipNumber else _callerName.value,
                 status = _callStatus.value, time = Clock.System.now().epochSeconds
             )
         )
@@ -140,7 +173,7 @@ class CallViewModel(
 
     fun stopTimer() {
         mTotalTime = 0
-        _displayTime = ""
+        _displayTime.value = ""
         mHandler.removeCallbacks(mUpdateTimeTask)
     }
 

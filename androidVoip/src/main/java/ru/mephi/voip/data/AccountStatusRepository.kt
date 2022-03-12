@@ -117,7 +117,8 @@ class AccountStatusRepository(
             if (isSipEnabled.value)
                 updateNotificationStatus(_status.value)
             else
-                disableAccount()
+                fetchStatus(AccountStatus.UNREGISTERED)
+//                disableAccount()
         }
     }
 

@@ -55,4 +55,5 @@
     <string name="sp_background_enabled">background_work</string>
     <string name="input_number">Введите номер</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="isCallStillGoingOn">callStillGoingOn</string>
 </resources>

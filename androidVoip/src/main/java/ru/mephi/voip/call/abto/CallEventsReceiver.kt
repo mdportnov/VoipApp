@@ -14,15 +14,12 @@ import android.os.Bundle
 import android.os.RemoteException
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
-import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
 import org.abtollc.sdk.OnCallDisconnectedListener
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.shared.data.model.CallStatus
-import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.voip.R
-import ru.mephi.voip.call.parseRemoteContact
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.call.CallButtonsState
 import ru.mephi.voip.ui.call.CallState
@@ -57,10 +54,6 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
             }
             bundle.getInt(AbtoPhone.CODE) == -1 -> {    // Cancel call
                 val callId = bundle.getInt(AbtoPhone.CALL_ID)
-//                callsRepository.addRecord(
-//                    sipNumber = parseRemoteContact(bundle.getString(AbtoPhone.REMOTE_CONTACT)!!).second,
-//                    status = CallStatus.MISSED
-//                )
                 cancelIncCallNotification(context, callId)
             }
         }
@@ -99,6 +92,7 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
 
         callViewModel.saveInfoAboutCall(callViewModel.number)
         callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU) // чтобы активность завершалась
+        callViewModel.stopCall()
 
         Timber.d("call status code: $statusCode | msg: $statusMessage")
     }

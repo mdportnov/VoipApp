@@ -3,15 +3,11 @@ package ru.mephi.voip.ui.caller
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.graphics.Insets
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsets
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -44,6 +40,7 @@ import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.FragmentCallerBinding
 import ru.mephi.voip.databinding.ToolbarCallerBinding
+import ru.mephi.voip.ui.call.StatusBar
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.adapter.CallHistoryAdapter
 import ru.mephi.voip.ui.caller.adapter.SwipeToDeleteCallback
@@ -63,6 +60,9 @@ class CallerFragment : Fragment() {
 
     private var isPermissionGranted by mutableStateOf(true)
 
+    private var mutableInputState by mutableStateOf("")
+    private var mutableNumPadState by mutableStateOf(false)
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
@@ -77,11 +77,18 @@ class CallerFragment : Fragment() {
         binding = FragmentCallerBinding.inflate(inflater, container, false)
         toolbarBinding = binding.toolbarCaller
 
+        binding.composeStatusBar.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                StatusBar()
+            }
+        }
+
         binding.numPadCompose.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 NumPad(
-                    5, mutableInputState, mutableNumPadState, isPermissionGranted,
+                    11, mutableInputState, mutableNumPadState, isPermissionGranted,
                     onTapWhenUp = { line ->
                         if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
                             CallActivity.create(requireContext(), line, false)
@@ -154,9 +161,6 @@ class CallerFragment : Fragment() {
         if (permissions.size > 0)
             requestPermissions(permissions.toTypedArray(), 1)
     }
-
-    private var mutableInputState by mutableStateOf("")
-    private var mutableNumPadState by mutableStateOf(false)
 
     private fun initViews() {
         val args: CallerFragmentArgs by navArgs()

@@ -2,6 +2,7 @@ package ru.mephi.voip.di
 
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import androidx.compose.animation.ExperimentalAnimationApi
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
