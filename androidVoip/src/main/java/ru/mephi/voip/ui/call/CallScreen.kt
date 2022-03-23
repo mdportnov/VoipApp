@@ -462,7 +462,7 @@ private fun ButtonsRow(
 
         if (buttonsState == CallButtonsState.CALL_PROCESS)
             Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.SpaceAround,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
