@@ -1,6 +1,7 @@
 package ru.mephi.voip.ui.call
 
 import android.app.Activity
+import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,7 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -40,8 +42,8 @@ import okhttp3.OkHttpClient
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.NumPadState
 import ru.mephi.voip.ui.caller.NumPad
+import ru.mephi.voip.utils.toast
 
 private val buttonSize = 100.dp
 private val iconSize = 30.dp
@@ -56,6 +58,7 @@ fun CallScreen(
     holdCall: () -> Unit,
     hangUp: () -> Unit,
     stopActivity: () -> Unit,
+    transferCall: () -> Unit
 ) {
     val timeState = viewModel.displayTime.value
     val holdState = viewModel.callHoldState.value
@@ -63,11 +66,7 @@ fun CallScreen(
     val callerAppointment = viewModel.callerAppointment.value
     val callerUnit = viewModel.callerUnit.value
 
-    val activity = (LocalContext.current as? Activity)
-
-    var mutableInputState by remember {
-        mutableStateOf("")
-    }
+    val activity = (LocalContext.current as? Activity)!!
 
     // https://medium.com/@lbenevento/handling-statusbar-colors-when-using-modalbottomsheets-in-jetpack-compose-181ece86cbcc
     val systemUiController = rememberSystemUiController()
@@ -304,14 +303,50 @@ fun CallScreen(
             }
         }
 
-        if (viewModel.numPadState.value == NumPadState.UP)
-            NumPad(
-                limitation = 5,
-                mutableInputState = mutableInputState,
-                mutableNumPadState = true,
-                isPermissionGrantedState = true,
-                onTapWhenUp = {}
-            )
+        if (viewModel.isNumPadVisible.value)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                NumPad(
+                    limitation = 11,
+                    inputState = viewModel.inputState.value,
+                    numPadState = viewModel.isNumPadVisible.value,
+                    onInputStateChanged = {
+                        viewModel.changeInputState(it)
+                    },
+                    onNumPadStateChange = {
+                        viewModel.toggleNumPad()
+                    },
+                    onLimitExceeded = {
+                        activity.toast("Превышен размер номера")
+                    }
+                )
+                AnimatedVisibility(
+                    visible = viewModel.inputState.value.length > 3,
+                    enter = slideInVertically() + expandVertically()
+                            + fadeIn(initialAlpha = 0.3f),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            transferCall()
+                        }, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            colorResource(id = R.color.colorGreen)
+                        ),
+                        elevation = ButtonDefaults.elevation()
+                    ) {
+                        Text(
+                            text = "Transfer call to: ${viewModel.inputState.value}",
+                            color = Color.White
+                        )
+                    }
+                }
+            }
     }
 }
 
@@ -490,7 +525,7 @@ private fun ButtonsRow(
                         .clickable { },
                     colors = ButtonDefaults.buttonColors(
                         colorResource(
-                            id = if (viewModel.numPadState.value == NumPadState.UP)
+                            id = if (viewModel.isNumPadVisible.value)
                                 R.color.colorAccent
                             else R.color.colorGray
                         )

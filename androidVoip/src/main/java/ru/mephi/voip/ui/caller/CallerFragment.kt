@@ -11,10 +11,23 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.graphics.drawable.DrawableCompat
@@ -40,8 +53,8 @@ import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.FragmentCallerBinding
 import ru.mephi.voip.databinding.ToolbarCallerBinding
-import ru.mephi.voip.ui.call.StatusBar
 import ru.mephi.voip.ui.call.CallActivity
+import ru.mephi.voip.ui.call.StatusBar
 import ru.mephi.voip.ui.caller.adapter.CallHistoryAdapter
 import ru.mephi.voip.ui.caller.adapter.SwipeToDeleteCallback
 import ru.mephi.voip.utils.showSnackBar
@@ -61,7 +74,7 @@ class CallerFragment : Fragment() {
     private var isPermissionGranted by mutableStateOf(true)
 
     private var mutableInputState by mutableStateOf("")
-    private var mutableNumPadState by mutableStateOf(false)
+    private var isNumPadStateUp by mutableStateOf(false)
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
@@ -84,24 +97,73 @@ class CallerFragment : Fragment() {
             }
         }
 
+        var inputState by mutableStateOf("")
+
         binding.numPadCompose.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                NumPad(
-                    11, mutableInputState, mutableNumPadState, isPermissionGranted,
-                    onTapWhenUp = { line ->
-                        if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
-                            CallActivity.create(requireContext(), line, false)
-                        } else {
-                            showSnackBar(
-                                binding.root,
-                                "Нет активного аккаунта для совершения звонка"
-                            )
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    NumPad(
+                        11, inputState, isNumPadStateUp,
+                        onLimitExceeded = {
+                            showSnackBar(binding.root, "Превышен размер номера")
+                        },
+                        onNumPadStateChange = {
+                            isNumPadStateUp = !isNumPadStateUp
+                        },
+                        onInputStateChanged = {
+                            inputState = it
                         }
-                    },
-                    onLimitExceeded = {
-                        showSnackBar(this, "Превышен размер номера")
-                    })
+                    )
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.End), onClick = {
+                            if (isPermissionGranted)
+                                if (isNumPadStateUp) {
+                                    if (inputState.length <= 3) {
+                                        showSnackBar(binding.root, "Слишком короткий номер")
+                                        return@FloatingActionButton
+                                    }
+                                    if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                                        CallActivity.create(
+                                            requireContext(),
+                                            inputState,
+                                            false
+                                        )
+                                    } else {
+                                        showSnackBar(
+                                            binding.root,
+                                            "Нет активного аккаунта для совершения звонка"
+                                        )
+                                    }
+                                } else {
+                                    isNumPadStateUp = !isNumPadStateUp
+                                }
+                        }, backgroundColor = colorResource(id = R.color.colorGreen)
+                    ) {
+                        if (isNumPadStateUp)
+                            Icon(
+                                Icons.Default.Call,
+                                contentDescription = "",
+                                tint = colorResource(
+                                    id = if (isPermissionGranted)
+                                        R.color.colorPrimary else R.color.colorGray
+                                )
+                            ) else
+                            Icon(
+                                painterResource(id = R.drawable.ic_baseline_dialpad_24),
+                                contentDescription = "",
+                                tint = colorResource(
+                                    id = if (isPermissionGranted)
+                                        R.color.colorPrimary else R.color.colorGray
+                                )
+                            )
+                    }
+                }
             }
         }
         return binding.root
@@ -169,7 +231,7 @@ class CallerFragment : Fragment() {
             toolbarBinding.logoLeftImage.visibility = View.GONE
             toolbarBinding.textView.visibility = View.GONE
             mutableInputState = args.callerNumber!!
-            mutableNumPadState = true
+            isNumPadStateUp = true
             toast(args.callerName)
         } else {
             toolbarBinding.textView.visibility = View.VISIBLE

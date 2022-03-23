@@ -10,7 +10,6 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -79,7 +78,8 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
                 ::pickUp,
                 ::holdCall,
                 ::hangUp,
-                ::stopActivity
+                ::stopActivity,
+                ::transferCall
             )
         }
 
@@ -174,14 +174,18 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         }
     }
 
+    private fun transferCall() {
+        toast("Call transferring")
+        phone.callXfer(callViewModel.activeCallId, callViewModel.inputState.value)
+    }
+
     private fun stopActivity() {
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         deactivateSensor()
+        callViewModel.changeInputState("")
+        if (callViewModel.isNumPadVisible.value)
+            callViewModel.toggleNumPad()
         finish()
-    }
-
-    private fun stopCall() {
-
     }
 
     override fun onCallConnected(callId: Int, remoteContact: String) {

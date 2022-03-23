@@ -9,8 +9,8 @@ import timber.log.Timber
 var PACKAGE_NAME: String? = null
 var ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 2323
 
-fun isLetters(string: String): Boolean {
-    return string.matches("^[a-zA-Zа-яА-Я ]*$".toRegex())
+fun String.isLetters(): Boolean {
+    return this.matches("^[a-zA-Zа-яА-Я ]*$".toRegex())
 }
 
 fun AbtoPhone.getCurrentUserNumber() = when {

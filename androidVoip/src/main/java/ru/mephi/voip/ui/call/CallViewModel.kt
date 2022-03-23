@@ -16,7 +16,6 @@ import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.voip.data.CatalogRepository
-import ru.mephi.voip.ui.NumPadState
 
 class CallViewModel(
     private val catalogRepository: CatalogRepository,
@@ -24,15 +23,18 @@ class CallViewModel(
 ) : MainIoExecutor() {
     var activeCallId = AbtoPhone.INVALID_CALL_ID
     var number: String = ""
-    private var _numPadState = mutableStateOf(NumPadState.DOWN)
-    val numPadState: State<NumPadState> get() = _numPadState
+    private var _isNumPadVisible = mutableStateOf(false)
+    val isNumPadVisible: State<Boolean> get() = _isNumPadVisible
+
+    private var _inputState = mutableStateOf("")
+    val inputState: State<String> get() = _inputState
+
+    fun changeInputState(newInput: String) {
+        _inputState.value = newInput
+    }
 
     fun toggleNumPad() {
-        _numPadState.value =
-            if (_numPadState.value == NumPadState.DOWN)
-                NumPadState.UP
-            else
-                NumPadState.DOWN
+        _isNumPadVisible.value = !_isNumPadVisible.value
     }
 
     private var _isStatusBarShowed = MutableStateFlow(false)
