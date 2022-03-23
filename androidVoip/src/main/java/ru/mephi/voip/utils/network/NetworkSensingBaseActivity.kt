@@ -6,6 +6,7 @@ import com.google.android.material.snackbar.Snackbar
 import ru.mephi.voip.R
 import ru.mephi.voip.utils.CustomSnackBar
 
+// https://betterprogramming.pub/how-to-monitor-internet-connection-in-android-using-kotlin-and-livedata-135de9447796
 open class NetworkSensingBaseActivity : AppCompatActivity() {
     private var snackBar: CustomSnackBar? = null
     private lateinit var parentView: View
@@ -18,10 +19,9 @@ open class NetworkSensingBaseActivity : AppCompatActivity() {
         networkStatusHelper = NetworkStatusHelper(this)
         networkStatusHelper.observe(this) {
             when (it) {
-                NetworkStatus.Available ->
-                    runOnUiThread {
-                        snackBar?.dismiss()
-                    }
+                NetworkStatus.Available -> runOnUiThread {
+                    snackBar?.dismiss()
+                }
                 NetworkStatus.Unavailable -> runOnUiThread {
                     snackBar?.show()
                 }
