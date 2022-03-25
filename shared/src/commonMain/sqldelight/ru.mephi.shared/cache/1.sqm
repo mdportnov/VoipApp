@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS call_history(
+    id INTEGER,
+    sipNumber TEXT NOT NULL,
+    sipName TEXT,
+    status TEXT NOT NULL,
+    time INTEGER NOT NULL,
+PRIMARY KEY(id));
+
+CREATE TABLE IF NOT EXISTS search_history (
+    id INTEGER,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    PRIMARY KEY(id)
+);

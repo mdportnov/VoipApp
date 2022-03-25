@@ -8,14 +8,25 @@ class CallsDB(databaseDriverFactory: DatabaseDriverFactory) {
     private val database = AppDatabase(databaseDriverFactory.createDriver())
     private val dbQuery = database.appDatabaseQueries
 
-    fun getAllCallRecords() =
-        dbQuery.getAllCalls { id, sipNumber, sipName, status, time ->
+    fun getAllCallsBySipNumber(number: String) =
+        dbQuery.getAllCallsBySipNumber(number) { id, sipNumber, sipName, status, time, duration ->
             CallRecord(
                 id,
                 sipNumber,
                 sipName,
                 CallStatus.valueOf(status),
-                time
+                time, duration!!
+            )
+        }
+
+    fun getAllCallRecords() =
+        dbQuery.getAllCalls { id, sipNumber, sipName, status, time, duration ->
+            CallRecord(
+                id,
+                sipNumber,
+                sipName,
+                CallStatus.valueOf(status),
+                time, duration!!
             )
         }
 
@@ -27,7 +38,7 @@ class CallsDB(databaseDriverFactory: DatabaseDriverFactory) {
                     it.sipNumber,
                     it.sipName ?: "",
                     it.status.toString(),
-                    it.time
+                    it.time, it.duration
                 )
             }
         }

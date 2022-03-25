@@ -72,6 +72,11 @@ kotlin {
 sqldelight {
     database("AppDatabase") {
         packageName = "ru.mephi.shared"
+        sourceFolders = listOf("sqldelight")
+        schemaOutputDirectory = file("src/commonMain/sqldelight")
+        deriveSchemaFromMigrations = true
+        migrationOutputFileFormat = ".sqm"
+        verifyMigrations = true
     }
 }
 

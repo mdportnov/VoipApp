@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
 import ru.mephi.shared.data.database.CallsDB
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
@@ -27,7 +27,9 @@ class CallsRepository(
 
     fun getAllCallRecords() = dao.getAllCallRecords()
 
-    fun addRecord(sipNumber: String, sipName: String? = null, status: CallStatus) {
+    fun getAllCallsBySipNumber(sipNumber: String) = dao.getAllCallsBySipNumber(sipNumber)
+
+    fun addRecord(sipNumber: String, sipName: String? = null, status: CallStatus, duration: Long) {
         val time: Long = Clock.System.now().epochSeconds
 
         if (sipName == null) {
@@ -36,24 +38,29 @@ class CallsRepository(
                     is Resource.Loading -> {}
                     is Resource.Success -> {
                         if (resource.data.isNullOrEmpty())
-                            dao.insertAll(CallRecord(null, sipNumber, null, status, time))
+                            dao.insertAll(CallRecord(null, sipNumber, null, status, time, duration))
                         else
                             dao.insertAll(
                                 CallRecord(
-                                    null ,
+                                    null,
                                     sipNumber,
                                     resource.data[0].display_name,
                                     status,
-                                    time
+                                    time,
+                                    duration
                                 )
                             )
                     }
-                    else -> dao.insertAll(CallRecord(null, sipNumber, null, status, time))
+                    else -> dao.insertAll(
+                        CallRecord(
+                            null, sipNumber, null, status, time, duration
+                        )
+                    )
                 }
             }
         } else {
             dao.insertAll(
-                CallRecord(null, sipNumber, sipName, status, time)
+                CallRecord(null, sipNumber, sipName, status, time, duration)
             )
         }
     }

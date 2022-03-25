@@ -56,6 +56,8 @@ import androidx.navigation.findNavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
+import coil.memory.MemoryCache
+import coil.request.CachePolicy
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.mephi.shared.appContext
@@ -66,7 +68,6 @@ import ru.mephi.voip.R
 import ru.mephi.voip.ui.MainActivity
 import ru.mephi.voip.ui.settings.SettingsActivity
 import ru.mephi.voip.utils.*
-import timber.log.Timber
 
 @ExperimentalComposeUiApi
 @ExperimentalCoilApi
@@ -362,6 +363,8 @@ class ProfileFragment : Fragment() {
             data = viewModel.getImageUrl(),
             builder = {
                 crossfade(true)
+                diskCachePolicy(CachePolicy.ENABLED)
+                memoryCachePolicy(CachePolicy.ENABLED)
             }
         )
 

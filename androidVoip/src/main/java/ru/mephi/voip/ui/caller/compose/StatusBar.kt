@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.call
+package ru.mephi.voip.ui.caller.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -19,9 +19,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.get
-import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.call.CallActivity
+import ru.mephi.voip.ui.call.CallState
 import ru.mephi.voip.ui.call.CallViewModel
 
 @Composable

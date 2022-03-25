@@ -1,0 +1,7 @@
+ALTER TABLE call_history ADD COLUMN duration INTEGER DEFAULT 0;
+
+-- insertCall:
+--     INSERT INTO call_history(id, sipNumber, sipName, status, time, duration)
+--         VALUES (?,?,?,?,?,?);
+
+-- https://stackoverflow.com/questions/66968873/sqldelight-migration

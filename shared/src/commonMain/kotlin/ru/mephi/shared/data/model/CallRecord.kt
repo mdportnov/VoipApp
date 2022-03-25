@@ -9,5 +9,6 @@ data class CallRecord(
     val sipNumber: String,
     val sipName: String?,
     val status: CallStatus,
-    val time: Long = Clock.System.now().toEpochMilliseconds()
+    val time: Long = Clock.System.now().toEpochMilliseconds(),
+    val duration: Long = 0L
 )

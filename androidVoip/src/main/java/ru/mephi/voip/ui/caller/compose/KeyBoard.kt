@@ -1,8 +1,5 @@
-package ru.mephi.voip.ui.caller
+package ru.mephi.voip.ui.caller.compose
 
-import android.app.Activity
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,61 +10,16 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.mephi.voip.R
-
-@Composable
-fun NumPad(
-    limitation: Int,
-    inputState: String,
-    numPadState: Boolean,
-    onNumPadStateChange: () -> Unit,
-    onInputStateChanged: (String) -> Unit,
-    onLimitExceeded: (() -> Unit)? = null,
-) {
-    var inputVal by remember { mutableStateOf(inputState) }
-    val activity = (LocalContext.current as? Activity)
-
-    BackHandler {
-        if (numPadState) onNumPadStateChange()
-        else activity?.finish()
-    }
-
-    AnimatedVisibility(
-        visible = numPadState,
-        enter = slideInVertically() + expandVertically()
-                + fadeIn(initialAlpha = 0.3f),
-        exit = shrinkVertically() + fadeOut()
-    ) {
-        KeyBoard(
-            modifier = Modifier,
-            input = inputVal,
-            onNumClick = { digit ->
-                if (inputState.length + 1 > limitation)
-                    onLimitExceeded?.let { it() }
-                else
-                    inputVal += digit.toString()
-                onInputStateChanged(inputVal)
-            },
-            onDeleteDigit = {
-                inputVal = inputVal.dropLast(1)
-                onInputStateChanged(inputVal)
-            },
-            onSwipeDown = {
-                onNumPadStateChange()
-            }
-        )
-    }
-}
 
 @Composable
 fun KeyBoard(

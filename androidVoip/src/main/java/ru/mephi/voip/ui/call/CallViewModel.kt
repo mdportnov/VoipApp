@@ -101,7 +101,6 @@ class CallViewModel(
     }
 
     fun stopCall() {
-        stopTimer()
         hideStatusBar()
         _callerUnit.value = ""
         _callerAppointment.value = ""
@@ -113,13 +112,18 @@ class CallViewModel(
     }
 
     fun saveInfoAboutCall(sipNumber: String) {
+        stopTimer()
         addRecord(
             CallRecord(
-                sipNumber = sipNumber, sipName =
-                if (_callerName.value.isEmpty()) sipNumber else _callerName.value,
-                status = _callStatus.value, time = Clock.System.now().epochSeconds
+                sipNumber = sipNumber,
+                sipName =
+                _callerName.value.ifEmpty { sipNumber },
+                status = _callStatus.value,
+                time = Clock.System.now().epochSeconds,
+                duration = mTotalTime
             )
         )
+        mTotalTime = 0
         changeCallStatus(CallStatus.NONE)
     }
 
@@ -174,7 +178,6 @@ class CallViewModel(
     }
 
     fun stopTimer() {
-        mTotalTime = 0
         _displayTime.value = ""
         mHandler.removeCallbacks(mUpdateTimeTask)
     }

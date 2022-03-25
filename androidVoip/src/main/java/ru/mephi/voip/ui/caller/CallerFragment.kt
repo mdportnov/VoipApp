@@ -33,7 +33,6 @@ import androidx.core.content.ContextCompat.getColor
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
@@ -41,32 +40,29 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.squareup.sqldelight.runtime.coroutines.asFlow
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import ru.mephi.shared.appContext
+import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.shared.data.sip.AccountStatus
-import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.FragmentCallerBinding
 import ru.mephi.voip.databinding.ToolbarCallerBinding
 import ru.mephi.voip.ui.call.CallActivity
-import ru.mephi.voip.ui.call.StatusBar
-import ru.mephi.voip.ui.caller.adapter.CallHistoryAdapter
-import ru.mephi.voip.ui.caller.adapter.SwipeToDeleteCallback
+import ru.mephi.voip.ui.caller.compose.CallRecordsList
+import ru.mephi.voip.ui.caller.compose.NumPad
+import ru.mephi.voip.ui.caller.compose.StatusBar
 import ru.mephi.voip.utils.showSnackBar
 import ru.mephi.voip.utils.toast
 import timber.log.Timber
 
 @ExperimentalAnimationApi
 class CallerFragment : Fragment() {
-    private val viewModel: CallerViewModel by inject()
+    private val repository: CallsRepository by inject()
     private val accountStatusRepository: AccountStatusRepository by inject()
 
-    private lateinit var historyAdapter: CallHistoryAdapter
+//    private lateinit var historyAdapter: CallHistoryAdapter
 
     private lateinit var binding: FragmentCallerBinding
     private lateinit var toolbarBinding: ToolbarCallerBinding
@@ -79,7 +75,7 @@ class CallerFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
-        historyAdapter.notifyDataSetChanged()
+//        historyAdapter.notifyDataSetChanged()
     }
 
     override fun onCreateView(
@@ -94,6 +90,12 @@ class CallerFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 StatusBar()
+            }
+        }
+
+        binding.composeCallHistory.apply {
+            setContent {
+                CallRecordsList()
             }
         }
 
@@ -236,22 +238,6 @@ class CallerFragment : Fragment() {
         } else {
             toolbarBinding.textView.visibility = View.VISIBLE
             toolbarBinding.logoLeftImage.visibility = View.VISIBLE
-        }
-
-        binding.rvCallRecords.layoutManager =
-            LinearLayoutManager(
-                context, LinearLayoutManager.VERTICAL, false
-            )
-
-        historyAdapter = CallHistoryAdapter(requireContext())
-
-        val itemTouchHelper = ItemTouchHelper(SwipeToDeleteCallback(historyAdapter))
-        itemTouchHelper.attachToRecyclerView(binding.rvCallRecords)
-
-        binding.rvCallRecords.adapter = historyAdapter
-
-        viewModel.callHistory.asFlow().asLiveData().observe(viewLifecycleOwner) { callHistory ->
-            historyAdapter.setRecords(callHistory.executeAsList())
         }
     }
 

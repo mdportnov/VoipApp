@@ -27,12 +27,10 @@
             android:layout_height="match_parent"
             android:animateLayoutChanges="true">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_call_records"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/compose_call_history"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_call_record" />
+                android:layout_height="match_parent" />
 
             <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/num_pad_compose"

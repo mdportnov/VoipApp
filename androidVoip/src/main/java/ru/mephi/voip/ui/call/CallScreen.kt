@@ -33,6 +33,7 @@ import androidx.constraintlayout.compose.Dimension
 import coil.ImageLoader
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.transform.BlurTransformation
 import coil.transform.RoundedCornersTransformation
@@ -42,7 +43,7 @@ import okhttp3.OkHttpClient
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.caller.NumPad
+import ru.mephi.voip.ui.caller.compose.NumPad
 import ru.mephi.voip.utils.toast
 
 private val buttonSize = 100.dp
@@ -89,6 +90,8 @@ fun CallScreen(
 
     val request = ImageRequest.Builder(appContext)
         .data(getImageUrl(viewModel.number))
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .memoryCachePolicy(CachePolicy.ENABLED)
         .build()
 
     imageLoader.enqueue(request)
