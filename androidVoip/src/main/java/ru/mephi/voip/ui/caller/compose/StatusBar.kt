@@ -1,6 +1,8 @@
 package ru.mephi.voip.ui.caller.compose
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -32,7 +34,11 @@ fun StatusBar() {
     val callState = callViewModel.callState.collectAsState()
     val isStatusBarShowed = callViewModel.isStatusBarShowed.collectAsState()
 
-    AnimatedVisibility(visible = isStatusBarShowed.value) {
+    AnimatedVisibility(
+        visible = isStatusBarShowed.value,
+        enter = slideInVertically(),
+        exit = slideOutVertically(),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
