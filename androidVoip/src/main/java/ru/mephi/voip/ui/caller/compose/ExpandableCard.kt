@@ -17,6 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import ru.mephi.voip.R
 
+// https://proandroiddev.com/expandable-lists-in-jetpack-compose-b0b78c767b4
+
 const val FADE_OUT_ANIMATION_DURATION = 100
 const val FADE_IN_ANIMATION_DURATION = 100
 const val EXPAND_ANIMATION_DURATION = 100

@@ -28,7 +28,7 @@ import ru.mephi.voip.utils.durationStringFromMillis
 import ru.mephi.voip.utils.stringFromDate
 
 @Composable
-@Preview
+@Preview(showBackground = true, showSystemUi = true)
 fun NumberHistoryListPreview() = NumberHistoryList(
     callRecord = CallRecord(
         1,

@@ -11,10 +11,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
@@ -76,84 +73,78 @@ class CallerFragment : Fragment() {
         binding = FragmentCallerBinding.inflate(inflater, container, false)
         toolbarBinding = binding.toolbarCaller
 
-        binding.composeStatusBar.apply {
+        binding.composeCallerScreen.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                StatusBar()
-            }
-        }
+            var inputState by mutableStateOf("")
 
-        binding.composeCallHistory.apply {
             setContent {
-                CallRecordsList()
-            }
-        }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        StatusBar()
+                        CallRecordsList()
+                    }
 
-        var inputState by mutableStateOf("")
-
-        binding.numPadCompose.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Bottom
-                ) {
-                    NumPad(
-                        11, inputState, isNumPadStateUp,
-                        onLimitExceeded = {
-                            showSnackBar(binding.root, "Превышен размер номера")
-                        },
-                        onNumPadStateChange = {
-                            isNumPadStateUp = !isNumPadStateUp
-                        },
-                        onInputStateChanged = {
-                            inputState = it
-                        }
-                    )
-                    FloatingActionButton(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.End), onClick = {
-                            if (isPermissionGranted)
-                                if (isNumPadStateUp) {
-                                    if (inputState.length <= 3) {
-                                        showSnackBar(binding.root, "Слишком короткий номер")
-                                        return@FloatingActionButton
-                                    }
-                                    if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
-                                        CallActivity.create(
-                                            requireContext(),
-                                            inputState,
-                                            false
-                                        )
-                                    } else {
-                                        showSnackBar(
-                                            binding.root,
-                                            "Нет активного аккаунта для совершения звонка"
-                                        )
-                                    }
-                                } else {
-                                    isNumPadStateUp = !isNumPadStateUp
-                                }
-                        }, backgroundColor = colorResource(id = R.color.colorGreen)
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Bottom
                     ) {
-                        if (isNumPadStateUp)
-                            Icon(
-                                Icons.Default.Call,
-                                contentDescription = "",
-                                tint = colorResource(
-                                    id = if (isPermissionGranted)
-                                        R.color.colorPrimary else R.color.colorGray
+                        NumPad(
+                            11, inputState, isNumPadStateUp,
+                            onLimitExceeded = {
+                                showSnackBar(binding.root, "Превышен размер номера")
+                            },
+                            onNumPadStateChange = {
+                                isNumPadStateUp = !isNumPadStateUp
+                            },
+                            onInputStateChanged = {
+                                inputState = it
+                            }
+                        )
+                        FloatingActionButton(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.End), onClick = {
+                                if (isPermissionGranted)
+                                    if (isNumPadStateUp) {
+                                        if (inputState.length <= 3) {
+                                            showSnackBar(binding.root, "Слишком короткий номер")
+                                            return@FloatingActionButton
+                                        }
+                                        if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                                            CallActivity.create(
+                                                requireContext(),
+                                                inputState,
+                                                false
+                                            )
+                                        } else {
+                                            showSnackBar(
+                                                binding.root,
+                                                "Нет активного аккаунта для совершения звонка"
+                                            )
+                                        }
+                                    } else {
+                                        isNumPadStateUp = !isNumPadStateUp
+                                    }
+                            }, backgroundColor = colorResource(id = R.color.colorGreen)
+                        ) {
+                            if (isNumPadStateUp)
+                                Icon(
+                                    Icons.Default.Call,
+                                    contentDescription = "",
+                                    tint = colorResource(
+                                        id = if (isPermissionGranted)
+                                            R.color.colorPrimary else R.color.colorGray
+                                    )
+                                ) else
+                                Icon(
+                                    painterResource(id = R.drawable.ic_baseline_dialpad_24),
+                                    contentDescription = "",
+                                    tint = colorResource(
+                                        id = if (isPermissionGranted)
+                                            R.color.colorPrimary else R.color.colorGray
+                                    )
                                 )
-                            ) else
-                            Icon(
-                                painterResource(id = R.drawable.ic_baseline_dialpad_24),
-                                contentDescription = "",
-                                tint = colorResource(
-                                    id = if (isPermissionGranted)
-                                        R.color.colorPrimary else R.color.colorGray
-                                )
-                            )
+                        }
                     }
                 }
             }
@@ -235,7 +226,11 @@ class CallerFragment : Fragment() {
         val navController = findNavController()
         val appBarConfig = AppBarConfiguration(navController.graph)
         val navHostFragment = NavHostFragment.findNavController(this)
-        NavigationUI.setupWithNavController(toolbarBinding.toolbar, navHostFragment, appBarConfig)
+        NavigationUI.setupWithNavController(
+            toolbarBinding.toolbar,
+            navHostFragment,
+            appBarConfig
+        )
         (activity as AppCompatActivity).setSupportActionBar(toolbarBinding.toolbar)
     }
 }
