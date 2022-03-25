@@ -43,7 +43,6 @@ import androidx.navigation.ui.NavigationUI
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import ru.mephi.shared.appContext
-import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
@@ -59,10 +58,7 @@ import timber.log.Timber
 
 @ExperimentalAnimationApi
 class CallerFragment : Fragment() {
-    private val repository: CallsRepository by inject()
     private val accountStatusRepository: AccountStatusRepository by inject()
-
-//    private lateinit var historyAdapter: CallHistoryAdapter
 
     private lateinit var binding: FragmentCallerBinding
     private lateinit var toolbarBinding: ToolbarCallerBinding
@@ -71,12 +67,6 @@ class CallerFragment : Fragment() {
 
     private var mutableInputState by mutableStateOf("")
     private var isNumPadStateUp by mutableStateOf(false)
-
-    @SuppressLint("NotifyDataSetChanged")
-    override fun onResume() {
-        super.onResume()
-//        historyAdapter.notifyDataSetChanged()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
