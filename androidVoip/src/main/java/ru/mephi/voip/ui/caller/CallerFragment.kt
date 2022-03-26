@@ -74,7 +74,6 @@ class CallerFragment : Fragment() {
     private var mutableInputState by mutableStateOf("")
     private var isNumPadStateUp by mutableStateOf(false)
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

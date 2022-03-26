@@ -131,11 +131,12 @@ fun NumberHistoryList(
             )
 
             callRecord.sipName?.let {
-                Text(
-                    text = it, style = TextStyle(color = Color.Black, fontSize = 30.sp),
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                )
+                if (it != callRecord.sipNumber)
+                    Text(
+                        text = it, style = TextStyle(color = Color.Black, fontSize = 30.sp),
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                    )
             }
 
             LazyColumn(

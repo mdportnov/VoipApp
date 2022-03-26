@@ -93,6 +93,8 @@ fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
         }
     }
 
+    val records = viewModel.getAllCallRecords()
+
     Box {
         LazyColumn {
             items(items = items, key = { it.id!! }) { recordItem ->
@@ -100,7 +102,7 @@ fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
                     confirmStateChange = {
                         if (it == DismissedToEnd)
                             onDeleteItem(recordItem)
-                        else
+                        if (it == DismissedToStart)
                             onSwipeToCall(recordItem)
                         false
                     }
@@ -112,7 +114,7 @@ fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
                         .animateItemPlacement(),
                     directions = setOf(StartToEnd, EndToStart),
                     dismissThresholds = { direction ->
-                        FractionalThreshold(if (direction == StartToEnd) 0.4f else 0.2f)
+                        FractionalThreshold(0.2f)
                     },
                     background = {
                         val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
@@ -150,11 +152,11 @@ fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
                         ExpandableCard(
                             onCardArrowClick = {
                                 viewModel.onCardArrowClicked(
-                                    viewModel.getAllCallRecords().indexOf(recordItem)
+                                    records.indexOf(recordItem)
                                 )
                             },
                             expanded = expandedCardIds.value.contains(
-                                viewModel.getAllCallRecords().indexOf(recordItem)
+                                records.indexOf(recordItem)
                             ),
                             content = { CallRecordMain(record = recordItem) },
                             expandableContent = {
@@ -204,7 +206,7 @@ fun CallRecordMain(record: CallRecord) {
             )
             Column {
                 Text(
-                    record.sipNumber,
+                    if (record.sipName.isNullOrEmpty()) record.sipNumber else record.sipName!!,
                     style = TextStyle(color = Color.Gray, fontSize = 25.sp)
                 )
                 Row() {
