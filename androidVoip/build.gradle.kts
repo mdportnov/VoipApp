@@ -62,10 +62,14 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    }
 }
 
 dependencies {
-    implementation("androidx.preference:preference:1.1.1")
+    implementation("androidx.preference:preference-ktx:1.2.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.2")
@@ -75,14 +79,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.3.2")
 
     implementation("androidx.compose.compiler:compiler:1.2.0-alpha02")
-    implementation("androidx.compose.ui:ui-tooling:1.1.0")
+    implementation("androidx.compose.ui:ui-tooling:1.1.1")
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("com.google.android.material:material:1.5.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
-    implementation("androidx.compose.material:material:1.1.0")
-    implementation("androidx.compose.material:material-icons-extended:1.1.0")
+    implementation("androidx.compose.material:material:1.1.1")
+    implementation("androidx.compose.material:material-icons-extended:1.1.1")
 
     implementation("io.coil-kt:coil:1.4.0")
     implementation("io.coil-kt:coil-compose:1.3.2")
@@ -109,7 +113,7 @@ dependencies {
 
     implementation("io.ktor:ktor-client-okhttp:1.6.2")
     implementation("io.ktor:ktor-client-serialization:1.6.7")
-    implementation("io.ktor:ktor-client-core:1.6.7")
+    implementation("io.ktor:ktor-client-core:1.6.8")
     implementation("io.ktor:ktor-client-json:1.6.7")
 
     implementation(platform("com.google.firebase:firebase-bom:29.0.0"))

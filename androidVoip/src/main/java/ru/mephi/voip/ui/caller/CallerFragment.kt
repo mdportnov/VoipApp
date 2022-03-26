@@ -10,7 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -18,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,7 +45,9 @@ import androidx.navigation.ui.NavigationUI
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import ru.mephi.shared.appContext
+import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.FragmentCallerBinding
@@ -48,6 +55,7 @@ import ru.mephi.voip.databinding.ToolbarCallerBinding
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.compose.CallRecordsList
 import ru.mephi.voip.ui.caller.compose.NumPad
+import ru.mephi.voip.ui.caller.compose.NumberHistoryList
 import ru.mephi.voip.ui.caller.compose.StatusBar
 import ru.mephi.voip.utils.showSnackBar
 import ru.mephi.voip.utils.toast
@@ -56,6 +64,7 @@ import timber.log.Timber
 @ExperimentalAnimationApi
 class CallerFragment : Fragment() {
     private val accountStatusRepository: AccountStatusRepository by inject()
+    private val viewModel: CallerViewModel by inject()
 
     private lateinit var binding: FragmentCallerBinding
     private lateinit var toolbarBinding: ToolbarCallerBinding
@@ -64,6 +73,7 @@ class CallerFragment : Fragment() {
 
     private var mutableInputState by mutableStateOf("")
     private var isNumPadStateUp by mutableStateOf(false)
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,11 +89,14 @@ class CallerFragment : Fragment() {
 
             setContent {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        StatusBar()
-                        CallRecordsList()
+                    val (selectedRecord, setSelectedRecord) = remember {
+                        mutableStateOf<CallRecord?>(null)
                     }
 
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        StatusBar()
+                        CallRecordsList(setSelectedRecord)
+                    }
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Bottom
@@ -145,6 +158,19 @@ class CallerFragment : Fragment() {
                                     )
                                 )
                         }
+                    }
+
+                    AnimatedVisibility(
+                        visibleState = MutableTransitionState(selectedRecord != null),
+                        enter = slideInVertically(),
+                        exit = slideOutVertically()
+                    ) {
+                        NumberHistoryList(
+                            callRecord = selectedRecord!!,
+                            callsHistory = viewModel.getAllCallsBySipNumber(selectedRecord.sipNumber)
+                                .executeAsList(),
+                            setSelectedRecord
+                        )
                     }
                 }
             }

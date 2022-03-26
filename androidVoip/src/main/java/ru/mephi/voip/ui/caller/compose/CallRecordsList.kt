@@ -1,16 +1,14 @@
 package ru.mephi.voip.ui.caller.compose
 
-import android.annotation.SuppressLint
 import android.widget.Toast
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.DismissDirection.EndToStart
 import androidx.compose.material.DismissDirection.StartToEnd
@@ -23,13 +21,11 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,7 +50,7 @@ import timber.log.Timber
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun CallRecordsList() {
+fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
     val viewModel: CallerViewModel by inject()
     val accountStatusRepository: AccountStatusRepository by inject()
     val items by viewModel.getAllRecordsFlow().collectAsState(initial = emptyList())
@@ -164,7 +160,8 @@ fun CallRecordsList() {
                             expandableContent = {
                                 ExpandableContent(content = {
                                     CallRecordMoreInfo(
-                                        record = recordItem
+                                        record = recordItem,
+                                        setSelectedRecord = setSelectedRecord
                                     )
                                 })
                             }
@@ -223,7 +220,7 @@ fun CallRecordMain(record: CallRecord) {
 }
 
 @Composable
-fun CallRecordMoreInfo(record: CallRecord) {
+fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> Unit) {
     Column(modifier = Modifier.padding(8.dp)) {
         Row {
             Text(
@@ -241,12 +238,16 @@ fun CallRecordMoreInfo(record: CallRecord) {
                 modifier = Modifier.padding(end = 12.dp)
             )
             Text(record.sipNumber, modifier = Modifier.padding(end = 10.dp))
-            Icon(
-                Icons.Default.Info,
-                tint = Color.LightGray,
-                contentDescription = "Подробнее",
-                modifier = Modifier.padding(end = 10.dp)
-            )
+            IconButton(onClick = {
+                setSelectedRecord(record)
+            }) {
+                Icon(
+                    Icons.Default.Info,
+                    tint = Color.LightGray,
+                    contentDescription = "Подробнее",
+                    modifier = Modifier.padding(end = 10.dp)
+                )
+            }
             Icon(
                 Icons.Default.DialerSip,
                 tint = colorResource(id = R.color.colorGreen),

@@ -1,17 +1,25 @@
 package ru.mephi.voip.ui.caller.compose
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,12 +69,17 @@ fun NumberHistoryListPreview() = NumberHistoryList(
             1648133547,
             10000
         )
-    )
+    ),
+    {}
 )
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun NumberHistoryList(callRecord: CallRecord, callsHistory: List<CallRecord>) {
+fun NumberHistoryList(
+    callRecord: CallRecord,
+    callsHistory: List<CallRecord>,
+    setSelectedRecord: (CallRecord?) -> Unit
+) {
     val painter = rememberImagePainter(
         data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + callRecord.sipNumber,
         builder = {
@@ -74,42 +87,68 @@ fun NumberHistoryList(callRecord: CallRecord, callsHistory: List<CallRecord>) {
             diskCachePolicy(CachePolicy.ENABLED)
         }
     )
+    Card(
+        Modifier
+            .background(Color.White)
+            .fillMaxWidth()
+            .padding(5.dp), elevation = 10.dp,
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Column {
+            Row(
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+            ) {
+                Spacer(modifier = Modifier.width(50.dp))
+                Image(
+                    painter = painter,
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(100.dp)
+                )
 
-    Column() {
-        Image(
-            painter = painter,
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .clip(CircleShape)
-                .size(100.dp)
-                .align(Alignment.CenterHorizontally)
-        )
+                IconButton(onClick = {
+                    setSelectedRecord(null)
+                }) {
+                    Icon(
+                        Icons.Default.Cancel,
+                        tint = Color.LightGray,
+                        contentDescription = "Закрыть",
+                        modifier = Modifier.padding(end = 10.dp)
+                    )
+                }
+            }
 
-        Text(
-            text = callRecord.sipNumber,
-            style = TextStyle(color = Color.White, fontSize = 30.sp),
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        callRecord.sipName?.let {
             Text(
-                text = it, style = TextStyle(color = Color.White),
+                text = callRecord.sipNumber,
+                style = TextStyle(color = Color.Black, fontSize = 30.sp),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-        }
 
-        LazyColumn(
-            modifier = Modifier.fillMaxHeight(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            items(items = callsHistory) { callItem ->
-                CallItem(callRecord = callItem)
+            callRecord.sipName?.let {
+                Text(
+                    text = it, style = TextStyle(color = Color.Black, fontSize = 30.sp),
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                items(items = callsHistory) { callItem ->
+                    CallItem(callRecord = callItem)
+                }
             }
         }
     }
-
 }
 
 @Composable
@@ -155,10 +194,13 @@ fun CallItem(callRecord: CallRecord) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         ImageCallStatus(callRecord.status)
 
-        Column(horizontalAlignment = Alignment.Start) {
-            Text(text = callRecord.time.stringFromDate(), style = TextStyle(color = Color.White))
+        Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
             Text(
-                text = callRecord.status.text + " , " + callRecord.time.durationStringFromMillis(),
+                text = callRecord.time.stringFromDate(),
+                style = TextStyle(color = colorResource(id = R.color.colorAccent))
+            )
+            Text(
+                text = callRecord.status.text + " , " + callRecord.duration.durationStringFromMillis(),
                 style = TextStyle(color = Color.Gray)
             )
         }
