@@ -4,9 +4,10 @@ import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
@@ -16,47 +17,35 @@ import androidx.compose.material.DismissValue.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DialerSip
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
-import coil.request.CachePolicy
-import coil.transform.RoundedCornersTransformation
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
-import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
-import ru.mephi.voip.utils.durationStringFromMillis
-import ru.mephi.voip.utils.stringFromDate
-import timber.log.Timber
-
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
+fun CallRecordsList(
+    setSelectedRecord: (CallRecord?) -> Unit,
+    onSnackBarHostStateChanged: (CallRecord) -> Unit,
+) {
     val viewModel: CallerViewModel by inject()
     val accountStatusRepository: AccountStatusRepository by inject()
     val items by viewModel.getAllRecordsFlow().collectAsState(initial = emptyList())
 
-    val snackBarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     lateinit var deletedRecord: CallRecord
@@ -64,21 +53,9 @@ fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
     val expandedCardIds = viewModel.expandedCardIdsList.collectAsState()
 
     val onDeleteItem: (CallRecord) -> Unit = { record ->
-        scope.launch {
-            snackBarHostState.currentSnackbarData?.dismiss()
-            deletedRecord = record
-            viewModel.deleteRecord(deletedRecord)
-            val snackBarResult = snackBarHostState.showSnackbar(
-                "Запись ${deletedRecord.sipNumber} удалена",
-                actionLabel = "Вернуть"
-            )
-            when (snackBarResult) {
-                SnackbarResult.Dismissed -> Timber.d("SnackBar dismissed")
-                SnackbarResult.ActionPerformed -> viewModel.addRecord(
-                    deletedRecord
-                )
-            }
-        }
+        deletedRecord = record
+        viewModel.deleteRecord(deletedRecord)
+        onSnackBarHostStateChanged(deletedRecord)
     }
 
     val onSwipeToCall: (CallRecord) -> Unit = { record ->
@@ -95,7 +72,7 @@ fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
 
     val records = viewModel.getAllCallRecords()
 
-    Box {
+    Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn {
             items(items = items, key = { it.id!! }) { recordItem ->
                 val dismissState = rememberDismissState(
@@ -171,90 +148,6 @@ fun CallRecordsList(setSelectedRecord: (CallRecord?) -> Unit) {
                     },
                 )
             }
-        }
-        SnackbarHost(
-            hostState = snackBarHostState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-        )
-    }
-}
-
-@Composable
-fun CallRecordMain(record: CallRecord) {
-    Column {
-        Row {
-            Image(
-                painter = rememberImagePainter(
-                    data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + record.sipNumber,
-                    builder = {
-                        placeholder(R.drawable.nophoto)
-                        crossfade(true)
-                        diskCachePolicy(CachePolicy.ENABLED)
-                        memoryCachePolicy(CachePolicy.ENABLED)
-                        transformations(RoundedCornersTransformation(15f))
-                        error(R.drawable.nophoto)
-                    }
-                ),
-                modifier = Modifier
-                    .width(50.dp)
-                    .aspectRatio(0.8f)
-                    .padding(end = 10.dp),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-            )
-            Column {
-                Text(
-                    if (record.sipName.isNullOrEmpty()) record.sipNumber else record.sipName!!,
-                    style = TextStyle(color = Color.Gray, fontSize = 25.sp)
-                )
-                Row() {
-                    ImageCallStatus(record.status)
-                    Text(
-                        record.time.stringFromDate(),
-                        style = TextStyle(color = colorResource(id = R.color.colorAccent))
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> Unit) {
-    Column(modifier = Modifier.padding(8.dp)) {
-        Row {
-            Text(
-                "Статус:",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(end = 10.dp)
-            )
-            Text(record.status.text, modifier = Modifier.padding(end = 10.dp))
-            Text(record.duration.durationStringFromMillis())
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "Номер:",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(end = 12.dp)
-            )
-            Text(record.sipNumber, modifier = Modifier.padding(end = 10.dp))
-            IconButton(onClick = {
-                setSelectedRecord(record)
-            }) {
-                Icon(
-                    Icons.Default.Info,
-                    tint = Color.LightGray,
-                    contentDescription = "Подробнее",
-                    modifier = Modifier.padding(end = 10.dp)
-                )
-            }
-            Icon(
-                Icons.Default.DialerSip,
-                tint = colorResource(id = R.color.colorGreen),
-                contentDescription = "Позвонить",
-            )
         }
     }
 }

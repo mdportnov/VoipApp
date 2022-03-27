@@ -4,7 +4,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("androidx.navigation.safeargs")
     id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -62,9 +61,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-//    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-//        kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-//    }
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    }
 }
 
 dependencies {
@@ -117,7 +116,6 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:29.0.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
 
     implementation("org.greenrobot:eventbus:3.3.1")
 

@@ -34,7 +34,7 @@ getAllCalls:
     SELECT * FROM call_history ORDER BY time DESC;
 
 getAllCallsBySipNumber:
-    SELECT * FROM call_history WHERE sipNumber = ?;
+    SELECT * FROM call_history WHERE sipNumber = ? ORDER BY time DESC;
 
 insertCall:
     INSERT INTO call_history(id, sipNumber, sipName, status, time, duration)
