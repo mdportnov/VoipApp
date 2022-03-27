@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.caller.compose
+package ru.mephi.voip.ui.caller
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically

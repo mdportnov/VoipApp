@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import ru.mephi.voip.databinding.FragmentCallerBinding
-import ru.mephi.voip.ui.caller.compose.CallerScreen
 
 class CallerFragment : Fragment() {
     private lateinit var binding: FragmentCallerBinding

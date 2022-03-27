@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.caller.compose
+package ru.mephi.voip.ui.caller
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.*
@@ -110,7 +110,7 @@ fun ExpandableCard(
         shape = RoundedCornerShape(cardRoundedCorners),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = cardPaddingHorizontal, vertical = 4.dp)
+            .padding(horizontal = cardPaddingHorizontal, vertical = 5.dp)
     ) {
         Column {
             Row(

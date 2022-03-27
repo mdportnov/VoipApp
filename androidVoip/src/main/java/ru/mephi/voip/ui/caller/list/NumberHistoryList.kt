@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.caller.compose
+package ru.mephi.voip.ui.caller.list
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,7 +12,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.sharp.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -88,7 +88,7 @@ fun NumberHistoryList(
         }
     )
     Card(
-        Modifier
+        modifier = Modifier
             .background(Color.White)
             .fillMaxWidth()
             .padding(5.dp), elevation = 10.dp,
@@ -97,7 +97,7 @@ fun NumberHistoryList(
         Column {
             Row(
                 verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceAround,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp)
@@ -114,12 +114,11 @@ fun NumberHistoryList(
 
                 IconButton(onClick = {
                     setSelectedRecord(null)
-                }) {
+                }, modifier = Modifier.padding(end = 10.dp)) {
                     Icon(
-                        Icons.Default.Cancel,
+                        Icons.Sharp.Close,
                         tint = Color.LightGray,
-                        contentDescription = "Закрыть",
-                        modifier = Modifier.padding(end = 10.dp)
+                        contentDescription = "Закрыть"
                     )
                 }
             }
@@ -201,7 +200,7 @@ fun CallItem(callRecord: CallRecord) {
                 style = TextStyle(color = colorResource(id = R.color.colorAccent))
             )
             Text(
-                text = callRecord.status.text + " , " + callRecord.duration.durationStringFromMillis(),
+                text = callRecord.status.text + ", " + callRecord.duration.durationStringFromMillis(),
                 style = TextStyle(color = Color.Gray)
             )
         }

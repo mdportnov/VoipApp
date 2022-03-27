@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.caller.compose
+package ru.mephi.voip.ui.caller
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -28,7 +28,9 @@ import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
-import ru.mephi.voip.ui.caller.CallerFragmentArgs
+import ru.mephi.voip.ui.caller.list.CallRecordsList
+import ru.mephi.voip.ui.caller.list.NumberHistoryList
+import ru.mephi.voip.ui.caller.numpad.NumPad
 import ru.mephi.voip.utils.ColorGray
 import ru.mephi.voip.utils.ColorGreen
 import ru.mephi.voip.utils.ColorRed
@@ -39,7 +41,7 @@ fun AccountStatusWidget(accountStatusRepository: AccountStatusRepository, modifi
     val status = accountStatusRepository.status.collectAsState()
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        Text(text = status.value.status, modifier = Modifier.padding(end = 10.dp))
+        Text(text = status.value.status, modifier = Modifier.padding(end = 5.dp))
         Canvas(modifier = Modifier
             .padding(end = 5.dp)
             .size(15.dp),

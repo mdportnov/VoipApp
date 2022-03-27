@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.caller.compose
+package ru.mephi.voip.ui.caller.numpad
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler

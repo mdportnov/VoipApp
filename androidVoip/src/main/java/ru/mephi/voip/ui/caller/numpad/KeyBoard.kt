@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.caller.compose
+package ru.mephi.voip.ui.caller.numpad
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

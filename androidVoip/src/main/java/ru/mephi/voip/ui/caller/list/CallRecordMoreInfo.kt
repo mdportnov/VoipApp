@@ -1,5 +1,6 @@
-package ru.mephi.voip.ui.caller.compose
+package ru.mephi.voip.ui.caller.list
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -13,16 +14,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
+import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
+import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.utils.durationStringFromMillis
 
 @Composable
 fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> Unit) {
-    Column(modifier = Modifier.padding(8.dp)) {
+    val accountStatusRepository: AccountStatusRepository by inject()
+    val context = LocalContext.current
+
+    Column(modifier = Modifier.padding(horizontal = 8.dp)) {
         Row {
             Text(
                 "Статус:",
@@ -41,19 +50,31 @@ fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> U
             Text(record.sipNumber, modifier = Modifier.padding(end = 10.dp))
             IconButton(onClick = {
                 setSelectedRecord(record)
-            }) {
+            }, modifier = Modifier.padding(end = 10.dp)) {
                 Icon(
                     Icons.Default.Info,
                     tint = Color.LightGray,
                     contentDescription = "Подробнее",
-                    modifier = Modifier.padding(end = 10.dp)
                 )
             }
-            Icon(
-                Icons.Default.DialerSip,
-                tint = colorResource(id = R.color.colorGreen),
-                contentDescription = "Позвонить",
-            )
+            IconButton(onClick = {
+                if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                    CallActivity.create(context, record.sipNumber, false)
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Нет активного аккаунта для совершения звонка",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }) {
+                Icon(
+                    Icons.Default.DialerSip,
+                    tint = colorResource(id = R.color.colorGreen),
+                    contentDescription = "Позвонить",
+                )
+            }
+
         }
     }
 }

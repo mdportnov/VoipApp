@@ -43,7 +43,7 @@ import okhttp3.OkHttpClient
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.caller.compose.NumPad
+import ru.mephi.voip.ui.caller.numpad.NumPad
 import ru.mephi.voip.utils.toast
 
 private val buttonSize = 100.dp
@@ -344,7 +344,7 @@ fun CallScreen(
                         elevation = ButtonDefaults.elevation()
                     ) {
                         Text(
-                            text = "Transfer call to: ${viewModel.inputState.value}",
+                            text = "Перевести звонок на: ${viewModel.inputState.value}",
                             color = Color.White
                         )
                     }

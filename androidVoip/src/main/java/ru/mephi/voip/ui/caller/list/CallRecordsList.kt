@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.caller.compose
+package ru.mephi.voip.ui.caller.list
 
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
@@ -35,6 +35,8 @@ import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
+import ru.mephi.voip.ui.caller.ExpandableCard
+import ru.mephi.voip.ui.caller.ExpandableContent
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
 @Composable
