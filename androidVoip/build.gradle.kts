@@ -14,8 +14,8 @@ android {
         applicationId = "ru.mephi.voip"
         minSdk = 23
         targetSdk = 30 // 31 causes error with pendingIntents and abto
-        versionCode = 13
-        versionName = "0.5.0"
+        versionCode = 14
+        versionName = "0.7.0"
         multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         signingConfig = signingConfigs.getByName("debug")
@@ -62,10 +62,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
+//    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+//        kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+//    }
 }
 
 dependencies {

@@ -1,14 +1,12 @@
 package ru.mephi.voip.call.abto
 
 import android.content.IntentFilter
-import androidx.compose.animation.ExperimentalAnimationApi
 import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.shared.di.initKoin
-import ru.mephi.shared.di.repositoryModule
 import ru.mephi.voip.di.koinModule
 import ru.mephi.voip.di.viewModels
 
