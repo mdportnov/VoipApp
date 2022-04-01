@@ -181,19 +181,6 @@ class DataAdapter(
                                 )
                             )
 
-                            val arrowImage = ImageView(context).apply {
-                                layoutParams = LinearLayout.LayoutParams(30, 30)
-                                layoutParams = LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                                    .2f
-                                )
-                                setHasTransientState(true)
-                                setImageDrawable(
-                                    ContextCompat.getDrawable(context, R.drawable.ic_arrow_right)
-                                )
-                            }
-
                             val outValue = TypedValue()
                             context.theme.resolveAttribute(
                                 android.R.attr.selectableItemBackground,

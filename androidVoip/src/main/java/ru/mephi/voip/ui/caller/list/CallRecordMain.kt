@@ -11,6 +11,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.request.CachePolicy
 import coil.transform.RoundedCornersTransformation
@@ -19,6 +20,7 @@ import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
 import ru.mephi.voip.utils.stringFromDate
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CallRecordMain(record: CallRecord) {
     Column {

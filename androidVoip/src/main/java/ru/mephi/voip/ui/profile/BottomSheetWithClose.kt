@@ -15,6 +15,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+sealed class BottomSheetScreen {
+    object ScreenAddNewAccount : BottomSheetScreen()
+    object ScreenChangeAccount : BottomSheetScreen()
+}
+
 val BottomSheetShape = RoundedCornerShape(
     topStart = 20.dp,
     topEnd = 20.dp,

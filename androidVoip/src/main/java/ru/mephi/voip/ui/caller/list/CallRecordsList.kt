@@ -92,9 +92,7 @@ fun CallRecordsList(
                         .padding(vertical = 2.dp)
                         .animateItemPlacement(),
                     directions = setOf(StartToEnd, EndToStart),
-                    dismissThresholds = { direction ->
-                        FractionalThreshold(0.2f)
-                    },
+                    dismissThresholds = { FractionalThreshold(0.2f) },
                     background = {
                         val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
                         val color by animateColorAsState(

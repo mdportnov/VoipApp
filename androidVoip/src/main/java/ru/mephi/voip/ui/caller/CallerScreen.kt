@@ -37,27 +37,6 @@ import ru.mephi.voip.utils.ColorRed
 import timber.log.Timber
 
 @Composable
-fun AccountStatusWidget(accountStatusRepository: AccountStatusRepository, modifier: Modifier) {
-    val status = accountStatusRepository.status.collectAsState()
-
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        Text(text = status.value.status, modifier = Modifier.padding(end = 5.dp))
-        Canvas(modifier = Modifier
-            .padding(end = 5.dp)
-            .size(15.dp),
-            onDraw = {
-                drawCircle(
-                    color = when (status.value) {
-                        AccountStatus.REGISTERED -> ColorGreen
-                        AccountStatus.NO_CONNECTION, AccountStatus.CHANGING, AccountStatus.LOADING -> ColorGray
-                        AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED -> ColorRed
-                    }
-                )
-            })
-    }
-}
-
-@Composable
 fun CallerScreen(
     isPermissionGranted: Boolean,
     navController: NavController,

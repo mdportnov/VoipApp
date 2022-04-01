@@ -13,6 +13,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.Fragment
@@ -110,6 +111,12 @@ class CatalogFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupToolbar()
+//        binding.composeCatalogScreen.apply {
+//            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+//            setContent {
+//                CatalogScreen(findNavController())
+//            }
+//        }
         initViews()
         initEventObservers()
     }
@@ -200,18 +207,6 @@ class CatalogFragment : Fragment(),
 
     //https://medium.com/mindorks/create-a-network-sensing-activity-in-android-614a1fa62a22
     private fun initViews() {
-//        toolbarBinding.switchSearchType.setOnCheckedChangeListener { radioGroup, id ->
-//            when (id) {
-//                R.id.users -> {
-//                    searchType = SearchType.USERS
-//                    toolbarBinding.searchView.queryHint = getString(R.string.search_of_appointments)
-//                }
-//                R.id.units -> {
-//                    searchType = SearchType.UNITS
-//                    toolbarBinding.searchView.queryHint = getString(R.string.search_of_units)
-//                }
-//            }
-//        }
         toolbarBinding.switchSearchType.setCheckedChangeListener { current ->
             if (current == IconSwitch.Checked.LEFT) {
                 searchType = SearchType.USERS
