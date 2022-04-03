@@ -1,4 +1,4 @@
-package ru.mephi.voip.call
+package ru.mephi.voip.abto
 
 import org.abtollc.sdk.AbtoPhone
 import ru.mephi.voip.utils.EncryptUtils

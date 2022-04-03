@@ -196,7 +196,6 @@ class DataAdapter(
                                 )
                                 setHasTransientState(true)
                                 addView(unitName)
-//                                addView(arrowImage)
                                 isClickable = true
                                 isFocusable = true
                                 setBackgroundResource(outValue.resourceId)

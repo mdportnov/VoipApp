@@ -28,7 +28,7 @@ import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
-import ru.mephi.voip.call.getSipUsername
+import ru.mephi.voip.abto.getSipUsername
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.databinding.ActivityMainBinding
 import ru.mephi.voip.eventbus.Event

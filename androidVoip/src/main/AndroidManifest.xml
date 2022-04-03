@@ -69,7 +69,7 @@
         </service>
 
         <receiver
-            android:name=".call.abto.CallEventsReceiver"
+            android:name="ru.mephi.voip.abto.CallEventsReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="ru.mephi.voip.INCOMING_CALL" />

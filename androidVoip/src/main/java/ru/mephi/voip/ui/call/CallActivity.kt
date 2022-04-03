@@ -22,7 +22,7 @@ import org.koin.android.ext.android.inject
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.call.parseRemoteContact
+import ru.mephi.voip.abto.parseRemoteContact
 import ru.mephi.voip.utils.toast
 
 class CallActivity : AppCompatActivity(), LifecycleOwner,

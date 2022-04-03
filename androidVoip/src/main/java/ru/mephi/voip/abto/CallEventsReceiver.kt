@@ -1,4 +1,4 @@
-package ru.mephi.voip.call.abto
+package ru.mephi.voip.abto
 
 import android.app.Notification
 import android.app.NotificationChannel

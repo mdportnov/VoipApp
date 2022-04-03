@@ -2,14 +2,13 @@ package ru.mephi.voip.di
 
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import androidx.compose.animation.ExperimentalAnimationApi
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.network.KtorApiService
-import ru.mephi.voip.call.abto.CallEventsReceiver
+import ru.mephi.voip.abto.CallEventsReceiver
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.call.CallViewModel

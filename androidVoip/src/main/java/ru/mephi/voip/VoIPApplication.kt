@@ -1,7 +1,7 @@
 package ru.mephi.voip
 
 import ru.mephi.shared.appContext
-import ru.mephi.voip.call.abto.AbtoApp
+import ru.mephi.voip.abto.AbtoApp
 import ru.mephi.voip.utils.PACKAGE_NAME
 import timber.log.Timber
 
