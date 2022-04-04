@@ -8,8 +8,10 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
@@ -37,6 +39,7 @@ import ru.mephi.voip.utils.network.NetworkSensingBaseActivity
 import ru.mephi.voip.utils.setupWithNavController
 import ru.mephi.voip.utils.showSnackBar
 import timber.log.Timber
+import java.util.*
 
 
 class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
@@ -82,6 +85,11 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
         firebaseAnalytics.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
 
         EventBus.getDefault().register(this)
+
+        val intent = Intent()
+        intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+        intent.data = Uri.parse("package:$packageName")
+        startActivity(intent)
 
         if (accountStatusRepository.isSipEnabled.value)
             enableSip()
@@ -196,7 +204,10 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
                     binding.mainContainer,
                     "Аккаунт \"${abtoPhone.getSipUsername(accId) ?: "null"}\" не зарегистрирован.\nПричина: $statusText"
                 )
-                accountStatusRepository.fetchStatus(AccountStatus.REGISTRATION_FAILED)
+                accountStatusRepository.fetchStatus(
+                    AccountStatus.REGISTRATION_FAILED,
+                    "Code: $statusCode, Text: $statusText, ${Calendar.getInstance().time}"
+                )
             }
         })
 
@@ -207,21 +218,17 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
 
         val config = abtoPhone.config
         for (c in Codec.values()) config.setCodecPriority(c, 0.toShort())
-        config.setCodecPriority(Codec.G729, 78.toShort())
+//        config.setCodecPriority(Codec.G729, 78.toShort())
         config.setCodecPriority(Codec.PCMA, 80.toShort())
         config.setCodecPriority(Codec.PCMU, 79.toShort())
         config.setCodecPriority(Codec.H264, 220.toShort())
         config.setCodecPriority(Codec.H263_1998, 0.toShort())
         config.setSignallingTransport(AbtoPhoneCfg.SignalingTransportType.UDP) //TCP);//TLS);
-        config.setKeepAliveInterval(AbtoPhoneCfg.SignalingTransportType.UDP, 30)
-        config.sipPort = 0
-
-//        config.setLicenseUserId("{Trial5216aded467d-BB77-DD90-AA3B618C-E998-45F5-B963-AE652D04101E}")
-//        config.setLicenseKey("{olRZLmHtd5P2rtWeUrTwl5zCii9dej80R5TfiEIHbBBZQGP1e1oZ1WG682DsCCRlNy7zeGmZzMZFwChnpiErOw==}")
-
+        config.setKeepAliveInterval(AbtoPhoneCfg.SignalingTransportType.UDP, 15)
+//        config.sipPort = 0
         config.isUseSRTP = false
         config.userAgent = abtoPhone.version()
-        config.hangupTimeout = 3000
+        config.hangupTimeout = 5000
         config.enableSipsSchemeUse = false
         config.isSTUNEnabled = false
         AbtoPhoneCfg.setLogLevel(7, true)

@@ -84,7 +84,7 @@ class AccountStatusRepository(
 
     private fun saveAccounts(list: List<Account>) = encryptAccountJson(getAccountsJson(list))
 
-    fun fetchStatus(newStatus: AccountStatus? = null) {
+    fun fetchStatus(newStatus: AccountStatus? = null, statusCode: String = "") {
         CoroutineScope(Dispatchers.Main).launch {
             _status.emit(AccountStatus.LOADING)
 
@@ -115,7 +115,7 @@ class AccountStatusRepository(
                 _displayName.emit(null)
 
             if (isSipEnabled.value)
-                updateNotificationStatus(_status.value)
+                updateNotificationStatus(_status.value, statusCode)
             else
                 fetchStatus(AccountStatus.UNREGISTERED)
 //                disableAccount()
@@ -126,7 +126,7 @@ class AccountStatusRepository(
         appContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     private val mNotificationId = 1
 
-    private fun updateNotificationStatus(accountStatus: AccountStatus) {
+    private fun updateNotificationStatus(accountStatus: AccountStatus, statusCode: String) {
         val intent = Intent(appContext, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -139,7 +139,7 @@ class AccountStatusRepository(
         mBuilder.setAutoCancel(false)
         mBuilder.setOngoing(true)
         mBuilder.setContentIntent(pendingIntent)
-        mBuilder.setContentText(appContext.getString(R.string.notification_title))
+        mBuilder.setContentText(statusCode.ifEmpty { appContext.getString(R.string.notification_title) })
         mBuilder.setSubText(accountStatus.status)
         mBuilder.setSmallIcon(R.drawable.logo_voip)
         val notification = mBuilder.build()
