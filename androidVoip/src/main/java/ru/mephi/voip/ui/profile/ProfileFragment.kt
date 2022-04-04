@@ -10,14 +10,11 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import coil.annotation.ExperimentalCoilApi
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @ExperimentalComposeUiApi
 @ExperimentalCoilApi
 @ExperimentalMaterialApi
 class ProfileFragment : Fragment() {
-    private val viewModel: ProfileViewModel by viewModel()
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

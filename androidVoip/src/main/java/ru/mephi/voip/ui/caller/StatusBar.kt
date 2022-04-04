@@ -54,7 +54,7 @@ fun StatusBar() {
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (callState.value == CallState.CONNECTED) {
+            if (callState.value == CallState.OK) {
                 Text(
                     text = if (callViewModel.callerName.value.isEmpty()) callViewModel.number else callViewModel.callerName.value,
                     color = Color.White,

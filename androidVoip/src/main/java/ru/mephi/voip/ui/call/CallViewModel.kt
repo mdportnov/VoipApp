@@ -188,7 +188,7 @@ class CallViewModel(
      */
     fun onCallConnected(number: String) {
         this.number = number
-        _callState.value = CallState.CONNECTED
+        _callState.value = CallState.OK
         _buttonsState.value = CallButtonsState.CALL_PROCESS
         startTimer()
     }

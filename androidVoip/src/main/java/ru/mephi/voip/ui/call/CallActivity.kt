@@ -162,7 +162,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
     override fun onBackPressed() {}
 
     private fun hangUp() {
-        if (callViewModel.callState.value != CallState.CONNECTED) {
+        if (callViewModel.callState.value != CallState.OK) {
             callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU)
         }
         try {
@@ -199,7 +199,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         when (statusCode) {
             OnRemoteAlertingListener.TRYING -> callViewModel.changeCallState(CallState.TRYING)
             OnRemoteAlertingListener.RINGING -> callViewModel.changeCallState(CallState.RINGING)
-            OnRemoteAlertingListener.SESSION_PROGRESS -> callViewModel.changeCallState(CallState.SESSION_PROGRESS)
+            OnRemoteAlertingListener.SESSION_PROGRESS -> callViewModel.changeCallState(CallState.SESSION_PROGRESSING)
         }
     }
 
@@ -231,7 +231,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
     private fun pickUp() {
         try {
             callViewModel.changeButtonState(CallButtonsState.CALL_PROCESS)
-            phone.answerCall(callViewModel.activeCallId, CallState.CONNECTED.statusCode, false)
+            phone.answerCall(callViewModel.activeCallId, CallState.OK.statusCode, false)
             callViewModel.changeCallStatus(CallStatus.INCOMING)
         } catch (e: RemoteException) {
         }
