@@ -8,8 +8,6 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -42,8 +40,8 @@ class AccountStatusRepository(
     val abtoApp = app as AbtoApp
     var phone: AbtoPhone = abtoApp.abtoPhone
 
-    private val _accountsList: MutableLiveData<List<Account>> = MutableLiveData()
-    val accountList: LiveData<List<Account>> = _accountsList
+    private val _accountsList: MutableStateFlow<List<Account>> = MutableStateFlow(listOf())
+    val accountList: StateFlow<List<Account>> = _accountsList
 
     private var _displayName = MutableStateFlow<NameItem?>(null)
     val displayName: StateFlow<NameItem?> = _displayName
@@ -68,17 +66,19 @@ class AccountStatusRepository(
 
     init {
         fetchStatus()
+        updateAccountsList()
     }
 
-    fun getAccountsList(): MutableList<Account> {
+    private fun updateAccountsList() {
         val jsonDecrypted = decryptAccountJson()
         Timber.d("AccountsListJSON: \n${jsonDecrypted ?: "empty"}")
-        return if (jsonDecrypted.isNullOrEmpty())
+        _accountsList.value = if (jsonDecrypted.isNullOrEmpty())
             mutableListOf()
         else Json.decodeFromString(jsonDecrypted)
+        _accountsCount.value = _accountsList.value.size
     }
 
-    fun getActiveAccount(): Account? = getAccountsList().firstOrNull { it.isActive }
+    fun getActiveAccount(): Account? = accountList.value.firstOrNull { it.isActive }
 
     private fun getAccountsJson(list: List<Account>?) = Json.encodeToJsonElement(list).toString()
 
@@ -88,8 +88,7 @@ class AccountStatusRepository(
         CoroutineScope(Dispatchers.Main).launch {
             _status.emit(AccountStatus.LOADING)
 
-            val list = getAccountsList()
-            _accountsCount.value = list.size
+            updateAccountsList()
 
             if (accountsCount.value == 0) {
                 _status.emit(AccountStatus.UNREGISTERED)
@@ -118,7 +117,6 @@ class AccountStatusRepository(
                 updateNotificationStatus(_status.value, statusCode)
             else
                 fetchStatus(AccountStatus.UNREGISTERED)
-//                disableAccount()
         }
     }
 
@@ -180,7 +178,7 @@ class AccountStatusRepository(
     }
 
     fun removeAccount(account: Account) {
-        val list = getAccountsList()
+        val list = accountList.value.toMutableList()
         list.removeAll { it.login == account.login }
 
         if (getActiveAccount() == account) // если активный аккаунт удаляется
@@ -192,7 +190,7 @@ class AccountStatusRepository(
     }
 
     fun addNewAccount(newLogin: String, newPassword: String) {
-        val list = getAccountsList()
+        val list = accountList.value.toMutableList()
 
         list.forEach { it.isActive = false }
 
@@ -212,7 +210,7 @@ class AccountStatusRepository(
     }
 
     fun updateActiveAccount(account: Account): String {
-        val list = getAccountsList()
+        val list = accountList.value
         fetchStatus(AccountStatus.CHANGING)
 
         list.forEach { it.isActive = false }
@@ -238,7 +236,7 @@ class AccountStatusRepository(
         phone.config.registerTimeout = 3000
         phone.restartSip()
 
-        _accountsList.postValue(list)
+        _accountsList.value = list
         _accountsCount.value = list.size
 
         return acc!!.login

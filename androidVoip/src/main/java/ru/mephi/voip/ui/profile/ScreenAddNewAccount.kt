@@ -56,6 +56,8 @@ fun ScreenAddNewAccount(scaffoldState: BottomSheetScaffoldState) {
 
     val context = LocalContext.current
 
+    val accountList = viewModel.accountRepository.accountList.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,7 +136,7 @@ fun ScreenAddNewAccount(scaffoldState: BottomSheetScaffoldState) {
         OutlinedButton(onClick = {
             if (textLogin.toIntOrNull() == null || textPassword.isEmpty()) {
                 Toast.makeText(context, "Введены некоректные данные", Toast.LENGTH_SHORT).show()
-            } else if (viewModel.accountRepository.getAccountsList().map { it.login }
+            } else if (accountList.value.map { it.login }
                     .contains(textLogin)) {
                 Toast.makeText(context, "Такой аккаунт уже существует", Toast.LENGTH_SHORT).show()
             } else {

@@ -3,7 +3,6 @@ package ru.mephi.voip.ui.caller
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -31,9 +30,6 @@ import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.list.CallRecordsList
 import ru.mephi.voip.ui.caller.list.NumberHistoryList
 import ru.mephi.voip.ui.caller.numpad.NumPad
-import ru.mephi.voip.utils.ColorGray
-import ru.mephi.voip.utils.ColorGreen
-import ru.mephi.voip.utils.ColorRed
 import timber.log.Timber
 
 @Composable
@@ -180,10 +176,9 @@ fun CallerScreen(
                                         false
                                     )
                                 } else {
-//                                showSnackBar(
-//                                    binding.root,
-//                                    "Нет активного аккаунта для совершения звонка"
-//                                )
+                                    scope.launch {
+                                        snackBarHostState.showSnackbar("Нет активного аккаунта для совершения звонка")
+                                    }
                                 }
                             } else {
                                 isNumPadStateUp = !isNumPadStateUp
