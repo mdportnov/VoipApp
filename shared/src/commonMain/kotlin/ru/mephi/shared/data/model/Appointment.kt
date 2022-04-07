@@ -24,4 +24,4 @@ data class Appointment(
     val room: String? = null,
     @SerialName("appointments")
     val positions: List<PositionInfo>? = null
-)
+) : CatalogItem()

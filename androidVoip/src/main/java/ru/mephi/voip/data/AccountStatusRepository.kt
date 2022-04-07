@@ -108,15 +108,15 @@ class AccountStatusRepository(
             } else if (newStatus != null)
                 _status.value = newStatus
 
+            if (isSipEnabled.value)
+                updateNotificationStatus(_status.value, statusCode)
+            else
+                _status.value = AccountStatus.UNREGISTERED
+
             if (newStatus == AccountStatus.REGISTERED)
                 fetchName()
             else if (newStatus == AccountStatus.UNREGISTERED || newStatus == AccountStatus.REGISTRATION_FAILED)
                 _displayName.emit(null)
-
-            if (isSipEnabled.value)
-                updateNotificationStatus(_status.value, statusCode)
-            else
-                fetchStatus(AccountStatus.UNREGISTERED)
         }
     }
 

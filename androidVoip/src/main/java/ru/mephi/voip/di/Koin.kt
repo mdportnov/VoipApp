@@ -13,6 +13,7 @@ import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.call.CallViewModel
 import ru.mephi.voip.ui.catalog.CatalogViewModel
+import ru.mephi.voip.ui.catalog.NewCatalogViewModel
 import ru.mephi.voip.ui.profile.ProfileViewModel
 
 val koinModule = module {
@@ -24,6 +25,14 @@ val koinModule = module {
 
 private fun spAccounts(): SharedPreferences =
     PreferenceManager.getDefaultSharedPreferences(appContext)
+
+val repositories = module {
+    single {
+        AccountStatusRepository(androidApplication(), get(), get())
+    }
+
+    single { CatalogRepository() }
+}
 
 val viewModels = module {
     viewModel {
@@ -39,8 +48,6 @@ val viewModels = module {
     }
 
     single {
-        AccountStatusRepository(androidApplication(), get(), get())
+        NewCatalogViewModel(get())
     }
-
-    single { CatalogRepository() }
 }

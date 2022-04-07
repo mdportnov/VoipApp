@@ -8,7 +8,11 @@ fun <T> Stack<T>.pop(): T? = if (isNotEmpty()) removeAt(lastIndex) else null
 
 fun <T> Stack<T>.peek(): T? = if (isNotEmpty()) this[lastIndex] else null
 
-fun <T> Stack<T>.popFromStackTill(el: T) {
-    while (this.peek() != el)
+fun <T> Stack<T>.popFromCatalogTill(el: T): Int {
+    var popCount = 0
+    while (this.peek() != el) {
         this.pop()
+        popCount++
+    }
+    return popCount
 }

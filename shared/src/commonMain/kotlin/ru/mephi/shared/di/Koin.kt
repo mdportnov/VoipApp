@@ -13,7 +13,7 @@ import ru.mephi.shared.data.database.SearchDB
 import ru.mephi.shared.data.database.dto.AppointmentKodein
 import ru.mephi.shared.data.database.dto.UnitMKodeIn
 import ru.mephi.shared.data.model.NameItem
-import ru.mephi.shared.data.network.ApiHelper
+import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.shared.getApplicationFilesDirectoryPath
 import ru.mephi.shared.vm.CallerViewModel
@@ -35,7 +35,7 @@ val dispatcherModule = module {
 }
 
 val repositoryModule = module {
-    fun provideCallsRepository(dao: CallsDB, api: ApiHelper): CallsRepository {
+    fun provideCallsRepository(dao: CallsDB, api: KtorApiService): CallsRepository {
         return CallsRepository(dao, api)
     }
 
@@ -49,7 +49,7 @@ val repositoryModule = module {
     single { SearchDB() }
     single { CallerViewModel() }
     single { CallsDB(get()) }
-    single { ApiHelper() }
+    single { KtorApiService() }
     single { provideCatalogDB() }
     single { CatalogDao() }
     single { provideCallsRepository(get(), get()) }

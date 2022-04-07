@@ -77,6 +77,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.3.2")
 
     implementation("androidx.compose.compiler:compiler:1.2.0-alpha02")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.23.1")
     implementation("androidx.compose.ui:ui-tooling:1.1.1")
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.core:core-ktx:1.7.0")

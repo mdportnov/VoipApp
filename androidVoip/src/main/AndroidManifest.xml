@@ -77,9 +77,6 @@
         </receiver>
 
         <provider
-            android:name=".ui.catalog.adapter.CatalogSuggestionProvider"
-            android:authorities="${applicationId}.CatalogSuggestionProvider" />
-        <provider
             android:name="org.abtollc.db.DBProvider"
             android:authorities="${applicationId}.abtodb" />
     </application>

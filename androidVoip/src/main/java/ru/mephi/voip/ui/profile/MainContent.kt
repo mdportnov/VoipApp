@@ -1,6 +1,7 @@
 package ru.mephi.voip.ui.profile
 
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -49,6 +50,7 @@ import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
+import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.settings.SettingsActivity
 import ru.mephi.voip.utils.*
 
@@ -56,6 +58,7 @@ import ru.mephi.voip.utils.*
 @Composable
 fun MainContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavController) {
     val viewModel by inject<ProfileViewModel>()
+    val accountRepository by inject<AccountStatusRepository>()
     val hapticFeedback = LocalHapticFeedback.current
     val localContext = LocalContext.current
     val painter = rememberImagePainter(
@@ -67,11 +70,10 @@ fun MainContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavContro
         }
     )
 
-    val accountsCount by viewModel.accountRepository.accountsCount.collectAsState()
-    val accountStatus by viewModel.accountRepository.status.collectAsState(initial = AccountStatus.CHANGING)
-    val isSipEnabled by viewModel.accountRepository.isSipEnabled.collectAsState()
-
-    val name = viewModel.accountRepository.displayName.collectAsState(NameItem())
+    val accountsCount by accountRepository.accountsCount.collectAsState()
+    val accountStatus by accountRepository.status.collectAsState(initial = AccountStatus.CHANGING)
+    val isSipEnabled by accountRepository.isSipEnabled.collectAsState()
+    val name by accountRepository.displayName.collectAsState(NameItem())
 
     val switchColor = if (isSipEnabled)
         ColorAccent else ColorGreen
@@ -101,7 +103,7 @@ fun MainContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavContro
                                 Intent(
                                     appContext,
                                     SettingsActivity::class.java
-                                )
+                                ).apply { flags = FLAG_ACTIVITY_NEW_TASK }
                             )
                         }) {
                         Icon(
@@ -233,7 +235,7 @@ fun MainContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavContro
                             )
                         }
 
-                    if (!name.value?.display_name.isNullOrEmpty())
+                    if (!name?.display_name.isNullOrEmpty())
                         Text(
                             fontSize = with(LocalDensity.current) {
                                 (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
@@ -244,7 +246,7 @@ fun MainContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavContro
                                 withStyle(style = SpanStyle(color = colorResource(id = R.color.colorAccent))) {
                                     append("Имя: ")
                                 }
-                                append(name.value!!.display_name)
+                                append(name!!.display_name)
                             }
                         )
 

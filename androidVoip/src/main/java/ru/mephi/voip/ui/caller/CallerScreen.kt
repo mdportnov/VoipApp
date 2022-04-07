@@ -34,9 +34,9 @@ import timber.log.Timber
 
 @Composable
 fun CallerScreen(
-    isPermissionGranted: Boolean,
+    isPermissionGranted: Boolean = false,
     navController: NavController,
-    args: CallerFragmentArgs,
+    args: CallerFragmentArgs? = null,
 ) {
     val accountStatusRepository: AccountStatusRepository by inject()
     val viewModel: CallerViewModel by inject()
@@ -44,7 +44,7 @@ fun CallerScreen(
     var inputState by remember { mutableStateOf("") }
     var isNumPadStateUp by remember { mutableStateOf(false) }
     var painter by remember { mutableStateOf(R.drawable.logo_mephi) }
-    val callerNumber by remember { mutableStateOf(args.callerNumber) }
+    val callerNumber by remember { mutableStateOf(args?.callerNumber) }
     val snackBarHostState = remember { SnackbarHostState() }
 
     val context = LocalContext.current
@@ -55,7 +55,7 @@ fun CallerScreen(
 
     if (!callerNumber.isNullOrEmpty()) {
         if (!inputState.contains(callerNumber!!) && !callerNumber!!.contains(inputState) || inputState.isEmpty())
-            inputState = args.callerNumber!!
+            inputState = args?.callerNumber!!
         painter = R.drawable.ic_baseline_arrow_back_24
         isNumPadStateUp = true
     } else
@@ -128,7 +128,7 @@ fun CallerScreen(
                         }
                     },
                     onNumPadStateChange = {
-                        if (!args.callerNumber.isNullOrEmpty()) {
+                        if (!args?.callerNumber.isNullOrEmpty()) {
                             navController.popBackStack()
                         } else
                             isNumPadStateUp = !isNumPadStateUp
@@ -137,7 +137,7 @@ fun CallerScreen(
                         inputState = it
                     }
                 )
-                args.callerName?.let {
+                args?.callerName?.let {
                     AnimatedVisibility(
                         visible = inputState == args.callerNumber,
                         enter = slideInVertically() + expandVertically()

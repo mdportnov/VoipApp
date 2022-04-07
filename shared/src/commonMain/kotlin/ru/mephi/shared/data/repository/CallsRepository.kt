@@ -10,12 +10,12 @@ import kotlinx.datetime.Clock
 import ru.mephi.shared.data.database.CallsDB
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
-import ru.mephi.shared.data.network.ApiHelper
+import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.shared.data.network.Resource
 
 class CallsRepository(
     private val dao: CallsDB,
-    private val api: ApiHelper
+    private val api: KtorApiService
 ) {
     private fun logAllCalls() {
         CoroutineScope(Dispatchers.Default).launch {

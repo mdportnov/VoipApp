@@ -11,16 +11,18 @@ import ru.mephi.shared.data.database.dto.toKodeIn
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.UnitM
-import ru.mephi.shared.data.network.*
+import ru.mephi.shared.data.network.KtorApiService
+import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.network.exception.EmptyUnitException
 import ru.mephi.shared.data.network.exception.NetworkException
 import ru.mephi.shared.data.network.exception.NotFoundException
 import ru.mephi.shared.data.network.exception.UndefinedErrorException
 import ru.mephi.voip.utils.isOnline
+import java.util.*
 
 class CatalogRepository : KoinComponent {
-    private val api: ApiHelper by inject()
-    private val dao: SearchDB by inject()
+    private val api: KtorApiService by inject()
+    private val searchDB: SearchDB by inject()
     private val catalogDao: CatalogDao by inject()
 
     suspend fun getInfoByPhone(num: String): Flow<Resource<List<NameItem>>> = flow {
@@ -68,6 +70,7 @@ class CatalogRepository : KoinComponent {
                 is Resource.Success<*> -> {
                     val unitOfUsers = (resource.data as UnitM)
                     unitOfUsers.shortname = query
+                    unitOfUsers.code_str = UUID.randomUUID().toString()
                     if (unitOfUsers.appointments.isNullOrEmpty())
                         emit(Resource.Error.NotFoundError(NotFoundException(query)))
                     else
@@ -102,7 +105,7 @@ class CatalogRepository : KoinComponent {
                     emit(
                         Resource.Success(
                             UnitM(
-                                "", query, query, shortname = query,
+                                UUID.randomUUID().toString(), query, query, shortname = query,
                                 "", "", children, null
                             )
                         )
@@ -120,7 +123,6 @@ class CatalogRepository : KoinComponent {
 
         val units = catalogDao.getUnitByCodeStr(codeStr)
 
-        emit(Resource.Loading(units))
         when (val resource = api.getUnitByCodeStr(codeStr)) {
             is Resource.Error.NetworkError<*> -> {
                 emit(Resource.Error.NetworkError(exception = NetworkException()))
@@ -189,11 +191,11 @@ class CatalogRepository : KoinComponent {
         }
     }
 
-    fun getSearchRecords() = dao.getAll()
+    fun getSearchRecords() = searchDB.getAll()
 
-    fun containsSearchRecord(searchRecord: SearchRecord) = dao.isExists(searchRecord.name)
+    fun containsSearchRecord(searchRecord: SearchRecord) = searchDB.isExists(searchRecord.name)
 
-    fun addSearchRecord(record: SearchRecord) = dao.insert(record)
+    fun addSearchRecord(record: SearchRecord) = searchDB.insert(record)
 
-    fun deleteAllSearchRecords() = dao.deleteAll()
+    fun deleteAllSearchRecords() = searchDB.deleteAll()
 }
