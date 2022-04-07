@@ -1,8 +1,9 @@
 package ru.mephi.voip.ui.catalog.search
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -17,22 +18,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.inject
+import ru.mephi.shared.data.model.SearchType
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.catalog.HistorySearchModelState
 import ru.mephi.voip.ui.catalog.NewCatalogViewModel
 import ru.mephi.voip.utils.rememberFlowWithLifecycle
 
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun SearchTopAppBar(
-    navController: NavController
-) {
+fun SearchTopAppBar(navController: NavController) {
     val viewModel: NewCatalogViewModel by inject()
     val isSearchFieldVisible by viewModel.isSearchFieldVisible.collectAsState()
     val searchType by viewModel.searchType.collectAsState()
@@ -40,7 +43,11 @@ fun SearchTopAppBar(
         .collectAsState(initial = HistorySearchModelState.Empty)
 
     TopAppBar(backgroundColor = Color.White) {
-        AnimatedVisibility(visible = !isSearchFieldVisible, modifier = Modifier.fillMaxWidth()) {
+        AnimatedVisibility(
+            visible = !isSearchFieldVisible, modifier = Modifier.fillMaxWidth(),
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -68,12 +75,18 @@ fun SearchTopAppBar(
         }
         AnimatedVisibility(
             visible = isSearchFieldVisible, modifier = Modifier.fillMaxWidth(),
-            enter = expandHorizontally(),
-            exit = shrinkHorizontally()
+            enter = expandVertically(),
+            exit = shrinkVertically()
         ) {
-            SearchBarUI(
+            SearchView(
                 searchText = searchHistoryModelState.searchText,
-                onSearchTextChanged = { viewModel.onSearchTextChanged(it) },
+                placeholderText = stringResource(
+                    if (searchType == SearchType.UNITS)
+                        R.string.search_of_units else R.string.search_of_appointments
+                ),
+                onSearchTextChanged = {
+                    viewModel.onSearchTextChanged(it)
+                },
                 onClearClick = {
                     viewModel.onClearClick()
                 },
@@ -84,7 +97,8 @@ fun SearchTopAppBar(
                 onSubmit = {
                     viewModel.performSearch(searchHistoryModelState.searchText)
                     viewModel.onClearClick()
-                }
+                },
+                onFocused = { viewModel.retrieveSearchHistory() }
             )
         }
     }

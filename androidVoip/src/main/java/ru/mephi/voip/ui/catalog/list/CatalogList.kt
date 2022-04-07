@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.DismissDirection.EndToStart
 import androidx.compose.material.DismissDirection.StartToEnd
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -28,6 +30,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.Stack
 import ru.mephi.shared.data.model.Appointment
@@ -49,6 +52,9 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
     val catalogPageState by viewModel.catalogStateFlow.collectAsState()
 
     val context = LocalContext.current
+
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
     val onSwipeToCall: (Appointment) -> Unit = { record ->
         if (accountStatusRepository.status.value == AccountStatus.REGISTERED && !record.line.isNullOrEmpty()) {
@@ -76,7 +82,12 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
             }
         }
 
-        LazyColumn {
+        LazyColumn(state = listState) {
+            if (catalogPageState > 0) {
+                scope.launch {
+                    listState.animateScrollToItem(index = 0)
+                }
+            }
             items(items = currentItems, key = { it.toString() }) { recordItem ->
                 when (recordItem) {
                     is Appointment -> {
@@ -154,7 +165,6 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
                         UnitCatalogItem(record = recordItem, viewModel = viewModel)
                     }
                 }
-
             }
         }
     }

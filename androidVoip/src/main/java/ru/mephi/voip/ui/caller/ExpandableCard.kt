@@ -58,7 +58,8 @@ fun ExpandableContent(
         visible = visible,
         initiallyVisible = initialVisibility,
         enter = enterExpand + enterFadeIn,
-        exit = exitCollapse + exitFadeOut
+        exit = exitCollapse + exitFadeOut,
+        modifier = Modifier.padding(vertical = 5.dp)
     ) {
         content()
     }

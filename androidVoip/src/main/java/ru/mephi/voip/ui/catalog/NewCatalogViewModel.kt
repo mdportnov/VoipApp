@@ -28,39 +28,48 @@ class NewCatalogViewModel(private val repository: CatalogRepository) : MainIoExe
     private val _expandedCardIdsList = MutableStateFlow(listOf<Int>())
     val expandedCardIdsList: StateFlow<List<Int>> get() = _expandedCardIdsList
 
-    fun onCardArrowClicked(cardId: Int) {
-        _expandedCardIdsList.value = _expandedCardIdsList.value.toMutableList().also { list ->
-            if (list.contains(cardId)) list.remove(cardId) else list.add(cardId)
-        }
-    }
-
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> get() = _isRefreshing
 
     private val _isProgressBarVisible = MutableStateFlow(false)
     val isProgressBarVisible: StateFlow<Boolean> get() = _isProgressBarVisible
 
+    var isSearchFieldVisible: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    var searchType: MutableStateFlow<SearchType> = MutableStateFlow(SearchType.UNITS)
+
+    private var allSearchHistory: ArrayList<SearchRecord> = ArrayList()
+    private var searchText: MutableStateFlow<String> = MutableStateFlow("")
+    private var matchedRecords: MutableStateFlow<List<SearchRecord>> = MutableStateFlow(listOf())
+
+    private val _catalogStack: MutableStateFlow<Stack<UnitM>> = MutableStateFlow(mutableListOf())
+    var catalogStack: StateFlow<Stack<UnitM>> = _catalogStack
+
+    // Состояние стека - отображаемая позиция
+    private val _catalogStateFlow = MutableStateFlow(0)
+    val catalogStateFlow: StateFlow<Int> = _catalogStateFlow
+
+    fun onCardArrowClicked(cardId: Int) {
+        _expandedCardIdsList.value = _expandedCardIdsList.value.toMutableList().also { list ->
+            if (list.contains(cardId)) list.remove(cardId) else list.add(cardId)
+        }
+    }
+
     fun changeSearchType() {
         searchType.value = if (searchType.value == SearchType.UNITS)
             SearchType.USERS else SearchType.UNITS
     }
 
-    var isSearchFieldVisible: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var allSearchHistory: ArrayList<SearchRecord> = ArrayList()
-    private var searchText: MutableStateFlow<String> = MutableStateFlow("")
-    var searchType: MutableStateFlow<SearchType> = MutableStateFlow(SearchType.UNITS)
-    private var showProgressBar: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var matchedSearchRecords: MutableStateFlow<List<SearchRecord>> =
-        MutableStateFlow(arrayListOf())
+    fun setSearchQuery(name: String) {
+        onSearchTextChanged(name)
+    }
 
     init {
-        retrieveSearchHistory()
         goNext("01 000 00")
     }
 
     val searchHistoryModelState = combine(
         searchText,
-        matchedSearchRecords,
+        matchedRecords,
     ) { searchText, matchedSearchRecords ->
         HistorySearchModelState(
             searchText,
@@ -71,44 +80,42 @@ class NewCatalogViewModel(private val repository: CatalogRepository) : MainIoExe
     fun onSearchTextChanged(changedSearchText: String) {
         searchText.value = changedSearchText
         if (changedSearchText.isEmpty()) {
-            matchedSearchRecords.value = arrayListOf()
+            matchedRecords.value = arrayListOf()
             return
         }
         val searchResults = allSearchHistory.filter { x ->
             x.name.startsWith(changedSearchText, true) && x.type == searchType.value
+                    && !x.name.equals(changedSearchText, ignoreCase = true)
         }
-        matchedSearchRecords.value = searchResults
+        matchedRecords.value = searchResults
     }
 
     fun onClearClick() {
         searchText.value = ""
         isSearchFieldVisible.value = false
-        matchedSearchRecords.value = arrayListOf()
+        matchedRecords.value = arrayListOf()
     }
 
-    private fun retrieveSearchHistory() {
+    fun retrieveSearchHistory() {
+        allSearchHistory.clear()
         allSearchHistory.addAll(repository.getSearchRecords())
     }
 
     fun performSearch(query: String) {
-        _catalogStack.value.lastOrNull()?.let {
-            if (it.shortname != query) {
-                if (searchType.value == SearchType.USERS) {
-                    search(query, SearchType.USERS)
-                }
-                if (searchType.value == SearchType.UNITS) {
-                    search(query, SearchType.UNITS)
+        if (query.length < 3) {
+            showSnackBar("Введите более длинный запрос")
+        } else
+            _catalogStack.value.lastOrNull()?.let {
+                if (it.shortname != query) {
+                    if (searchType.value == SearchType.USERS) {
+                        search(query, SearchType.USERS)
+                    }
+                    if (searchType.value == SearchType.UNITS) {
+                        search(query, SearchType.UNITS)
+                    }
                 }
             }
-        }
     }
-
-    private val _catalogStack: MutableStateFlow<Stack<UnitM>> = MutableStateFlow(mutableListOf())
-    var catalogStack: StateFlow<Stack<UnitM>> = _catalogStack
-
-    // Состояние стека - отображаемая позиция
-    private val _catalogStateFlow = MutableStateFlow(0)
-    val catalogStateFlow: StateFlow<Int> = _catalogStateFlow
 
     private fun addSearchRecord(record: SearchRecord) =
         if (!containsSearchRecord(record)) repository.addSearchRecord(record) else Unit

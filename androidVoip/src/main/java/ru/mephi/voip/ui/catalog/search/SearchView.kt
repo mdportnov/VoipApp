@@ -4,7 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -19,11 +22,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import ru.mephi.shared.data.model.SearchType
-import ru.mephi.voip.R
+import ru.mephi.voip.utils.ColorAccent
+import ru.mephi.voip.utils.ColorGray
+import ru.mephi.voip.utils.ColorRed
 
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
@@ -35,7 +41,8 @@ fun SearchView(
     onClearClick: () -> Unit = {},
     searchType: SearchType,
     onChangeSearchType: () -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    onFocused: () -> Unit
 ) {
     var showClearButton by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -45,14 +52,26 @@ fun SearchView(
         focusRequester.requestFocus()
     }
 
+    var textFieldValueState by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = searchText,
+                selection = TextRange(searchText.lastIndex)
+            )
+        )
+    }
+
     Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
             modifier = Modifier
                 .padding(vertical = 2.dp)
-                .onFocusChanged { focusState -> showClearButton = focusState.isFocused }
+                .onFocusChanged { focusState ->
+                    onFocused()
+                    showClearButton = focusState.isFocused
+                }
                 .focusRequester(focusRequester),
             value = searchText, onValueChange = onSearchTextChanged,
             placeholder = {
@@ -86,47 +105,15 @@ fun SearchView(
                 onSubmit()
             })
         )
-        Switch(checked = searchType == SearchType.UNITS, onCheckedChange = {
-            onChangeSearchType()
-        }, modifier = Modifier.fillMaxWidth())
-    }
-
-}
-
-@Composable
-fun NoSearchResults() {
-    Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Ничего не найдено")
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
-@Composable
-fun SearchBarUI(
-    searchText: String,
-    onSearchTextChanged: (String) -> Unit = {},
-    onClearClick: () -> Unit = {},
-    searchType: SearchType,
-    onChangeSearchType: () -> Unit = {},
-    onSubmit: () -> Unit,
-) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        SearchView(
-            searchText = searchText,
-            placeholderText = stringResource(
-                if (searchType == SearchType.UNITS)
-                    R.string.search_of_units else R.string.search_of_appointments
-            ),
-            onSearchTextChanged = onSearchTextChanged,
-            onClearClick = onClearClick,
-            searchType = searchType,
-            onChangeSearchType = onChangeSearchType,
-            onSubmit = onSubmit
+        Switch(
+            checked = searchType == SearchType.UNITS, onCheckedChange = {
+                onChangeSearchType()
+            }, modifier = Modifier.fillMaxWidth(),
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = ColorRed,
+                checkedTrackColor = ColorAccent,
+                uncheckedThumbColor = ColorGray
+            )
         )
     }
 }

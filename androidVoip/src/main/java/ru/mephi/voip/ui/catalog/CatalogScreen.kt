@@ -25,7 +25,6 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.koin.androidx.compose.inject
 import ru.mephi.voip.ui.catalog.list.CatalogBreadcrumbs
 import ru.mephi.voip.ui.catalog.list.CatalogList
-import ru.mephi.voip.ui.catalog.search.NoSearchResults
 import ru.mephi.voip.ui.catalog.search.SearchRecordsList
 import ru.mephi.voip.ui.catalog.search.SearchTopAppBar
 import ru.mephi.voip.utils.ColorAccent
@@ -86,20 +85,17 @@ fun CatalogScreen(navController: NavController) {
                 ) {
                     Column {
                         Text(
-                            "Результаты:",
+                            "История:",
                             modifier = Modifier
                                 .padding(8.dp)
                                 .fillMaxWidth(),
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             fontSize = 25.sp
                         )
-                        SearchRecordsList(searchHistoryModelState)
+                        SearchRecordsList(searchHistoryModelState) {
+                            viewModel.onSearchTextChanged(it.name)
+                        }
                     }
-                }
-
-            } else {
-                if (searchHistoryModelState.searchText.isNotEmpty()) {
-                    NoSearchResults()
                 }
             }
         }

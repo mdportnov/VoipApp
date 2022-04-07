@@ -14,7 +14,7 @@ import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.voip.ui.catalog.HistorySearchModelState
 
 @Composable
-fun SearchRecordsList(state: HistorySearchModelState, onClick: (SearchRecord) -> Unit = {}) {
+fun SearchRecordsList(state: HistorySearchModelState, onClick: (SearchRecord) -> Unit) {
     state.historyRecords.forEach { record ->
         SearchRecordItem(record = record) {
             onClick(record)
