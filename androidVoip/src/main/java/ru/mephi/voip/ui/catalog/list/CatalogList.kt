@@ -146,15 +146,13 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
                                     content = {
                                         UserCatalogItem(
                                             record = recordItem,
+                                            viewModel = viewModel,
                                             navController = navController
                                         )
                                     },
                                     expandableContent = {
                                         ExpandableContent(content = {
-                                            UserCatalogMoreInfo(
-                                                record = recordItem,
-                                                viewModel = viewModel
-                                            )
+                                            UserCatalogMoreInfo(record = recordItem)
                                         })
                                     }
                                 )

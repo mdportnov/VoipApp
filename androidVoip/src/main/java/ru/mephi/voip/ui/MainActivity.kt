@@ -12,9 +12,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.LiveData
-import androidx.navigation.NavController
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -30,26 +30,18 @@ import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
-import ru.mephi.voip.abto.getSipUsername
 import ru.mephi.voip.data.AccountStatusRepository
-import ru.mephi.voip.databinding.ActivityMainBinding
 import ru.mephi.voip.eventbus.Event
-import ru.mephi.voip.ui.catalog.CatalogViewModel
-import ru.mephi.voip.utils.network.NetworkSensingBaseActivity
-import ru.mephi.voip.utils.setupWithNavController
-import ru.mephi.voip.utils.showSnackBar
 import timber.log.Timber
 import java.util.*
 
 
-class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
+class MainActivity : ComponentActivity(),
+//    NetworkSensingBaseActivity(),
+    OnInitializeListener,
     EasyPermissions.PermissionCallbacks {
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var currentNavController: LiveData<NavController>
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-
     private val accountStatusRepository: AccountStatusRepository by inject()
-    private val catalogViewModel: CatalogViewModel by inject()
 
     companion object {
         var phone: AbtoPhone = (appContext as AbtoApplication).abtoPhone
@@ -58,16 +50,9 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
         const val CHANNEL_ID: String = "CHANNEL"
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        // Теперь, когда BottomNavigationBar восстановил свое состояние экземпляра.
-        // и его selectItemId, мы можем приступить к настройке
-        // BottomNavigationBar с навигацией
-        setupBottomNavigationBar()
-    }
-
     override fun onResume() {
         super.onResume()
+//        checkPermissions()
         phone = (application as AbtoApplication).abtoPhone
         if (!accountStatusRepository.isBackgroundWork.value) {
             if (accountStatusRepository.isSipEnabled.value) {
@@ -78,8 +63,10 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+
+        setContent {
+            VoIPApp()
+        }
 
         firebaseAnalytics = Firebase.analytics
         firebaseAnalytics.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
@@ -91,15 +78,13 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
         intent.data = Uri.parse("package:$packageName")
         startActivity(intent)
 
-        if (accountStatusRepository.isSipEnabled.value)
-            enableSip()
-
         if (!hasPermissions())
             requestPermissions()
 
-        if (savedInstanceState == null)
-            setupBottomNavigationBar()
+        if (accountStatusRepository.isSipEnabled.value)
+            enableSip()
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -114,37 +99,6 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
         }
     }
 
-    private fun setupBottomNavigationBar() {
-        val navGraphIds = listOf(
-            R.navigation.caller,
-            R.navigation.catalog,
-            R.navigation.profile
-        )
-
-        val navController = binding.bottomNav.setupWithNavController(
-            navGraphIds = navGraphIds,
-            fragmentManager = supportFragmentManager,
-            containerId = R.id.nav_host_container,
-            intent = intent
-        )
-
-        binding.bottomNav.setOnItemReselectedListener { item ->
-            when (item.itemId) {
-                R.id.catalog -> if (catalogViewModel.catalogStack.size > 1) {
-                    while (catalogViewModel.catalogStack.size > 1) {
-                        catalogViewModel.goToStartPage()
-                    }
-                }
-            }
-        }
-
-        currentNavController = navController
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return currentNavController.value?.navigateUp() ?: false
-    }
-
     @Subscribe
     fun enableSip(messageEvent: Event.EnableAccount? = null) {
         initAccount(phone)
@@ -153,8 +107,8 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
 
     @Subscribe
     fun disableSip(messageEvent: Event.DisableAccount? = null) {
-        phone.stopForeground()
         phone.unregister()
+        phone.stopForeground()
         phone.destroy()
     }
 
@@ -189,21 +143,21 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
         Timber.d("Set Registration Listener")
         abtoPhone.setRegistrationStateListener(object : OnRegistrationListener {
             override fun onRegistered(accId: Long) {
-                showSnackBar(binding.mainContainer, AccountStatus.REGISTERED.status)
+//                showSnackBar(binding.mainContainer, AccountStatus.REGISTERED.status)
                 accountStatusRepository.fetchStatus(AccountStatus.REGISTERED)
                 Timber.d("REG STATUS: ${abtoPhone.getSipProfileState(abtoPhone.currentAccountId).statusCode}")
             }
 
             override fun onUnRegistered(accId: Long) {
-                showSnackBar(binding.mainContainer, "Регистрация аккаунта отменена")
+//                showSnackBar(binding.mainContainer, "Регистрация аккаунта отменена")
                 accountStatusRepository.fetchStatus(AccountStatus.UNREGISTERED)
             }
 
             override fun onRegistrationFailed(accId: Long, statusCode: Int, statusText: String?) {
-                showSnackBar(
-                    binding.mainContainer,
-                    "Аккаунт \"${abtoPhone.getSipUsername(accId) ?: "null"}\" не зарегистрирован.\nПричина: $statusText"
-                )
+//                showSnackBar(
+//                    binding.mainContainer,
+//                    "Аккаунт \"${abtoPhone.getSipUsername(accId) ?: "null"}\" не зарегистрирован.\nПричина: $statusText"
+//                )
                 accountStatusRepository.fetchStatus(
                     AccountStatus.REGISTRATION_FAILED,
                     "Code: $statusCode, Text: $statusText, ${Calendar.getInstance().time}"
@@ -271,11 +225,8 @@ class MainActivity : NetworkSensingBaseActivity(), OnInitializeListener,
                 .setTitle("Error")
                 .setMessage(message)
                 .setPositiveButton("Ok") { dlg, _ -> dlg.dismiss() }.create().show()
-            InitializeState.SUCCESS -> {
-//                startNextActivity()
-            }
-            else -> {
-            }
+            InitializeState.SUCCESS -> {}
+            else -> {}
         }
     }
 

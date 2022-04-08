@@ -68,6 +68,7 @@ android {
 
 dependencies {
     implementation("androidx.preference:preference-ktx:1.2.0")
+    implementation("com.google.android.material:material:1.5.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.2")
@@ -78,6 +79,8 @@ dependencies {
 
     implementation("androidx.compose.compiler:compiler:1.2.0-alpha02")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.23.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.23.1")
+
     implementation("androidx.compose.ui:ui-tooling:1.1.1")
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.core:core-ktx:1.7.0")
@@ -91,19 +94,12 @@ dependencies {
     implementation("io.insert-koin:koin-android:3.1.5")
     implementation("io.insert-koin:koin-androidx-compose:3.1.5")
 
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
-
-    implementation("androidx.navigation:navigation-fragment-ktx:2.4.1")
-    implementation("androidx.navigation:navigation-ui-ktx:2.4.1")
-    implementation("androidx.navigation:navigation-runtime-ktx:2.4.1")
-    implementation("androidx.navigation:navigation-compose:2.5.0-alpha03")
+    implementation("androidx.navigation:navigation-compose:2.4.2")
 
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
-    implementation("androidx.compose.runtime:runtime-livedata:1.2.0-alpha02")
 
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("androidx.preference:preference-ktx:1.2.0")
@@ -125,7 +121,6 @@ dependencies {
     implementation("com.squareup.sqldelight:coroutines-extensions:1.5.3")
 
     implementation("com.vmadalin:easypermissions-ktx:1.0.0")
-    implementation("com.polyak:icon-switch:1.0.0")
     implementation("com.github.leonardoxh:keystore-ultimate:1.3.0")
 
     implementation(project(":shared"))

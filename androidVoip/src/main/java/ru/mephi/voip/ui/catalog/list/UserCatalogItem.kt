@@ -22,7 +22,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
@@ -31,12 +30,21 @@ import coil.transform.RoundedCornersTransformation
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
+import ru.mephi.voip.ui.BottomNavItem
+import ru.mephi.voip.ui.catalog.NewCatalogViewModel
+import ru.mephi.voip.ui.navigation.CALLER_NAME_KEY
+import ru.mephi.voip.ui.navigation.CALLER_NUMBER_KEY
+import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.ColorGray
 import ru.mephi.voip.utils.ColorGreen
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun UserCatalogItem(record: Appointment, navController: NavController) {
+fun UserCatalogItem(
+    record: Appointment,
+    viewModel: NewCatalogViewModel,
+    navController: NavController
+) {
     Row {
         Image(
             painter = rememberImagePainter(
@@ -69,13 +77,37 @@ fun UserCatalogItem(record: Appointment, navController: NavController) {
                     fontWeight = FontWeight.Bold,
                     style = TextStyle(fontSize = 14.sp, color = ColorGray)
                 )
-                Text(
-                    text = it,
-                    fontWeight = FontWeight.Bold,
-                    style = TextStyle(fontSize = 14.sp),
-                    maxLines = 10,
-                    modifier = Modifier.width(250.dp)
-                )
+                if (record.positions == null) {
+                    Text(
+                        text = it,
+                        fontWeight = FontWeight.Bold,
+                        style = TextStyle(fontSize = 14.sp),
+                        maxLines = 10,
+                        modifier = Modifier.width(250.dp)
+                    )
+                } else {
+                    record.positions!!.forEach { info ->
+                        Column(modifier = Modifier.clickable {
+                            viewModel.goNext(info.unitCodeStr)
+
+                        }) {
+                            Text(
+                                text = info.unitName,
+                                fontWeight = FontWeight.Medium,
+                                style = TextStyle(fontSize = 14.sp, color = ColorAccent),
+                                maxLines = 3,
+                                modifier = Modifier.width(250.dp)
+                            )
+                            Text(
+                                text = info.appointmentName,
+                                fontWeight = FontWeight.Light,
+                                style = TextStyle(fontSize = 14.sp, color = ColorGray),
+                                maxLines = 1,
+                                modifier = Modifier.width(250.dp)
+                            )
+                        }
+                    }
+                }
             }
 
             record.line?.let {
@@ -86,11 +118,8 @@ fun UserCatalogItem(record: Appointment, navController: NavController) {
                     title = "SIP: ",
                     onClick = {
                         navController.navigate(
-                            R.id.callFromCatalogAction,
-                            bundleOf(
-                                "caller_number" to record.line,
-                                "caller_name" to record.fio
-                            )
+                            BottomNavItem.Caller.screen_route
+                                .plus("?${CALLER_NUMBER_KEY}=${record.line}&${CALLER_NAME_KEY}=${record.fullName}"),
                         )
                     }
                 ) {

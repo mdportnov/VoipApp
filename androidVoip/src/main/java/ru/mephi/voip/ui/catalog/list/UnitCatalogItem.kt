@@ -7,20 +7,22 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.catalog.NewCatalogViewModel
 import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.ColorGray
+import ru.mephi.voip.utils.isOnline
 
 @Composable
 fun UnitCatalogItem(record: UnitM, viewModel: NewCatalogViewModel) {
-
     val textSize = when {
         record.name.length > 280 -> 8F.sp
         record.name.length > 200 -> 15.sp
@@ -33,7 +35,14 @@ fun UnitCatalogItem(record: UnitM, viewModel: NewCatalogViewModel) {
             Text(
                 text = record.fullname,
                 textAlign = TextAlign.Center,
-                style = TextStyle(color = ColorGray, fontSize = textSize),
+                style = TextStyle(
+                    color =
+                    when {
+                        isOnline(appContext) -> ColorGray
+                        viewModel.isExistsInDatabase(record.code_str) -> ColorGray
+                        else -> Color.LightGray
+                    }, fontSize = textSize
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp),

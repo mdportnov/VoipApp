@@ -193,6 +193,8 @@ class CatalogRepository : KoinComponent {
 
     fun getSearchRecords() = searchDB.getAll()
 
+    fun isExistsInDatabase(codeStr: String) = catalogDao.checkByCodeStr(code_str = codeStr)
+
     fun containsSearchRecord(searchRecord: SearchRecord) = searchDB.isExists(searchRecord.name)
 
     fun addSearchRecord(record: SearchRecord) = searchDB.insert(record)

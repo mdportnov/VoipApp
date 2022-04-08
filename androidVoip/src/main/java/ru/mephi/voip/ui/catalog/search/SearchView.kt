@@ -22,9 +22,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.voip.utils.ColorAccent
@@ -50,15 +48,6 @@ fun SearchView(
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-    }
-
-    var textFieldValueState by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = searchText,
-                selection = TextRange(searchText.lastIndex)
-            )
-        )
     }
 
     Row(

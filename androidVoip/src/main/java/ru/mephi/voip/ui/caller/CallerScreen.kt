@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,15 +37,17 @@ import timber.log.Timber
 fun CallerScreen(
     isPermissionGranted: Boolean = false,
     navController: NavController,
-    args: CallerFragmentArgs? = null,
+    callerNumberArg: String? = null,
+    callerNameArg: String? = null,
 ) {
     val accountStatusRepository: AccountStatusRepository by inject()
     val viewModel: CallerViewModel by inject()
 
     var inputState by remember { mutableStateOf("") }
     var isNumPadStateUp by remember { mutableStateOf(false) }
-    var painter by remember { mutableStateOf(R.drawable.logo_mephi) }
-    val callerNumber by remember { mutableStateOf(args?.callerNumber) }
+    var isBackArrowVisible by remember { mutableStateOf(false) }
+    val callerNumber by remember { mutableStateOf(callerNumberArg) }
+    val callerName by remember { mutableStateOf(callerNameArg) }
     val snackBarHostState = remember { SnackbarHostState() }
 
     val context = LocalContext.current
@@ -53,13 +56,17 @@ fun CallerScreen(
         navController.popBackStack()
     }
 
-    if (!callerNumber.isNullOrEmpty()) {
-        if (!inputState.contains(callerNumber!!) && !callerNumber!!.contains(inputState) || inputState.isEmpty())
-            inputState = args?.callerNumber!!
-        painter = R.drawable.ic_baseline_arrow_back_24
+    if (callerNumber.isNullOrEmpty()) {
+        isBackArrowVisible = false
+    } else {
+        isBackArrowVisible = true
         isNumPadStateUp = true
-    } else
-        painter = R.drawable.logo_mephi
+
+        if (inputState.isEmpty()) {
+            if (!inputState.contains(callerNumber!!))
+                inputState = callerNumber!!
+        }
+    }
 
     Column {
         TopAppBar(
@@ -71,15 +78,14 @@ fun CallerScreen(
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.align(Alignment.CenterStart),
-                ) {
+                if (isBackArrowVisible)
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
+                    } else
                     Image(
-                        painter = painterResource(id = painter),
+                        painter = painterResource(id = R.drawable.logo_mephi),
                         contentDescription = "лого",
                     )
-                }
 
                 Text(
                     text = "Звонки", style = TextStyle(color = Color.Black, fontSize = 20.sp),
@@ -120,26 +126,9 @@ fun CallerScreen(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Bottom
             ) {
-                NumPad(
-                    11, inputState, isNumPadStateUp,
-                    onLimitExceeded = {
-                        scope.launch {
-                            snackBarHostState.showSnackbar("Превышен размер номера")
-                        }
-                    },
-                    onNumPadStateChange = {
-                        if (!args?.callerNumber.isNullOrEmpty()) {
-                            navController.popBackStack()
-                        } else
-                            isNumPadStateUp = !isNumPadStateUp
-                    },
-                    onInputStateChanged = {
-                        inputState = it
-                    }
-                )
-                args?.callerName?.let {
+                callerName?.let {
                     AnimatedVisibility(
-                        visible = inputState == args.callerNumber,
+                        visible = inputState == callerNumber && inputState.isNotEmpty(),
                         enter = slideInVertically() + expandVertically()
                                 + fadeIn(initialAlpha = 0.3f),
                         exit = shrinkVertically() + fadeOut()
@@ -157,6 +146,23 @@ fun CallerScreen(
                         }
                     }
                 }
+                NumPad(
+                    11, inputState, isNumPadStateUp,
+                    onLimitExceeded = {
+                        scope.launch {
+                            snackBarHostState.showSnackbar("Превышен размер номера")
+                        }
+                    },
+                    onNumPadStateChange = {
+                        if (callerNumber.isNullOrEmpty())
+                            isNumPadStateUp = !isNumPadStateUp
+                        else
+                            navController.popBackStack()
+                    },
+                    onInputStateChanged = {
+                        inputState = it
+                    }
+                )
                 FloatingActionButton(
                     modifier = Modifier
                         .padding(16.dp)

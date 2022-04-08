@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Room
@@ -17,14 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.catalog.NewCatalogViewModel
 import ru.mephi.voip.utils.ColorGray
 import ru.mephi.voip.utils.ColorRed
 import ru.mephi.voip.utils.launchDialer
 import ru.mephi.voip.utils.launchMailClientIntent
 
 @Composable
-fun UserCatalogMoreInfo(record: Appointment, viewModel: NewCatalogViewModel) {
+fun UserCatalogMoreInfo(record: Appointment) {
     val context = LocalContext.current
 
     Column {
@@ -61,29 +59,10 @@ fun UserCatalogMoreInfo(record: Appointment, viewModel: NewCatalogViewModel) {
                 Modifier.padding(vertical = 2.dp, horizontal = 5.dp),
                 Icons.Default.Room,
                 Color.Black,
-                "Помещение: "
+                "Помещение:"
             ) {
-                Text(
-                    text = room, style = TextStyle(fontSize = 14.sp, color = ColorGray)
-                )
+                Text(text = room, style = TextStyle(fontSize = 14.sp, color = ColorGray))
             }
-        }
-
-        record.positions?.let { positions ->
-            positions.forEach { positionInfo ->
-                RowWithIcon(
-                    Modifier.padding(vertical = 2.dp, horizontal = 5.dp),
-                    Icons.Default.Apartment,
-                    Color.DarkGray,
-                    positionInfo.unitFullName
-                ) {
-                    Text(
-                        text = positionInfo.appointmentName,
-                        style = TextStyle(fontSize = 14.sp, color = ColorGray)
-                    )
-                }
-            }
-
         }
     }
 }

@@ -59,9 +59,7 @@ class NewCatalogViewModel(private val repository: CatalogRepository) : MainIoExe
             SearchType.USERS else SearchType.UNITS
     }
 
-    fun setSearchQuery(name: String) {
-        onSearchTextChanged(name)
-    }
+    fun isExistsInDatabase(codeStr: String) = repository.isExistsInDatabase(codeStr = codeStr)
 
     init {
         goNext("01 000 00")
@@ -279,8 +277,8 @@ class NewCatalogViewModel(private val repository: CatalogRepository) : MainIoExe
     }
 
     fun goToStartPage() {
-//        repeat(catalogStack.size - 1) {
-//            goBack()
-//        }
+        repeat(catalogStack.value.size - 1) {
+            goBack()
+        }
     }
 }
