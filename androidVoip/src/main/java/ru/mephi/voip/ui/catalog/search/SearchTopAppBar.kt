@@ -25,7 +25,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.voip.R
@@ -35,7 +34,7 @@ import ru.mephi.voip.utils.rememberFlowWithLifecycle
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun SearchTopAppBar(navController: NavController) {
+fun SearchTopAppBar() {
     val viewModel: NewCatalogViewModel by inject()
     val isSearchFieldVisible by viewModel.isSearchFieldVisible.collectAsState()
     val searchType by viewModel.searchType.collectAsState()
@@ -52,9 +51,7 @@ fun SearchTopAppBar(navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(
-                    onClick = { navController.popBackStack() },
-                ) {
+                IconButton(onClick = { }) {
                     Image(
                         painter = painterResource(id = R.drawable.logo_mephi),
                         contentDescription = "лого",

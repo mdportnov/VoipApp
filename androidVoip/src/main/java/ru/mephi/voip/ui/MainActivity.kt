@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +16,7 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -36,29 +38,45 @@ import timber.log.Timber
 import java.util.*
 
 
-class MainActivity : ComponentActivity(),
-//    NetworkSensingBaseActivity(),
-    OnInitializeListener,
+class MainActivity : ComponentActivity(), OnInitializeListener,
     EasyPermissions.PermissionCallbacks {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val accountStatusRepository: AccountStatusRepository by inject()
 
     companion object {
         var phone: AbtoPhone = (appContext as AbtoApplication).abtoPhone
-
         private const val REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124
         const val CHANNEL_ID: String = "CHANNEL"
     }
 
     override fun onResume() {
         super.onResume()
-//        checkPermissions()
+        checkPermissions()
         phone = (application as AbtoApplication).abtoPhone
         if (!accountStatusRepository.isBackgroundWork.value) {
             if (accountStatusRepository.isSipEnabled.value) {
                 enableSip()
             }
         }
+    }
+
+    private fun checkPermissions() {
+        val permissions = ArrayList<String>()
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.USE_SIP
+            ) != PackageManager.PERMISSION_GRANTED
+        )
+            permissions.add(Manifest.permission.USE_SIP)
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        )
+            permissions.add(Manifest.permission.RECORD_AUDIO)
+
+        if (permissions.size > 0)
+            requestPermissions(permissions.toTypedArray(), 1)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

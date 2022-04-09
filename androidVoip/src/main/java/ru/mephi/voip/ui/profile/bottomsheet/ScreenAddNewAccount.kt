@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.profile
+package ru.mephi.voip.ui.profile.bottomsheet
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -36,6 +36,7 @@ import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.Account
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.MainActivity
+import ru.mephi.voip.ui.profile.ProfileViewModel
 import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.ColorGray
 import ru.mephi.voip.utils.ColorPrimaryDark

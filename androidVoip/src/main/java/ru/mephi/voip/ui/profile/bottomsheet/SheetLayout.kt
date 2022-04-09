@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.profile
+package ru.mephi.voip.ui.profile.bottomsheet
 
 import androidx.compose.material.BottomSheetScaffoldState
 import androidx.compose.material.ExperimentalMaterialApi

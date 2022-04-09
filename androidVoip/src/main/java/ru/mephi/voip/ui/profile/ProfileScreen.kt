@@ -11,6 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetScreen
+import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetShape
+import ru.mephi.voip.ui.profile.bottomsheet.SheetLayout
 
 //https://dev.to/davidibrahim/how-to-use-multiple-bottom-sheets-in-android-compose-382p
 @ExperimentalMaterialApi
@@ -51,7 +54,7 @@ fun ProfileScreen(navController: NavController) {
             }
         }) { paddingValues ->
         Box(Modifier.padding(paddingValues)) {
-            MainContent(openSheet, navController)
+            ProfileContent(openSheet, navController)
         }
     }
 }

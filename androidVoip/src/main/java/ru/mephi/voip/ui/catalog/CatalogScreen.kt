@@ -5,10 +5,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,16 +41,32 @@ fun CatalogScreen(navController: NavController) {
     val searchHistoryModelState by rememberFlowWithLifecycle(viewModel.searchHistoryModelState)
         .collectAsState(initial = HistorySearchModelState.Empty)
 
+    val scaffoldState = rememberScaffoldState()
+    val state = viewModel.snackBarEvents
+
+    LaunchedEffect(true) {
+        state.collect {
+            when (it) {
+                is NewCatalogViewModel.Event.ShowSnackBar -> {
+                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                    scaffoldState.snackbarHostState.showSnackbar(it.text)
+                }
+                is NewCatalogViewModel.Event.DismissSnackBar -> {
+                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                }
+            }
+        }
+    }
+
     BackHandler {
         viewModel.goBack()
-
         if (viewModel.catalogStack.value.isEmpty())
             activity?.finish()
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        SearchTopAppBar(navController)
-
+    Scaffold(
+        scaffoldState = scaffoldState, topBar = { SearchTopAppBar() },
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             SwipeRefresh(
                 state = rememberSwipeRefreshState(isRefreshing),
@@ -94,6 +109,7 @@ fun CatalogScreen(navController: NavController) {
                         )
                         SearchRecordsList(searchHistoryModelState) {
                             viewModel.onSearchTextChanged(it.name)
+                            viewModel.performSearch(it.name)
                         }
                     }
                 }

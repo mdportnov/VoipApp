@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.profile
+package ru.mephi.voip.ui.profile.bottomsheet
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.inject
+import ru.mephi.voip.ui.profile.ProfileViewModel
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable

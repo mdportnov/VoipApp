@@ -100,6 +100,8 @@ fun CallerScreen(
 
         val scope = rememberCoroutineScope()
 
+        val list = viewModel.getAllCallsBySipNumber(inputState).executeAsList()
+
         Box(modifier = Modifier.fillMaxSize()) {
             val (selectedRecord, setSelectedRecord) = remember {
                 mutableStateOf<CallRecord?>(null)
@@ -126,7 +128,7 @@ fun CallerScreen(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Bottom
             ) {
-                callerName?.let {
+                if (callerName != null) {
                     AnimatedVisibility(
                         visible = inputState == callerNumber && inputState.isNotEmpty(),
                         enter = slideInVertically() + expandVertically()
@@ -142,10 +144,32 @@ fun CallerScreen(
                             ),
                             elevation = ButtonDefaults.elevation()
                         ) {
-                            Text(text = it, color = Color.White)
+                            Text(text = callerName!!, color = Color.White)
                         }
                     }
+                } else {
+                    AnimatedVisibility(
+                        visible = list.map { it.sipNumber }.contains(inputState),
+                        enter = slideInVertically() + expandVertically()
+                                + fadeIn(initialAlpha = 0.3f),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        val index = list.map { it.sipNumber }.indexOf(inputState)
+                        if (index > 0 && !list[index].sipName.isNullOrEmpty())
+                            OutlinedButton(
+                                onClick = {}, modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    colorResource(id = R.color.colorGreen)
+                                ),
+                                elevation = ButtonDefaults.elevation()
+                            ) {
+                                Text(text = list[index].sipName!!, color = Color.White)
+                            }
+                    }
                 }
+
                 NumPad(
                     11, inputState, isNumPadStateUp,
                     onLimitExceeded = {
@@ -218,8 +242,8 @@ fun CallerScreen(
             ) {
                 NumberHistoryList(
                     callRecord = selectedRecord!!,
-                    callsHistory = viewModel.getAllCallsBySipNumber(selectedRecord.sipNumber)
-                        .executeAsList(),
+                    callsHistory =
+                    viewModel.getAllCallsBySipNumber(selectedRecord.sipNumber).executeAsList(),
                     setSelectedRecord
                 )
             }

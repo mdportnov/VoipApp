@@ -196,7 +196,6 @@ class NewCatalogViewModel(private val repository: CatalogRepository) : MainIoExe
                                 dismissProgressBar()
                                 resource.data?.let { newPage ->
                                     pushPageToCatalog(newPage)
-                                    scrollCatalogToStart()
                                 }
                             }
                             is Resource.Error.NotFoundError -> {
@@ -218,7 +217,6 @@ class NewCatalogViewModel(private val repository: CatalogRepository) : MainIoExe
                                 dismissProgressBar()
                                 resource.data?.let { newPage ->
                                     pushPageToCatalog(newPage)
-                                    scrollCatalogToStart()
                                 }
                             }
                             is Resource.Error.NotFoundError -> {
@@ -240,7 +238,6 @@ class NewCatalogViewModel(private val repository: CatalogRepository) : MainIoExe
                             dismissProgressBar()
                             resource.data?.let { newPage ->
                                 pushPageToCatalog(newPage)
-                                scrollCatalogToStart()
                             }
                         }
                         is Resource.Error.NotFoundError -> {
@@ -257,23 +254,27 @@ class NewCatalogViewModel(private val repository: CatalogRepository) : MainIoExe
         }
     }
 
+    sealed class Event {
+        class ShowSnackBar(val text: String) : Event()
+        object DismissSnackBar : Event()
+    }
+
+    private val snackBarEventsChannel = MutableSharedFlow<Event>()
+    val snackBarEvents = snackBarEventsChannel.asSharedFlow()
+
     private fun showSnackBar(text: String) {
         dismissProgressBar()
         launch(ioDispatcher) {
-//            eventChannel.send(Event.ShowSnackBar(text))
+            snackBarEventsChannel.emit(Event.ShowSnackBar(text))
         }
     }
 
-    fun dismissProgressBar() {
+    private fun dismissProgressBar() {
         _isProgressBarVisible.value = false
     }
 
     private fun showProgressBar() {
         _isProgressBarVisible.value = true
-    }
-
-    private fun scrollCatalogToStart() = launch(ioDispatcher) {
-//        eventChannel.send(Event.ScrollRvTo())
     }
 
     fun goToStartPage() {

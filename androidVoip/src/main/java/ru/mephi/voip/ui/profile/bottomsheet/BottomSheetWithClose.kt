@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.profile
+package ru.mephi.voip.ui.profile.bottomsheet
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

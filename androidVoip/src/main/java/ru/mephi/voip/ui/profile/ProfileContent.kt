@@ -11,10 +11,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,13 +28,10 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.ParagraphStyle
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -51,12 +45,13 @@ import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetScreen
 import ru.mephi.voip.ui.settings.SettingsActivity
 import ru.mephi.voip.utils.*
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun MainContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavController) {
+fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavController) {
     val viewModel by inject<ProfileViewModel>()
     val accountRepository by inject<AccountStatusRepository>()
     val hapticFeedback = LocalHapticFeedback.current
@@ -80,23 +75,23 @@ fun MainContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavContro
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                backgroundColor = Color.White, elevation = 10.dp,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(15.dp)
+            TopAppBar(backgroundColor = Color.White) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
+                    IconButton(onClick = { }) {
+                        Image(
+                            painter = painterResource(id = R.drawable.logo_mephi),
+                            contentDescription = "лого",
+                        )
+                    }
                     Text(
-                        modifier = Modifier.align(alignment = Alignment.TopCenter),
-                        text = stringResource(R.string.sip_account_header),
-                        fontSize = with(LocalDensity.current) {
-                            (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
-                        }
+                        text = "Профиль", style = TextStyle(color = Color.Black, fontSize = 20.sp),
                     )
                     IconButton(
-                        modifier = Modifier.align(alignment = Alignment.TopEnd),
+                        modifier = Modifier,
                         onClick = {
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                             appContext.startActivity(
@@ -107,7 +102,7 @@ fun MainContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavContro
                             )
                         }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_settings_24),
+                            Icons.Filled.Settings,
                             contentDescription = "Настройки"
                         )
                     }

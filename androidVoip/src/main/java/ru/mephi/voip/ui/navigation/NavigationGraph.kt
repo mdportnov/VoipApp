@@ -1,15 +1,17 @@
 package ru.mephi.voip.ui.navigation
 
 import android.Manifest
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import ru.mephi.voip.ui.BottomNavItem
 import ru.mephi.voip.ui.caller.CallerScreen
 import ru.mephi.voip.ui.catalog.CatalogScreen
 import ru.mephi.voip.ui.profile.ProfileScreen
@@ -19,7 +21,7 @@ const val CALLER_NAME_KEY = "caller_name"
 
 @OptIn(
     ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class,
-    ExperimentalPermissionsApi::class
+    ExperimentalPermissionsApi::class, ExperimentalAnimationApi::class
 )
 @Composable
 fun NavigationGraph(navController: NavHostController, starDest: String) {
@@ -27,20 +29,24 @@ fun NavigationGraph(navController: NavHostController, starDest: String) {
         listOf(Manifest.permission.USE_SIP, Manifest.permission.RECORD_AUDIO)
     )
 
-    NavHost(
+    AnimatedNavHost(
         navController = navController, startDestination = starDest
     ) {
         composable(
             route = BottomNavItem.Caller.screen_route.plus("?$CALLER_NUMBER_KEY={$CALLER_NUMBER_KEY}&$CALLER_NAME_KEY={$CALLER_NAME_KEY}"),
-//            arguments = listOf(
-//                navArgument(CALLER_NUMBER_KEY) {
-//                    NavType.StringType
-//                    nullable = true
-//                },
-//                navArgument(CALLER_NAME_KEY) {
-//                    NavType.StringType
-//                    nullable = true
-//                })
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(400)
+                )
+
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(400)
+                )
+            }
         ) { backStackEntry ->
             val callerNumber = backStackEntry.arguments?.getString(CALLER_NUMBER_KEY)
             val callerName = backStackEntry.arguments?.getString(CALLER_NAME_KEY)
@@ -52,11 +58,36 @@ fun NavigationGraph(navController: NavHostController, starDest: String) {
             )
         }
         composable(
-            route = BottomNavItem.Catalog.screen_route
+            route = BottomNavItem.Catalog.screen_route,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Left,
+                    animationSpec = tween(400)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(400)
+                )
+            }
         ) {
             CatalogScreen(navController)
         }
-        composable(route = BottomNavItem.Profile.screen_route) {
+        composable(
+            route = BottomNavItem.Profile.screen_route,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentScope.SlideDirection.Left,
+                    animationSpec = tween(400)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentScope.SlideDirection.Right,
+                    animationSpec = tween(400)
+                )
+            }) {
             ProfileScreen(navController)
         }
     }

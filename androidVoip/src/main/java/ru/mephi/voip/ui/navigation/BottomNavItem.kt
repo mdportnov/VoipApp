@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui
+package ru.mephi.voip.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle

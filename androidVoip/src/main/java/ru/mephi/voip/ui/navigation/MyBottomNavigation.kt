@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui
+package ru.mephi.voip.ui.navigation
 
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -12,8 +12,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.koin.androidx.compose.inject
 import ru.mephi.voip.ui.catalog.NewCatalogViewModel
-import ru.mephi.voip.ui.navigation.CALLER_NAME_KEY
-import ru.mephi.voip.ui.navigation.CALLER_NUMBER_KEY
 import ru.mephi.voip.utils.ColorAccent
 
 @Composable
@@ -34,11 +32,9 @@ fun MyBottomNavigation(navController: NavController) {
                 selectedContentColor = ColorAccent,
                 unselectedContentColor = Color.Black.copy(0.4f),
                 alwaysShowLabel = true,
-                selected = if (item.screen_route == BottomNavItem.Caller.screen_route) {
+                selected = if (item.screen_route == BottomNavItem.Caller.screen_route)
                     currentRoute == item.screen_route.plus("?$CALLER_NUMBER_KEY={$CALLER_NUMBER_KEY}&$CALLER_NAME_KEY={$CALLER_NAME_KEY}")
-                } else {
-                    currentRoute == item.screen_route
-                },
+                else currentRoute == item.screen_route,
                 onClick = {
                     if (item == BottomNavItem.Catalog) {
                         if (viewModel.catalogStack.value.size > 1) {

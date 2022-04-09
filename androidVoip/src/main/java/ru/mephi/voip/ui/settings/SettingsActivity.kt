@@ -11,7 +11,6 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var toolbarBinding: ToolbarSettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.ThemeOverlay_AppCompat_ActionBar)
         super.onCreate(savedInstanceState)
         binding = SettingsActivityBinding.inflate(layoutInflater)
         toolbarBinding = binding.toolbarSettings

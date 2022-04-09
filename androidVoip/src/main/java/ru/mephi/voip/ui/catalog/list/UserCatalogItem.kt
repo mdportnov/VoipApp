@@ -30,8 +30,8 @@ import coil.transform.RoundedCornersTransformation
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.BottomNavItem
 import ru.mephi.voip.ui.catalog.NewCatalogViewModel
+import ru.mephi.voip.ui.navigation.BottomNavItem
 import ru.mephi.voip.ui.navigation.CALLER_NAME_KEY
 import ru.mephi.voip.ui.navigation.CALLER_NUMBER_KEY
 import ru.mephi.voip.utils.ColorAccent
