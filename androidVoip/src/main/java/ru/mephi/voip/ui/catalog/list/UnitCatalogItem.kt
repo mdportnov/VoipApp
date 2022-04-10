@@ -16,13 +16,13 @@ import androidx.compose.ui.unit.sp
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.voip.data.CatalogRepository
-import ru.mephi.voip.ui.catalog.NewCatalogViewModel
+import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.ColorGray
 import ru.mephi.voip.utils.isOnline
 
 @Composable
-fun UnitCatalogItem(record: UnitM, viewModel: NewCatalogViewModel) {
+fun UnitCatalogItem(record: UnitM, viewModel: CatalogViewModel) {
     val textSize = when {
         record.name.length > 280 -> 8F.sp
         record.name.length > 200 -> 15.sp
@@ -79,5 +79,5 @@ fun UnitCatalogItemPreview() =
             arrayListOf(),
             1
         ),
-        viewModel = NewCatalogViewModel(CatalogRepository())
+        viewModel = CatalogViewModel(CatalogRepository())
     )

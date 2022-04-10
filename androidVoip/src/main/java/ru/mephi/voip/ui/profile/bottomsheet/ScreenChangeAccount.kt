@@ -12,7 +12,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.inject
 import ru.mephi.voip.ui.profile.ProfileViewModel
@@ -21,7 +20,6 @@ import ru.mephi.voip.ui.profile.ProfileViewModel
 @Composable
 fun ScreenChangeAccount(onCloseBottomSheet: () -> Unit) {
     val viewModel by inject<ProfileViewModel>()
-    val lifecycleOwner = LocalLifecycleOwner.current
     val accountList = viewModel.accountRepository.accountList.collectAsState()
 
     Box(

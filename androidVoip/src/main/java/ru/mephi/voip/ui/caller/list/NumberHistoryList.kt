@@ -28,123 +28,92 @@ import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.request.CachePolicy
+import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.KtorClientBuilder
+import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.utils.durationStringFromMillis
 import ru.mephi.voip.utils.stringFromDate
 
-@Composable
-@Preview(showBackground = true, showSystemUi = true)
-fun NumberHistoryListPreview() = NumberHistoryList(
-    callRecord = CallRecord(
-        1,
-        "09024",
-        "Портнов М.Д.",
-        CallStatus.INCOMING,
-        1648133547,
-        10000
-    ),
-    listOf(
-        CallRecord(
-            1,
-            "09024",
-            "Портнов М.Д.",
-            CallStatus.INCOMING,
-            1648133547,
-            10000
-        ), CallRecord(
-            1,
-            "09024",
-            "Портнов М.Д.",
-            CallStatus.INCOMING,
-            1648133547,
-            10000
-        ), CallRecord(
-            1,
-            "09024",
-            "Портнов М.Д.",
-            CallStatus.INCOMING,
-            1648133547,
-            10000
-        )
-    ),
-    {}
-)
-
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun NumberHistoryList(
-    callRecord: CallRecord,
-    callsHistory: List<CallRecord>,
+    selectedRecord: CallRecord?,
     setSelectedRecord: (CallRecord?) -> Unit
 ) {
-    val painter = rememberImagePainter(
-        data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + callRecord.sipNumber,
-        builder = {
-            crossfade(true)
-            diskCachePolicy(CachePolicy.ENABLED)
-        }
-    )
-    Card(
-        modifier = Modifier
-            .background(Color.White)
-            .fillMaxWidth()
-            .padding(5.dp), elevation = 10.dp,
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        Column {
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-            ) {
-                Spacer(modifier = Modifier.width(50.dp))
-                Image(
-                    painter = painter,
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
+    val viewModel: CallerViewModel by inject()
+    selectedRecord?.let {
+        val callsHistory: List<CallRecord> =
+            viewModel.getAllCallsBySipNumber(selectedRecord.sipNumber).executeAsList()
+
+        val painter = rememberImagePainter(
+            data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + selectedRecord.sipNumber,
+            builder = {
+                crossfade(true)
+                diskCachePolicy(CachePolicy.ENABLED)
+            }
+        )
+        Card(
+            modifier = Modifier
+                .background(Color.White)
+                .fillMaxWidth()
+                .padding(5.dp), elevation = 10.dp,
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Column {
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
-                        .clip(CircleShape)
-                        .size(100.dp)
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                ) {
+                    Spacer(modifier = Modifier.width(50.dp))
+                    Image(
+                        painter = painter,
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(100.dp)
+                    )
+
+                    IconButton(onClick = {
+                        setSelectedRecord(null)
+                    }, modifier = Modifier.padding(end = 10.dp)) {
+                        Icon(
+                            Icons.Sharp.Close,
+                            tint = Color.LightGray,
+                            contentDescription = "Закрыть"
+                        )
+                    }
+                }
+
+                Text(
+                    text = selectedRecord.sipNumber,
+                    style = TextStyle(color = Color.Black, fontSize = 30.sp),
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                IconButton(onClick = {
-                    setSelectedRecord(null)
-                }, modifier = Modifier.padding(end = 10.dp)) {
-                    Icon(
-                        Icons.Sharp.Close,
-                        tint = Color.LightGray,
-                        contentDescription = "Закрыть"
-                    )
+                selectedRecord.sipName?.let {
+                    if (it != selectedRecord.sipNumber)
+                        Text(
+                            text = it, style = TextStyle(color = Color.Black, fontSize = 30.sp),
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                        )
                 }
-            }
 
-            Text(
-                text = callRecord.sipNumber,
-                style = TextStyle(color = Color.Black, fontSize = 30.sp),
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            callRecord.sipName?.let {
-                if (it != callRecord.sipNumber)
-                    Text(
-                        text = it, style = TextStyle(color = Color.Black, fontSize = 30.sp),
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                    )
-            }
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                items(items = callsHistory) { callItem ->
-                    CallItem(callRecord = callItem)
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(items = callsHistory) { callItem ->
+                        CallItem(callRecord = callItem)
+                    }
                 }
             }
         }

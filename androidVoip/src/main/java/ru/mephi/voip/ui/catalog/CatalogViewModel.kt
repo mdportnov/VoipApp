@@ -1,12 +1,8 @@
 package ru.mephi.voip.ui.catalog
 
 import androidx.core.text.isDigitsOnly
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.mephi.shared.*
 import ru.mephi.shared.base.MainIoExecutor
@@ -16,38 +12,142 @@ import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.voip.R
 import ru.mephi.voip.data.CatalogRepository
+import ru.mephi.voip.utils.isOnline
+import ru.mephi.voip.utils.toast
+
+data class HistorySearchModelState(
+    val searchText: String = "",
+    val historyRecords: List<SearchRecord> = arrayListOf(),
+) {
+    companion object {
+        val Empty = HistorySearchModelState()
+    }
+}
 
 class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecutor() {
-    var catalogStack: Stack<UnitM> = mutableListOf()
-    var catalogLiveData: MutableLiveData<Stack<UnitM>> = MutableLiveData()
-    var breadcrumbStack: Stack<UnitM> = mutableListOf()
-    var breadcrumbLiveData: MutableLiveData<Stack<UnitM>> = MutableLiveData()
+    private val _expandedCardIdsList = MutableStateFlow(listOf<Int>())
+    val expandedCardIdsList: StateFlow<List<Int>> get() = _expandedCardIdsList
 
-    private fun pushPageToCatalog(newPage: UnitM) {
-        catalogStack.push(newPage)
-        catalogLiveData.postValue(catalogStack)
-        breadcrumbStack.push(catalogStack.peek()!!)
-        breadcrumbLiveData.postValue(breadcrumbStack)
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> get() = _isRefreshing
+
+    private val _isProgressBarVisible = MutableStateFlow(false)
+    val isProgressBarVisible: StateFlow<Boolean> get() = _isProgressBarVisible
+
+    var isSearchFieldVisible: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    var searchType: MutableStateFlow<SearchType> = MutableStateFlow(SearchType.UNITS)
+
+    private var allSearchHistory: ArrayList<SearchRecord> = ArrayList()
+    private var searchText: MutableStateFlow<String> = MutableStateFlow("")
+    private var matchedRecords: MutableStateFlow<List<SearchRecord>> = MutableStateFlow(listOf())
+
+    private val _catalogStack: MutableStateFlow<Stack<UnitM>> = MutableStateFlow(mutableListOf())
+    var catalogStack: StateFlow<Stack<UnitM>> = _catalogStack
+
+    // Состояние стека - отображаемая позиция
+    private val _catalogStateFlow = MutableStateFlow(0)
+    val catalogStateFlow: StateFlow<Int> = _catalogStateFlow
+
+    fun onCardArrowClicked(cardId: Int) {
+        _expandedCardIdsList.value = _expandedCardIdsList.value.toMutableList().also { list ->
+            if (list.contains(cardId)) list.remove(cardId) else list.add(cardId)
+        }
     }
 
-    fun getSearchRecords() = repository.getSearchRecords()
+    fun changeSearchType() {
+        searchType.value = if (searchType.value == SearchType.UNITS)
+            SearchType.USERS else SearchType.UNITS
+    }
 
-    fun addSearchRecord(record: SearchRecord) =
+    fun isExistsInDatabase(codeStr: String) = repository.isExistsInDatabase(codeStr = codeStr)
+
+    init {
+        goNext("01 000 00")
+    }
+
+    val searchHistoryModelState = combine(
+        searchText,
+        matchedRecords,
+    ) { searchText, matchedSearchRecords ->
+        HistorySearchModelState(
+            searchText,
+            matchedSearchRecords,
+        )
+    }
+
+    fun onSearchTextChanged(changedSearchText: String) {
+        searchText.value = changedSearchText
+        if (changedSearchText.isEmpty()) {
+            matchedRecords.value = arrayListOf()
+            return
+        }
+        val searchResults = allSearchHistory.filter { x ->
+            x.name.startsWith(changedSearchText, true) && x.type == searchType.value
+                    && !x.name.equals(changedSearchText, ignoreCase = true)
+        }
+        matchedRecords.value = searchResults
+    }
+
+    fun onClearClick() {
+        searchText.value = ""
+        isSearchFieldVisible.value = false
+        matchedRecords.value = arrayListOf()
+    }
+
+    fun retrieveSearchHistory() {
+        allSearchHistory.clear()
+        allSearchHistory.addAll(repository.getSearchRecords())
+    }
+
+    fun performSearch(query: String) {
+        if (query.length < 3) {
+            showSnackBar("Введите более длинный запрос")
+        } else
+            _catalogStack.value.lastOrNull()?.let {
+                if (it.shortname != query) {
+                    if (searchType.value == SearchType.USERS) {
+                        search(query, SearchType.USERS)
+                    }
+                    if (searchType.value == SearchType.UNITS) {
+                        search(query, SearchType.UNITS)
+                    }
+                }
+            }
+    }
+
+    private fun addSearchRecord(record: SearchRecord) =
         if (!containsSearchRecord(record)) repository.addSearchRecord(record) else Unit
 
     private fun containsSearchRecord(searchRecord: SearchRecord) =
         repository.containsSearchRecord(searchRecord)
 
-    init {
-        catalogLiveData.value = catalogStack
-        breadcrumbLiveData.value = breadcrumbStack
+    fun onRefresh() {
+        if (isOnline(appContext)) {
+            if (catalogStack.value.isNullOrEmpty())
+                goNext("01 000 000")
+        } else {
+            appContext.toast("Обновление невозможно")
+//            showSnackBar
+        }
+        _isRefreshing.value = false
     }
 
     fun goBack() {
-        catalogStack.pop()
-        catalogLiveData.postValue(catalogStack)
-        breadcrumbStack.pop()
-        breadcrumbLiveData.postValue(breadcrumbStack)
+        dismissProgressBar()
+        _expandedCardIdsList.value = listOf()
+        _catalogStack.value.pop()
+        _catalogStateFlow.value--
+    }
+
+    private fun pushPageToCatalog(newPage: UnitM) {
+        _expandedCardIdsList.value = listOf()
+        _catalogStack.value.push(newPage)
+        _catalogStateFlow.value++
+    }
+
+    fun popFromCatalogTill(stackItem: UnitM) {
+        val count = catalogStack.value.popFromCatalogTill(stackItem)
+        _catalogStateFlow.value -= count
     }
 
     private var jobGoNext: Job? = null
@@ -84,7 +184,8 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
         }
     }
 
-    fun search(query: String, type: SearchType) {
+    private fun search(query: String, type: SearchType) {
+        addSearchRecord(SearchRecord(name = query, type = type))
         launch(ioDispatcher) {
             if (type == SearchType.USERS)
                 if (query.isDigitsOnly()) {
@@ -95,7 +196,6 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                                 dismissProgressBar()
                                 resource.data?.let { newPage ->
                                     pushPageToCatalog(newPage)
-                                    scrollCatalogToStart()
                                 }
                             }
                             is Resource.Error.NotFoundError -> {
@@ -117,7 +217,6 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                                 dismissProgressBar()
                                 resource.data?.let { newPage ->
                                     pushPageToCatalog(newPage)
-                                    scrollCatalogToStart()
                                 }
                             }
                             is Resource.Error.NotFoundError -> {
@@ -139,7 +238,6 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                             dismissProgressBar()
                             resource.data?.let { newPage ->
                                 pushPageToCatalog(newPage)
-                                scrollCatalogToStart()
                             }
                         }
                         is Resource.Error.NotFoundError -> {
@@ -158,38 +256,29 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
 
     sealed class Event {
         class ShowSnackBar(val text: String) : Event()
-        class ShowToast(val text: String) : Event()
-        class ScrollRvTo(val pos: Int = 0) : Event()
-        sealed class ProgressBar : Event() {
-            object Show : ProgressBar()
-            object Dismiss : ProgressBar()
-        }
+        object DismissSnackBar : Event()
     }
 
-    private val eventChannel = Channel<Event>(Channel.BUFFERED)
-    val eventsFlow = eventChannel.receiveAsFlow()
+    private val snackBarEventsChannel = MutableSharedFlow<Event>()
+    val snackBarEvents = snackBarEventsChannel.asSharedFlow()
 
     private fun showSnackBar(text: String) {
         dismissProgressBar()
         launch(ioDispatcher) {
-            eventChannel.send(Event.ShowSnackBar(text))
+            snackBarEventsChannel.emit(Event.ShowSnackBar(text))
         }
     }
 
-    fun dismissProgressBar() = launch(ioDispatcher) {
-        eventChannel.send(Event.ProgressBar.Dismiss)
+    private fun dismissProgressBar() {
+        _isProgressBarVisible.value = false
     }
 
-    private fun showProgressBar() = launch(ioDispatcher) {
-        eventChannel.send(Event.ProgressBar.Show)
-    }
-
-    private fun scrollCatalogToStart() = launch(ioDispatcher) {
-        eventChannel.send(Event.ScrollRvTo())
+    private fun showProgressBar() {
+        _isProgressBarVisible.value = true
     }
 
     fun goToStartPage() {
-        repeat(catalogStack.size - 1) {
+        repeat(catalogStack.value.size - 1) {
             goBack()
         }
     }

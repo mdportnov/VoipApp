@@ -1,12 +1,10 @@
 package ru.mephi.voip.data
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
-import android.content.SharedPreferences
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,10 +33,9 @@ import ru.mephi.voip.ui.MainActivity
 import timber.log.Timber
 
 class AccountStatusRepository(
-    app: Application, var sp: SharedPreferences, private val repository: CatalogRepository
+    app: Application, var sp: SettingsStore, private val repository: CatalogRepository
 ) : KoinComponent {
-    val abtoApp = app as AbtoApp
-    var phone: AbtoPhone = abtoApp.abtoPhone
+    private var phone: AbtoPhone = (app as AbtoApp).abtoPhone
 
     private val _accountsList: MutableStateFlow<List<Account>> = MutableStateFlow(listOf())
     val accountList: StateFlow<List<Account>> = _accountsList
@@ -52,12 +49,10 @@ class AccountStatusRepository(
     private var _accountsCount = MutableStateFlow(0)
     val accountsCount: StateFlow<Int> = _accountsCount
 
-    private var _isSipEnabled =
-        MutableStateFlow(sp.getBoolean(appContext.getString(R.string.sp_sip_enabled), false))
+    private var _isSipEnabled = MutableStateFlow(sp.isSipEnabled())
     val isSipEnabled: StateFlow<Boolean> = _isSipEnabled
 
-    private var _isBackGroundWork =
-        MutableStateFlow(sp.getBoolean(appContext.getString(R.string.sp_background_enabled), false))
+    private var _isBackGroundWork = MutableStateFlow(sp.isBackgroundWorkEnabled())
     val isBackgroundWork: StateFlow<Boolean> = _isBackGroundWork
 
     fun changeBackGroundWork(isWorking: Boolean) {
@@ -66,7 +61,6 @@ class AccountStatusRepository(
 
     init {
         fetchStatus()
-        updateAccountsList()
     }
 
     private fun updateAccountsList() {
@@ -86,6 +80,10 @@ class AccountStatusRepository(
 
     fun fetchStatus(newStatus: AccountStatus? = null, statusCode: String = "") {
         CoroutineScope(Dispatchers.Main).launch {
+            _status.replayCache.lastOrNull()?.let { lastStatus ->
+                Timber.d("Switching Status from: \"${lastStatus.status}\" to \"${newStatus?.status}\"")
+            }
+
             _status.emit(AccountStatus.LOADING)
 
             updateAccountsList()
@@ -94,10 +92,6 @@ class AccountStatusRepository(
                 _status.emit(AccountStatus.UNREGISTERED)
                 _isSipEnabled.value = false
                 return@launch
-            }
-
-            _status.replayCache.lastOrNull()?.let { lastStatus ->
-                Timber.d("Switching Status from: \"${lastStatus.status}\" to \"${newStatus?.status}\"")
             }
 
             if (newStatus == null && phone.getSipProfileState(phone.currentAccountId)?.statusCode == 200) {
@@ -242,10 +236,8 @@ class AccountStatusRepository(
         return acc!!.login
     }
 
-    @SuppressLint("CommitPrefEdits")
     fun toggleSipStatus() {
-        val key = appContext.getString(R.string.sp_sip_enabled)
-        sp.edit().putBoolean(key, !sp.getBoolean(key, false)).apply()
+        sp.toggleSipStatus()
         _isSipEnabled.value = !_isSipEnabled.value
 
         if (_isSipEnabled.value)

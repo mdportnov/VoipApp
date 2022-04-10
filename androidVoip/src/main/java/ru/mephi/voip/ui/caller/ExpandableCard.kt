@@ -59,7 +59,7 @@ fun ExpandableContent(
         initiallyVisible = initialVisibility,
         enter = enterExpand + enterFadeIn,
         exit = exitCollapse + exitFadeOut,
-        modifier = Modifier.padding(vertical = 5.dp)
+        modifier = Modifier.padding(top = 5.dp, bottom = 2.dp)
     ) {
         content()
     }
@@ -111,7 +111,12 @@ fun ExpandableCard(
         shape = RoundedCornerShape(cardRoundedCorners),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = cardPaddingHorizontal, vertical = 5.dp)
+            .padding(
+                start = cardPaddingHorizontal,
+                end = cardPaddingHorizontal,
+                top = 5.dp,
+                bottom = 5.dp,
+            )
     ) {
         Column {
             Row(

@@ -30,7 +30,7 @@ import coil.transform.RoundedCornersTransformation
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.catalog.NewCatalogViewModel
+import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.navigation.BottomNavItem
 import ru.mephi.voip.ui.navigation.CALLER_NAME_KEY
 import ru.mephi.voip.ui.navigation.CALLER_NUMBER_KEY
@@ -42,7 +42,7 @@ import ru.mephi.voip.utils.ColorGreen
 @Composable
 fun UserCatalogItem(
     record: Appointment,
-    viewModel: NewCatalogViewModel,
+    viewModel: CatalogViewModel,
     navController: NavController
 ) {
     Row {

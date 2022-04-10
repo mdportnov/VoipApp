@@ -49,7 +49,7 @@ fun CallRecordMain(record: CallRecord) {
                     if (record.sipName.isNullOrEmpty()) record.sipNumber else record.sipName!!,
                     style = TextStyle(color = Color.Gray, fontSize = 25.sp)
                 )
-                Row() {
+                Row {
                     ImageCallStatus(record.status)
                     Text(
                         record.time.stringFromDate(),

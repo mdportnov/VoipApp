@@ -28,14 +28,14 @@ import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.voip.R
+import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.catalog.HistorySearchModelState
-import ru.mephi.voip.ui.catalog.NewCatalogViewModel
 import ru.mephi.voip.utils.rememberFlowWithLifecycle
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SearchTopAppBar() {
-    val viewModel: NewCatalogViewModel by inject()
+    val viewModel: CatalogViewModel by inject()
     val isSearchFieldVisible by viewModel.isSearchFieldVisible.collectAsState()
     val searchType by viewModel.searchType.collectAsState()
     val searchHistoryModelState by rememberFlowWithLifecycle(viewModel.searchHistoryModelState)

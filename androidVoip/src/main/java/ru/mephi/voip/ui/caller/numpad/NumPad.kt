@@ -1,11 +1,8 @@
 package ru.mephi.voip.ui.caller.numpad
 
-import android.app.Activity
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun NumPad(
@@ -17,17 +14,10 @@ fun NumPad(
     onLimitExceeded: (() -> Unit)? = null,
 ) {
     var inputVal by remember { mutableStateOf(inputState) }
-    val activity = (LocalContext.current as? Activity)
-
-    BackHandler {
-        if (numPadState) onNumPadStateChange()
-        else activity?.finish()
-    }
 
     AnimatedVisibility(
         visible = numPadState,
-        enter = slideInVertically() + expandVertically()
-                + fadeIn(initialAlpha = 0.3f),
+        enter = slideInVertically() + expandVertically() + fadeIn(),
         exit = shrinkVertically() + fadeOut()
     ) {
         KeyBoard(

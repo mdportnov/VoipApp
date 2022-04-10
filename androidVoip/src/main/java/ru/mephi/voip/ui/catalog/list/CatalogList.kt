@@ -42,12 +42,12 @@ import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.ExpandableCard
 import ru.mephi.voip.ui.caller.ExpandableContent
-import ru.mephi.voip.ui.catalog.NewCatalogViewModel
+import ru.mephi.voip.ui.catalog.CatalogViewModel
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun CatalogList(items: Stack<UnitM>, navController: NavController) {
-    val viewModel: NewCatalogViewModel by inject()
+    val viewModel: CatalogViewModel by inject()
     val accountStatusRepository: AccountStatusRepository by inject()
     val catalogPageState by viewModel.catalogStateFlow.collectAsState()
 

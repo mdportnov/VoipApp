@@ -209,6 +209,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
             REMOTE_HOLD -> callViewModel.changeHoldState(ru.mephi.voip.ui.call.HoldState.REMOTE_HOLD)
             ACTIVE -> callViewModel.changeHoldState(ru.mephi.voip.ui.call.HoldState.ACTIVE)
             ERROR -> callViewModel.changeHoldState(ru.mephi.voip.ui.call.HoldState.ERROR)
+            NONE -> callViewModel.changeHoldState(ru.mephi.voip.ui.call.HoldState.NONE)
         }
     }
 

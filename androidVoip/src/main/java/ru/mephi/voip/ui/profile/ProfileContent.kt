@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,7 +25,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,11 +34,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.CachePolicy
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.NameItem
@@ -51,7 +51,7 @@ import ru.mephi.voip.utils.*
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavController) {
+fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit) {
     val viewModel by inject<ProfileViewModel>()
     val accountRepository by inject<AccountStatusRepository>()
     val hapticFeedback = LocalHapticFeedback.current
@@ -70,10 +70,13 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
     val isSipEnabled by accountRepository.isSipEnabled.collectAsState()
     val name by accountRepository.displayName.collectAsState(NameItem())
 
-    val switchColor = if (isSipEnabled)
-        ColorAccent else ColorGreen
+    val switchColor = if (isSipEnabled) ColorAccent else ColorGreen
+
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
 
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(backgroundColor = Color.White) {
                 Row(
@@ -154,23 +157,27 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
                             IconButton(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .background(
-                                        colorResource(id = R.color.colorPrimary),
-                                        CircleShape
-                                    ),
+                                    .background(ColorPrimary, CircleShape),
                                 onClick = {
-                                    if (accountStatus != AccountStatus.REGISTERED) {
+                                    if (accountStatus == AccountStatus.REGISTERED) {
+                                        scope.launch {
+                                            scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                viewModel.accountRepository.status.value.status
+                                            )
+                                        }
+                                    } else {
                                         if (viewModel.accountRepository.isSipEnabled.value) {
                                             hapticFeedback.performHapticFeedback(
                                                 HapticFeedbackType.LongPress
                                             )
                                             viewModel.retryRegistration()
+                                        } else {
+                                            scope.launch {
+                                                scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                                                scaffoldState.snackbarHostState.showSnackbar("Включите SIP")
+                                            }
                                         }
-//                                        else // TODO
-//                                            showSnackBar(
-//                                                localContext.findViewById(R.id.main_container),
-//                                                "Включите SIP"
-//                                            )
                                     }
                                 }
                             ) {
@@ -183,11 +190,11 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
                                             Icons.Filled.Refresh
                                     }, "Статус",
                                     tint = when (accountStatus) {
-                                        AccountStatus.REGISTERED -> colorResource(id = R.color.colorGreen)
+                                        AccountStatus.REGISTERED -> ColorGreen
                                         AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED ->
-                                            colorResource(id = R.color.colorAccent)
+                                            ColorAccent
                                         AccountStatus.NO_CONNECTION, AccountStatus.CHANGING,
-                                        AccountStatus.LOADING -> colorResource(id = R.color.colorGray)
+                                        AccountStatus.LOADING -> ColorGray
                                     },
                                     modifier = Modifier.align(Alignment.Center)
                                 )
@@ -201,7 +208,6 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
                         .padding(20.dp, 0.dp, 20.dp, 0.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
-
                     if (accountsCount > 0)
                         Row(
                             horizontalArrangement = Arrangement.Start,
@@ -238,14 +244,14 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
                             fontWeight = FontWeight.Medium,
                             textAlign = TextAlign.Left,
                             text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(color = colorResource(id = R.color.colorAccent))) {
+                                withStyle(style = SpanStyle(ColorAccent)) {
                                     append("Имя: ")
                                 }
                                 append(name!!.display_name)
                             }
                         )
 
-                    viewModel.phone.getCurrentUserNumber()?.let {
+                    viewModel.getCurrentUserNumber()?.let {
                         Text(
                             fontSize = with(LocalDensity.current) {
                                 (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
@@ -253,7 +259,7 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
                             fontWeight = FontWeight.Medium,
                             textAlign = TextAlign.Left,
                             text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(color = colorResource(id = R.color.colorAccent))) {
+                                withStyle(style = SpanStyle(ColorAccent)) {
                                     append("Номер SIP: ")
                                 }
                                 append(it)
@@ -268,7 +274,7 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Left,
                         text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(color = colorResource(id = R.color.colorAccent))) {
+                            withStyle(style = SpanStyle(ColorAccent)) {
                                 append("Статус: ")
                             }
                             append(accountStatus.status)
@@ -321,14 +327,10 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
                         modifier = Modifier
                             .align(Alignment.End)
                             .padding(16.dp, 16.dp, 16.dp, 0.dp),
-                        backgroundColor = colorResource(id = R.color.colorGreen),
+                        backgroundColor = ColorGreen,
                         onClick = {
                             openSheet(BottomSheetScreen.ScreenChangeAccount)
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-
-//                    navController.navigate(
-//                        R.id.action_navigation_profile_to_settingsFragment,
-//                    )
                         }
                     )
                 ExtendedFloatingActionButton(
@@ -339,7 +341,7 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, navController: NavCon
                             color = Color.White
                         )
                     },
-                    backgroundColor = colorResource(id = R.color.colorGreen),
+                    backgroundColor = ColorGreen,
                     modifier = Modifier
                         .align(Alignment.End)
                         .padding(16.dp, 8.dp, 16.dp, 16.dp),
@@ -382,7 +384,7 @@ private fun getAnnotatedText() = buildAnnotatedString {
 
     withStyle(
         style = SpanStyle(
-            color = colorResource(id = R.color.colorPrimaryDark),
+            color = ColorPrimaryDark,
             fontWeight = FontWeight.SemiBold,
             fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
             textDecoration = TextDecoration.Underline,
@@ -422,7 +424,7 @@ private fun getAnnotatedText() = buildAnnotatedString {
 
     withStyle(
         style = SpanStyle(
-            color = colorResource(id = R.color.colorPrimaryDark),
+            color = ColorPrimaryDark,
             fontWeight = FontWeight.SemiBold,
             fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp,
             textDecoration = TextDecoration.Underline,

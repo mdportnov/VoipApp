@@ -17,12 +17,12 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.Stack
 import ru.mephi.shared.data.model.UnitM
-import ru.mephi.voip.ui.catalog.NewCatalogViewModel
+import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.utils.ColorGray
 
 @Composable
-fun CatalogBreadcrumbs(items: Stack<UnitM>) {
-    val viewModel: NewCatalogViewModel by inject()
+fun Breadcrumbs(items: Stack<UnitM>) {
+    val viewModel: CatalogViewModel by inject()
     val catalogPageState by viewModel.catalogStateFlow.collectAsState()
 
     val listState = rememberLazyListState()
@@ -38,7 +38,9 @@ fun CatalogBreadcrumbs(items: Stack<UnitM>) {
             scope.launch {
                 listState.animateScrollToItem(index = catalogPageState)
             }
-            items(items = items, key = { it.code_str }) { stackItem ->
+            items(
+                items = items,
+                key = { it.code_str }) { stackItem ->
                 RowWithIcon(
                     Modifier.padding(4.dp),
                     icon = Icons.Default.ChevronRight,

@@ -15,15 +15,22 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.rememberScaffoldState
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
-import org.abtollc.sdk.*
+import kotlinx.coroutines.launch
+import org.abtollc.sdk.AbtoApplication
+import org.abtollc.sdk.AbtoPhone
+import org.abtollc.sdk.AbtoPhoneCfg
 import org.abtollc.sdk.OnInitializeListener.InitializeState
+import org.abtollc.sdk.OnRegistrationListener
 import org.abtollc.utils.codec.Codec
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -32,13 +39,14 @@ import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
+import ru.mephi.voip.abto.getSipUsername
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.eventbus.Event
 import timber.log.Timber
 import java.util.*
 
 
-class MainActivity : ComponentActivity(), OnInitializeListener,
+class MainActivity : ComponentActivity(),
     EasyPermissions.PermissionCallbacks {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val accountStatusRepository: AccountStatusRepository by inject()
@@ -79,17 +87,19 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
             requestPermissions(permissions.toTypedArray(), 1)
     }
 
+    private var scaffoldState: ScaffoldState? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-            VoIPApp()
+            scaffoldState = rememberScaffoldState()
+            App(scaffoldState = scaffoldState!!)
         }
+
+        EventBus.getDefault().register(this)
 
         firebaseAnalytics = Firebase.analytics
         firebaseAnalytics.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
-
-        EventBus.getDefault().register(this)
 
         val intent = Intent()
         intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
@@ -119,8 +129,8 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
 
     @Subscribe
     fun enableSip(messageEvent: Event.EnableAccount? = null) {
-        initAccount(phone)
-        initPhone(phone)
+        initAccount()
+        initPhone()
     }
 
     @Subscribe
@@ -130,8 +140,8 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
         phone.destroy()
     }
 
-    private fun initAccount(abtoPhone: AbtoPhone) {
-        if (abtoPhone.isActive)
+    private fun initAccount() {
+        if (phone.isActive)
             return
 
         val domain = appContext.getString(R.string.sip_domain)
@@ -140,7 +150,7 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
         val password = account?.password
 
         if (account != null)
-            abtoPhone.config.addAccount(
+            phone.config.addAccount(
                 domain,
                 "",
                 username, password, null, "",
@@ -149,8 +159,8 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
             )
     }
 
-    private fun initPhone(abtoPhone: AbtoPhone) {
-        abtoPhone.setNetworkEventListener { connected, _ ->
+    private fun initPhone() {
+        phone.setNetworkEventListener { connected, _ ->
             if (connected)
                 accountStatusRepository.fetchStatus(AccountStatus.LOADING)
             else
@@ -159,36 +169,49 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
 
         //Switching| Registration Listener|REG
         Timber.d("Set Registration Listener")
-        abtoPhone.setRegistrationStateListener(object : OnRegistrationListener {
+        phone.setRegistrationStateListener(object : OnRegistrationListener {
             override fun onRegistered(accId: Long) {
-//                showSnackBar(binding.mainContainer, AccountStatus.REGISTERED.status)
+                showSnackBar(AccountStatus.REGISTERED.status)
                 accountStatusRepository.fetchStatus(AccountStatus.REGISTERED)
-                Timber.d("REG STATUS: ${abtoPhone.getSipProfileState(abtoPhone.currentAccountId).statusCode}")
+                Timber.d("REG STATUS: ${phone.getSipProfileState(phone.currentAccountId).statusCode}")
             }
 
             override fun onUnRegistered(accId: Long) {
-//                showSnackBar(binding.mainContainer, "Регистрация аккаунта отменена")
+                showSnackBar("Регистрация аккаунта отменена")
                 accountStatusRepository.fetchStatus(AccountStatus.UNREGISTERED)
             }
 
             override fun onRegistrationFailed(accId: Long, statusCode: Int, statusText: String?) {
-//                showSnackBar(
-//                    binding.mainContainer,
-//                    "Аккаунт \"${abtoPhone.getSipUsername(accId) ?: "null"}\" не зарегистрирован.\nПричина: $statusText"
-//                )
+                showSnackBar(
+                    "Аккаунт \"${phone.getSipUsername(accId)}\" не зарегистрирован.\nПричина: $statusText"
+                )
                 accountStatusRepository.fetchStatus(
                     AccountStatus.REGISTRATION_FAILED,
                     "Code: $statusCode, Text: $statusText, ${Calendar.getInstance().time}"
                 )
+
+                if (statusCode == 408 || statusCode == 502) {
+                    enableSip()
+                }
             }
         })
 
-        abtoPhone.setInitializeListener(this)
+        phone.setInitializeListener { state, message ->
+            when (state) {
+                InitializeState.START, InitializeState.INFO, InitializeState.WARNING -> {}
+                InitializeState.FAIL -> AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Error")
+                    .setMessage(message)
+                    .setPositiveButton("Ok") { dlg, _ -> dlg.dismiss() }.create().show()
+                InitializeState.SUCCESS -> {}
+                else -> {}
+            }
+        }
 
-        if (abtoPhone.isActive)
+        if (phone.isActive)
             return
 
-        val config = abtoPhone.config
+        val config = phone.config
         for (c in Codec.values()) config.setCodecPriority(c, 0.toShort())
 //        config.setCodecPriority(Codec.G729, 78.toShort())
         config.setCodecPriority(Codec.PCMA, 80.toShort())
@@ -199,7 +222,7 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
         config.setKeepAliveInterval(AbtoPhoneCfg.SignalingTransportType.UDP, 15)
 //        config.sipPort = 0
         config.isUseSRTP = false
-        config.userAgent = abtoPhone.version()
+        config.userAgent = phone.version()
         config.hangupTimeout = 5000
         config.enableSipsSchemeUse = false
         config.isSTUNEnabled = false
@@ -232,19 +255,14 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
         mBuilder.setSmallIcon(R.drawable.logo_voip)
         val notification = mBuilder.build()
 
-        abtoPhone.initialize(false) // start service in 'sticky' mode - when app removed from recent service will be restarted automatically
-        abtoPhone.initializeForeground(notification) //start service in foreground mode
+        phone.initialize(false) // start service in 'sticky' mode - when app removed from recent service will be restarted automatically
+        phone.initializeForeground(notification) //start service in foreground mode
     }
 
-    override fun onInitializeState(state: InitializeState?, message: String?) {
-        when (state) {
-            InitializeState.START, InitializeState.INFO, InitializeState.WARNING -> {}
-            InitializeState.FAIL -> AlertDialog.Builder(this)
-                .setTitle("Error")
-                .setMessage(message)
-                .setPositiveButton("Ok") { dlg, _ -> dlg.dismiss() }.create().show()
-            InitializeState.SUCCESS -> {}
-            else -> {}
+    fun showSnackBar(text: String) {
+        lifecycleScope.launch {
+            scaffoldState?.snackbarHostState?.currentSnackbarData?.dismiss()
+            scaffoldState?.snackbarHostState?.showSnackbar(text)
         }
     }
 
@@ -280,13 +298,13 @@ class MainActivity : ComponentActivity(), OnInitializeListener,
     override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
 
     }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
-    }
+//
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+//    }
 }

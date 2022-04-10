@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetScreen
 import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetShape
@@ -19,7 +18,7 @@ import ru.mephi.voip.ui.profile.bottomsheet.SheetLayout
 @ExperimentalMaterialApi
 @ExperimentalComposeUiApi
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen() {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
     var currentBottomSheet: BottomSheetScreen? by remember { mutableStateOf(null) }
@@ -54,7 +53,7 @@ fun ProfileScreen(navController: NavController) {
             }
         }) { paddingValues ->
         Box(Modifier.padding(paddingValues)) {
-            ProfileContent(openSheet, navController)
+            ProfileContent(openSheet)
         }
     }
 }

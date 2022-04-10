@@ -52,6 +52,8 @@
 
     <string name="sp_sip_enabled">is_sip_enabled</string>
     <string name="call_screen_always_settings">call_screen_always</string>
+    <string name="start_destination">start_destination</string>
+
     <string name="sp_background_enabled">background_work</string>
     <string name="input_number">Введите номер</string>
     <string name="title_activity_settings">SettingsActivity</string>

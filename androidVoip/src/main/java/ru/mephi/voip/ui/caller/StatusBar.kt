@@ -56,7 +56,7 @@ fun StatusBar() {
         ) {
             if (callState.value == CallState.OK) {
                 Text(
-                    text = if (callViewModel.callerName.value.isEmpty()) callViewModel.number else callViewModel.callerName.value,
+                    text = callViewModel.callerName.value.ifEmpty { callViewModel.number },
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )

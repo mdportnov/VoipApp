@@ -1,21 +1,19 @@
 package ru.mephi.voip.ui.profile
 
 import android.app.Application
-import android.content.SharedPreferences
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import org.koin.core.component.KoinComponent
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.network.KtorClientBuilder
-import ru.mephi.voip.data.CatalogRepository
-import ru.mephi.voip.ui.call.AbtoViewModel
 import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.ui.call.AbtoViewModel
+import ru.mephi.voip.utils.getCurrentUserNumber
 
 class ProfileViewModel(
     app: Application,
-    override var sp: SharedPreferences,
     val accountRepository: AccountStatusRepository
-) : AbtoViewModel(app, sp), KoinComponent {
+) : AbtoViewModel(app), KoinComponent {
     val newLogin: MutableState<String> = mutableStateOf("")
     val newPassword: MutableState<String> = mutableStateOf("")
 
@@ -26,6 +24,7 @@ class ProfileViewModel(
         newLogin.value = login
         newPassword.value = password
     }
+
 
     fun getImageUrl() =
         KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + accountRepository.getUserNumber()
@@ -51,5 +50,9 @@ class ProfileViewModel(
 
     fun toggleSipStatus() {
         accountRepository.toggleSipStatus()
+    }
+
+    fun getCurrentUserNumber(): String? {
+        return phone.getCurrentUserNumber()
     }
 }

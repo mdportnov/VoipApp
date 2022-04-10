@@ -1,8 +1,8 @@
 package ru.mephi.voip.ui.caller
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -43,17 +43,20 @@ fun CallerScreen(
     val accountStatusRepository: AccountStatusRepository by inject()
     val viewModel: CallerViewModel by inject()
 
-    var inputState by remember { mutableStateOf("") }
     var isNumPadStateUp by remember { mutableStateOf(false) }
     var isBackArrowVisible by remember { mutableStateOf(false) }
     val callerNumber by remember { mutableStateOf(callerNumberArg) }
     val callerName by remember { mutableStateOf(callerNameArg) }
-    val snackBarHostState = remember { SnackbarHostState() }
+
+    var inputState by remember { mutableStateOf(if (callerNumber.isNullOrEmpty()) "" else callerNumber!!) }
 
     val context = LocalContext.current
+    val activity = (context as? Activity)
 
-    BackHandler {
-        navController.popBackStack()
+    val scope = rememberCoroutineScope()
+
+    val (selectedRecord, setSelectedRecord) = remember {
+        mutableStateOf<CallRecord?>(null)
     }
 
     if (callerNumber.isNullOrEmpty()) {
@@ -61,19 +64,30 @@ fun CallerScreen(
     } else {
         isBackArrowVisible = true
         isNumPadStateUp = true
+    }
 
-        if (inputState.isEmpty()) {
-            if (!inputState.contains(callerNumber!!))
-                inputState = callerNumber!!
+
+    fun onNumPadStateChange() {
+        if (callerNumber.isNullOrEmpty())
+            isNumPadStateUp = !isNumPadStateUp
+        else
+            navController.popBackStack()
+    }
+
+    BackHandler {
+        when {
+            selectedRecord != null -> setSelectedRecord(null)
+            isNumPadStateUp -> onNumPadStateChange()
+            else -> activity?.finish()
         }
     }
 
-    Column {
+    val scaffoldState = rememberScaffoldState()
+
+    Scaffold(topBar = {
         TopAppBar(
             backgroundColor = Color.White,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Box(
                 modifier = Modifier.fillMaxWidth()
@@ -97,21 +111,16 @@ fun CallerScreen(
                 )
             }
         }
-
-        val scope = rememberCoroutineScope()
-
+    }, scaffoldState = scaffoldState) {
         val list = viewModel.getAllCallsBySipNumber(inputState).executeAsList()
 
         Box(modifier = Modifier.fillMaxSize()) {
-            val (selectedRecord, setSelectedRecord) = remember {
-                mutableStateOf<CallRecord?>(null)
-            }
             Column(modifier = Modifier.fillMaxSize()) {
                 StatusBar()
                 CallRecordsList(setSelectedRecord) { deletedRecord ->
                     scope.launch {
-                        snackBarHostState.currentSnackbarData?.dismiss()
-                        val snackBarResult = snackBarHostState.showSnackbar(
+                        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                        val snackBarResult = scaffoldState.snackbarHostState.showSnackbar(
                             "Запись ${deletedRecord.sipNumber} удалена",
                             actionLabel = "Вернуть"
                         )
@@ -174,14 +183,11 @@ fun CallerScreen(
                     11, inputState, isNumPadStateUp,
                     onLimitExceeded = {
                         scope.launch {
-                            snackBarHostState.showSnackbar("Превышен размер номера")
+                            scaffoldState.snackbarHostState.showSnackbar("Превышен размер номера")
                         }
                     },
                     onNumPadStateChange = {
-                        if (callerNumber.isNullOrEmpty())
-                            isNumPadStateUp = !isNumPadStateUp
-                        else
-                            navController.popBackStack()
+                        onNumPadStateChange()
                     },
                     onInputStateChanged = {
                         inputState = it
@@ -195,7 +201,7 @@ fun CallerScreen(
                             if (isNumPadStateUp) {
                                 if (inputState.length <= 3) {
                                     scope.launch {
-                                        snackBarHostState.showSnackbar("Слишком короткий номер")
+                                        scaffoldState.snackbarHostState.showSnackbar("Слишком короткий номер")
                                     }
                                     return@FloatingActionButton
                                 }
@@ -207,7 +213,7 @@ fun CallerScreen(
                                     )
                                 } else {
                                     scope.launch {
-                                        snackBarHostState.showSnackbar("Нет активного аккаунта для совершения звонка")
+                                        scaffoldState.snackbarHostState.showSnackbar("Нет активного аккаунта для совершения звонка")
                                     }
                                 }
                             } else {
@@ -235,24 +241,16 @@ fun CallerScreen(
                 }
             }
 
-            androidx.compose.animation.AnimatedVisibility(
-                visibleState = MutableTransitionState(selectedRecord != null),
-                enter = slideInVertically(),
-                exit = slideOutVertically()
+            AnimatedVisibility(
+                visible = selectedRecord != null,
+                enter = slideInVertically() + expandVertically(),
+                exit = slideOutVertically() + shrinkVertically()
             ) {
                 NumberHistoryList(
-                    callRecord = selectedRecord!!,
-                    callsHistory =
-                    viewModel.getAllCallsBySipNumber(selectedRecord.sipNumber).executeAsList(),
-                    setSelectedRecord
+                    selectedRecord = selectedRecord,
+                    setSelectedRecord = setSelectedRecord
                 )
             }
-            SnackbarHost(
-                hostState = snackBarHostState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-            )
         }
     }
 }

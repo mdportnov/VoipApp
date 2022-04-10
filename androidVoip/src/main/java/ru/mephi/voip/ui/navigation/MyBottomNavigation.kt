@@ -11,13 +11,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.koin.androidx.compose.inject
-import ru.mephi.voip.ui.catalog.NewCatalogViewModel
+import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.utils.ColorAccent
 
 @Composable
 fun MyBottomNavigation(navController: NavController) {
     val items = listOf(BottomNavItem.Caller, BottomNavItem.Catalog, BottomNavItem.Profile)
-    val viewModel: NewCatalogViewModel by inject()
+    val viewModel: CatalogViewModel by inject()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 

@@ -39,7 +39,6 @@ fun NavigationGraph(navController: NavHostController, starDest: String) {
                     AnimatedContentScope.SlideDirection.Right,
                     animationSpec = tween(400)
                 )
-
             },
             exitTransition = {
                 slideOutOfContainer(
@@ -88,7 +87,7 @@ fun NavigationGraph(navController: NavHostController, starDest: String) {
                     animationSpec = tween(400)
                 )
             }) {
-            ProfileScreen(navController)
+            ProfileScreen()
         }
     }
 }

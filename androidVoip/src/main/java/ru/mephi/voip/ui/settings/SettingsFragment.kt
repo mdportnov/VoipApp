@@ -1,15 +1,11 @@
 package ru.mephi.voip.ui.settings
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
+import androidx.preference.*
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 import ru.mephi.shared.appContext
@@ -29,7 +25,6 @@ class SettingsFragment : PreferenceFragmentCompat(), KoinComponent {
     private val catalogDao: CatalogDao by inject()
     private val accountStatusRepository: AccountStatusRepository by inject()
 
-    @SuppressLint("NewApi")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val context = preferenceManager.context
         val screen = preferenceManager.createPreferenceScreen(context)
@@ -46,6 +41,41 @@ class SettingsFragment : PreferenceFragmentCompat(), KoinComponent {
                     preference.isChecked = !switched
                     true
                 }
+        }
+
+        val callScreenPreference = SwitchPreferenceCompat(context).apply {
+            key = getString(R.string.call_screen_always_settings)
+            title = "Показывать экран входящего вызова"
+            isSingleLineTitle = false
+            summary =
+                "Если sip-клиент активен, то при активации этой " +
+                        "функции будет появляться экран входящего вызова. " +
+                        "Если функция отключена, будет выводиться только уведомление."
+            icon = appContext.getDrawable(R.drawable.ic_baseline_add_to_home_screen_24)
+            onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { preference, newValue ->
+                    val switched: Boolean = (preference as SwitchPreferenceCompat).isChecked
+                    if (newValue as Boolean) {
+                        if (!Settings.canDrawOverlays(context)) {
+                            val intent = Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:$PACKAGE_NAME")
+                            )
+                            startActivityForResult(
+                                intent,
+                                ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
+                            )
+                        }
+                    }
+                    preference.isChecked = !switched
+                    true
+                }
+        }
+
+        val startDestinationPreference = DropDownPreference(context).apply {
+            key = getString(R.string.start_destination)
+            title = "Стартовый экран приложения"
+            isSingleLineTitle = false
         }
 
         val deleteHistoryPreference = Preference(context).apply {
@@ -83,35 +113,6 @@ class SettingsFragment : PreferenceFragmentCompat(), KoinComponent {
             catalogDao.deleteAll()
             toast("Кэш каталога удален")
             true
-        }
-
-        val callScreenPreference = SwitchPreferenceCompat(context).apply {
-            key = getString(R.string.call_screen_always_settings)
-            title = "Показывать экран входящего вызова"
-            isSingleLineTitle = false
-            summary =
-                "Если sip-клиент активен, то при активации этой " +
-                        "функции будет появляться экран входящего вызова. " +
-                        "Если функция отключена, будет выводиться только уведомление."
-            icon = appContext.getDrawable(R.drawable.ic_baseline_add_to_home_screen_24)
-            onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { preference, newValue ->
-                    val switched: Boolean = (preference as SwitchPreferenceCompat).isChecked
-                    if (newValue as Boolean) {
-                        if (!Settings.canDrawOverlays(context)) {
-                            val intent = Intent(
-                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                Uri.parse("package:$PACKAGE_NAME")
-                            )
-                            startActivityForResult(
-                                intent,
-                                ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
-                            )
-                        }
-                    }
-                    preference.isChecked = !switched
-                    true
-                }
         }
 
         val versionPreference = Preference(context).apply {

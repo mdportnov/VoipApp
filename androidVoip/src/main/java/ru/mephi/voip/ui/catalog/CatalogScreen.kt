@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.koin.androidx.compose.inject
-import ru.mephi.voip.ui.catalog.list.CatalogBreadcrumbs
+import ru.mephi.voip.ui.catalog.list.Breadcrumbs
 import ru.mephi.voip.ui.catalog.list.CatalogList
 import ru.mephi.voip.ui.catalog.search.SearchRecordsList
 import ru.mephi.voip.ui.catalog.search.SearchTopAppBar
@@ -33,7 +33,7 @@ import ru.mephi.voip.utils.rememberFlowWithLifecycle
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CatalogScreen(navController: NavController) {
-    val viewModel: NewCatalogViewModel by inject()
+    val viewModel: CatalogViewModel by inject()
     val items by viewModel.catalogStack.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val isProgressBarVisible by viewModel.isProgressBarVisible.collectAsState()
@@ -42,16 +42,15 @@ fun CatalogScreen(navController: NavController) {
         .collectAsState(initial = HistorySearchModelState.Empty)
 
     val scaffoldState = rememberScaffoldState()
-    val state = viewModel.snackBarEvents
 
     LaunchedEffect(true) {
-        state.collect {
+        viewModel.snackBarEvents.collect {
             when (it) {
-                is NewCatalogViewModel.Event.ShowSnackBar -> {
+                is CatalogViewModel.Event.ShowSnackBar -> {
                     scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
                     scaffoldState.snackbarHostState.showSnackbar(it.text)
                 }
-                is NewCatalogViewModel.Event.DismissSnackBar -> {
+                is CatalogViewModel.Event.DismissSnackBar -> {
                     scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
                 }
             }
@@ -73,7 +72,7 @@ fun CatalogScreen(navController: NavController) {
                 onRefresh = { viewModel.onRefresh() },
             ) {
                 Column {
-                    CatalogBreadcrumbs(items)
+                    Breadcrumbs(items)
                     CatalogList(items, navController)
                 }
             }
