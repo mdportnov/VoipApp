@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.launch
 import org.abtollc.sdk.*
 import org.abtollc.sdk.OnCallHeldListener.HoldState
@@ -58,6 +59,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 
     private lateinit var phone: AbtoPhone
 
+    @OptIn(ExperimentalCoilApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initWakeLocks()
@@ -154,7 +156,6 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
     private fun initPhoneListeners() {
         phone = (application as AbtoApplication).abtoPhone
         phone.setCallConnectedListener(this)
-//        phone.setCallDisconnectedListener(this)
         phone.setOnCallHeldListener(this)
         phone.setRemoteAlertingListener(this)
     }

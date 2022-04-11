@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,8 +36,8 @@ import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
-import ru.mephi.voip.ui.caller.ExpandableCard
-import ru.mephi.voip.ui.caller.ExpandableContent
+import ru.mephi.voip.ui.components.ExpandableCard
+import ru.mephi.voip.ui.components.ExpandableContent
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -127,6 +128,7 @@ fun CallRecordsList(
                     },
                     dismissContent = {
                         ExpandableCard(
+                            modifier = Modifier.fillMaxWidth(),
                             onCardArrowClick = {
                                 viewModel.onCardArrowClicked(
                                     records.indexOf(recordItem)
@@ -135,7 +137,9 @@ fun CallRecordsList(
                             expanded = expandedCardIds.value.contains(
                                 records.indexOf(recordItem)
                             ),
-                            content = { CallRecordMain(record = recordItem) },
+                            content = {
+                                CallRecordMain(record = recordItem)
+                            },
                             expandableContent = {
                                 ExpandableContent(content = {
                                     CallRecordMoreInfo(

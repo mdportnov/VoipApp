@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import org.abtollc.sdk.AbtoPhone
+import ru.mephi.shared.data.network.KtorClientBuilder
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -17,6 +18,7 @@ fun String.isLetters(): Boolean {
     return this.matches("^[a-zA-Zа-яА-Я ]*$".toRegex())
 }
 
+fun getImageUrl(number: String) = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + number
 
 fun Long.stringFromDate(): String {
     val dtfCustom: DateTimeFormatter =

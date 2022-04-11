@@ -1,9 +1,6 @@
 package ru.mephi.voip.ui.profile
 
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -11,11 +8,11 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,25 +25,27 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.ImagePainter
-import coil.compose.rememberImagePainter
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
-import kotlinx.coroutines.launch
+import coil.request.ImageRequest
 import org.koin.androidx.compose.inject
-import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.ui.components.AccountStatusWidget
 import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetScreen
-import ru.mephi.voip.ui.settings.SettingsActivity
 import ru.mephi.voip.utils.*
 
 @OptIn(ExperimentalCoilApi::class)
@@ -56,13 +55,14 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit) {
     val accountRepository by inject<AccountStatusRepository>()
     val hapticFeedback = LocalHapticFeedback.current
     val localContext = LocalContext.current
-    val painter = rememberImagePainter(
-        data = viewModel.getImageUrl(),
-        builder = {
-            crossfade(true)
-            diskCachePolicy(CachePolicy.ENABLED)
-            memoryCachePolicy(CachePolicy.ENABLED)
-        }
+
+    val painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current).data(data = viewModel.getImageUrl())
+            .apply(block = fun ImageRequest.Builder.() {
+                crossfade(true)
+                diskCachePolicy(CachePolicy.ENABLED)
+                memoryCachePolicy(CachePolicy.ENABLED)
+            }).build()
     )
 
     val accountsCount by accountRepository.accountsCount.collectAsState()
@@ -73,45 +73,10 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit) {
     val switchColor = if (isSipEnabled) ColorAccent else ColorGreen
 
     val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         scaffoldState = scaffoldState,
-        topBar = {
-            TopAppBar(backgroundColor = Color.White) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    IconButton(onClick = { }) {
-                        Image(
-                            painter = painterResource(id = R.drawable.logo_mephi),
-                            contentDescription = "лого",
-                        )
-                    }
-                    Text(
-                        text = "Профиль", style = TextStyle(color = Color.Black, fontSize = 20.sp),
-                    )
-                    IconButton(
-                        modifier = Modifier,
-                        onClick = {
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                            appContext.startActivity(
-                                Intent(
-                                    appContext,
-                                    SettingsActivity::class.java
-                                ).apply { flags = FLAG_ACTIVITY_NEW_TASK }
-                            )
-                        }) {
-                        Icon(
-                            Icons.Filled.Settings,
-                            contentDescription = "Настройки"
-                        )
-                    }
-                }
-            }
-        },
+        topBar = { ProfileTopBar() },
         content = {
             Column(
                 Modifier
@@ -131,8 +96,7 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit) {
 
                     if (accountsCount > 0)
                         Box(
-                            modifier = Modifier
-                                .size(120.dp)
+                            modifier = Modifier.size(120.dp)
                         ) {
                             Image(
                                 painter = painter,
@@ -145,60 +109,17 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit) {
                             )
 
                             when (painter.state) {
-                                is ImagePainter.State.Loading -> {
+                                is AsyncImagePainter.State.Loading -> {
                                     CircularProgressIndicator(Modifier.align(Alignment.Center))
-                                }
-                                is ImagePainter.State.Error -> {
-                                    // If you wish to display some content if the request fails
                                 }
                                 else -> {}
                             }
 
-                            IconButton(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .background(ColorPrimary, CircleShape),
-                                onClick = {
-                                    if (accountStatus == AccountStatus.REGISTERED) {
-                                        scope.launch {
-                                            scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                viewModel.accountRepository.status.value.status
-                                            )
-                                        }
-                                    } else {
-                                        if (viewModel.accountRepository.isSipEnabled.value) {
-                                            hapticFeedback.performHapticFeedback(
-                                                HapticFeedbackType.LongPress
-                                            )
-                                            viewModel.retryRegistration()
-                                        } else {
-                                            scope.launch {
-                                                scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                                                scaffoldState.snackbarHostState.showSnackbar("Включите SIP")
-                                            }
-                                        }
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    when (accountStatus) {
-                                        AccountStatus.REGISTERED, AccountStatus.NO_CONNECTION ->
-                                            Icons.Filled.CheckCircle
-                                        AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED,
-                                        AccountStatus.CHANGING, AccountStatus.LOADING ->
-                                            Icons.Filled.Refresh
-                                    }, "Статус",
-                                    tint = when (accountStatus) {
-                                        AccountStatus.REGISTERED -> ColorGreen
-                                        AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED ->
-                                            ColorAccent
-                                        AccountStatus.NO_CONNECTION, AccountStatus.CHANGING,
-                                        AccountStatus.LOADING -> ColorGray
-                                    },
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
+                            AccountStatusWidget(
+                                modifier = Modifier.align(Alignment.BottomEnd),
+                                accountStatusRepository = accountRepository,
+                                scaffoldState = scaffoldState
+                            )
                         }
                 }
 

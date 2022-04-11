@@ -30,26 +30,20 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
-import coil.ImageLoader
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import coil.transform.BlurTransformation
 import coil.transform.RoundedCornersTransformation
-import coil.util.CoilUtils
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import okhttp3.OkHttpClient
-import ru.mephi.shared.appContext
-import ru.mephi.shared.data.network.KtorClientBuilder
+import jp.wasabeef.transformers.coil.gpu.PixelationFilterTransformation
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.caller.numpad.NumPad
+import ru.mephi.voip.ui.components.numpad.NumPad
+import ru.mephi.voip.utils.getImageUrl
 import ru.mephi.voip.utils.toast
 
 private val buttonSize = 100.dp
 private val iconSize = 30.dp
-
-private fun getImageUrl(number: String) = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + number
 
 @ExperimentalCoilApi
 @Composable
@@ -67,55 +61,35 @@ fun CallScreen(
     val callerAppointment = viewModel.callerAppointment.value
     val callerUnit = viewModel.callerUnit.value
 
-    val activity = (LocalContext.current as? Activity)!!
+    val context = LocalContext.current
+    val activity = context as Activity
 
     // https://medium.com/@lbenevento/handling-statusbar-colors-when-using-modalbottomsheets-in-jetpack-compose-181ece86cbcc
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(Color.Transparent)
 
     val gradient = listOf(
-        Color(0xFFFFFF),
+        Color(0x00FFFFFF),
         Color(0x4A03FFC5),
         Color(0xC900BCD4),
         Color(0xD5124DE4),
         Color(0xF35B1BF0),
     )
 
-    val imageLoader = ImageLoader.Builder(appContext)
-        .okHttpClient {
-            OkHttpClient.Builder()
-                .cache(CoilUtils.createDefaultCache(appContext))
-                .build()
-        }.build()
-
-    val request = ImageRequest.Builder(appContext)
-        .data(getImageUrl(viewModel.number))
-        .diskCachePolicy(CachePolicy.ENABLED)
-        .memoryCachePolicy(CachePolicy.ENABLED)
-        .build()
-
-    imageLoader.enqueue(request)
-
-    val blurPainter = rememberImagePainter(
-        data = getImageUrl(viewModel.number),
-        imageLoader = imageLoader,
-        builder = {
-            crossfade(200)
-            transformations(BlurTransformation(appContext, 5f))
-        }
+    val blurPainter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current).data(data = getImageUrl(viewModel.number))
+            .apply(block = fun ImageRequest.Builder.() {
+                diskCachePolicy(CachePolicy.ENABLED)
+                memoryCachePolicy(CachePolicy.ENABLED)
+                transformations(PixelationFilterTransformation(context = context))
+            }).build()
     )
 
-    val callerPhotoPainter = rememberImagePainter(
-        data = getImageUrl(viewModel.number),
-        imageLoader = imageLoader,
-        builder = {
-            crossfade(200)
-            transformations(
-                RoundedCornersTransformation(
-                    10f, 10f, 10f, 10f
-                )
-            )
-        }
+    val callerPhotoPainter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current).data(data = getImageUrl(viewModel.number))
+            .apply(block = fun ImageRequest.Builder.() {
+                transformations(RoundedCornersTransformation(10f))
+            }).build()
     )
 
     val constraintSet = ConstraintSet {
@@ -169,7 +143,7 @@ fun CallScreen(
             Image(
                 painter = blurPainter,
                 contentDescription = "",
-                contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .fillMaxWidth()
                     .layoutId("blurredImage")

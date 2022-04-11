@@ -30,6 +30,7 @@ import ru.mephi.shared.data.model.SearchType
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.catalog.HistorySearchModelState
+import ru.mephi.voip.ui.components.SearchView
 import ru.mephi.voip.utils.rememberFlowWithLifecycle
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)

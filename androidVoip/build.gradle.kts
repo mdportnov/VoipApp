@@ -2,7 +2,6 @@ plugins {
     id("kotlin-android")
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("androidx.navigation.safeargs")
     id("com.google.gms.google-services")
 }
 
@@ -13,10 +12,9 @@ android {
         applicationId = "ru.mephi.voip"
         minSdk = 23
         targetSdk = 30 // 31 causes error with pendingIntents and abto
-        versionCode = 16
-        versionName = "0.8.0"
+        versionCode = 17
+        versionName = "0.9.0"
         multiDexEnabled = true
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         signingConfig = signingConfigs.getByName("debug")
     }
 
@@ -49,7 +47,6 @@ android {
     }
 
     compileOptions {
-//        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -107,8 +104,11 @@ dependencies {
     implementation("com.squareup.sqldelight:coroutines-extensions:1.5.3")
 
     // Coil
-    implementation("io.coil-kt:coil:1.4.0")
-    implementation("io.coil-kt:coil-compose:1.3.2")
+    implementation("io.coil-kt:coil:2.0.0-rc02")
+    implementation("io.coil-kt:coil-compose:2.0.0-rc02")
+    implementation("jp.wasabeef.transformers:coil:1.0.3")
+    // Use the GPU Filters
+    implementation("jp.wasabeef.transformers:coil-gpu:1.0.3")
 
     // DI
     implementation("io.insert-koin:koin-android:3.1.5")
@@ -129,7 +129,6 @@ dependencies {
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("com.vmadalin:easypermissions-ktx:1.0.0")
     implementation("com.github.leonardoxh:keystore-ultimate:1.3.0")
-//    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
 
     implementation(project(":shared"))
     implementation(files("aars/abto_android_voip_sdk.aar"))

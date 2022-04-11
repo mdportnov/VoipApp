@@ -18,17 +18,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
+import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
+import okhttp3.Interceptor
+import okhttp3.Response
 import ru.mephi.shared.data.model.Appointment
-import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.navigation.BottomNavItem
@@ -37,27 +40,43 @@ import ru.mephi.voip.ui.navigation.CALLER_NUMBER_KEY
 import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.ColorGray
 import ru.mephi.voip.utils.ColorGreen
+import ru.mephi.voip.utils.getImageUrl
+
+
+val REWRITE_CACHE_CONTROL_INTERCEPTOR: Interceptor = object : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originalResponse: Response = chain.proceed(chain.request())
+        return originalResponse.newBuilder()
+            .header("Cache-Control", "max-age=31536000")
+            .build()
+    }
+}
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun UserCatalogItem(
+    modifier: Modifier,
     record: Appointment,
     viewModel: CatalogViewModel,
     navController: NavController
 ) {
-    Row {
+    val painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current).data(data = record.line?.let { getImageUrl(it) })
+            .apply(block = fun ImageRequest.Builder.() {
+                crossfade(200)
+                transformations(RoundedCornersTransformation(15f))
+                crossfade(true)
+                diskCachePolicy(CachePolicy.ENABLED)
+                networkCachePolicy(CachePolicy.ENABLED)
+                memoryCachePolicy(CachePolicy.ENABLED)
+                placeholder(R.drawable.nophoto)
+                error(R.drawable.nophoto)
+            }).build()
+    )
+
+    Row(modifier = modifier) {
         Image(
-            painter = rememberImagePainter(
-                data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + record.line,
-                builder = {
-                    placeholder(R.drawable.nophoto)
-                    crossfade(true)
-                    diskCachePolicy(CachePolicy.ENABLED)
-                    memoryCachePolicy(CachePolicy.ENABLED)
-                    transformations(RoundedCornersTransformation(15f))
-                    error(R.drawable.nophoto)
-                }
-            ),
+            painter = painter,
             modifier = Modifier
                 .width(80.dp)
                 .aspectRatio(0.8f)

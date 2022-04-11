@@ -8,7 +8,6 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,13 +17,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
@@ -43,13 +44,12 @@ import ru.mephi.voip.abto.getSipUsername
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.eventbus.Event
 import timber.log.Timber
-import java.util.*
 
 
 class MainActivity : ComponentActivity(),
     EasyPermissions.PermissionCallbacks {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-    private val accountStatusRepository: AccountStatusRepository by inject()
+    private val accountRepository: AccountStatusRepository by inject()
 
     companion object {
         var phone: AbtoPhone = (appContext as AbtoApplication).abtoPhone
@@ -59,32 +59,12 @@ class MainActivity : ComponentActivity(),
 
     override fun onResume() {
         super.onResume()
-        checkPermissions()
         phone = (application as AbtoApplication).abtoPhone
-        if (!accountStatusRepository.isBackgroundWork.value) {
-            if (accountStatusRepository.isSipEnabled.value) {
+        if (!accountRepository.isBackgroundWork.value) {
+            if (accountRepository.isSipEnabled.value) {
                 enableSip()
             }
         }
-    }
-
-    private fun checkPermissions() {
-        val permissions = ArrayList<String>()
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.USE_SIP
-            ) != PackageManager.PERMISSION_GRANTED
-        )
-            permissions.add(Manifest.permission.USE_SIP)
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        )
-            permissions.add(Manifest.permission.RECORD_AUDIO)
-
-        if (permissions.size > 0)
-            requestPermissions(permissions.toTypedArray(), 1)
     }
 
     private var scaffoldState: ScaffoldState? = null
@@ -109,7 +89,7 @@ class MainActivity : ComponentActivity(),
         if (!hasPermissions())
             requestPermissions()
 
-        if (accountStatusRepository.isSipEnabled.value)
+        if (accountRepository.isSipEnabled.value)
             enableSip()
     }
 
@@ -117,11 +97,11 @@ class MainActivity : ComponentActivity(),
     override fun onDestroy() {
         super.onDestroy()
         // При полном закрытии приложения останавливаем Call-сервис
-        if (!accountStatusRepository.isBackgroundWork.value) {
+        if (!accountRepository.isBackgroundWork.value) {
             disableSip()
             EventBus.getDefault().unregister(this)
         }
-        if (!accountStatusRepository.isSipEnabled.value) {
+        if (!accountRepository.isSipEnabled.value) {
             disableSip()
             EventBus.getDefault().unregister(this)
         }
@@ -130,7 +110,8 @@ class MainActivity : ComponentActivity(),
     @Subscribe
     fun enableSip(messageEvent: Event.EnableAccount? = null) {
         initAccount()
-        initPhone()
+        if (hasPermissions())
+            initPhone()
     }
 
     @Subscribe
@@ -145,7 +126,7 @@ class MainActivity : ComponentActivity(),
             return
 
         val domain = appContext.getString(R.string.sip_domain)
-        val account = accountStatusRepository.getActiveAccount()
+        val account = accountRepository.getActiveAccount()
         val username = account?.login
         val password = account?.password
 
@@ -162,9 +143,9 @@ class MainActivity : ComponentActivity(),
     private fun initPhone() {
         phone.setNetworkEventListener { connected, _ ->
             if (connected)
-                accountStatusRepository.fetchStatus(AccountStatus.LOADING)
+                accountRepository.fetchStatus(AccountStatus.LOADING)
             else
-                accountStatusRepository.fetchStatus(AccountStatus.NO_CONNECTION)
+                accountRepository.fetchStatus(AccountStatus.NO_CONNECTION)
         }
 
         //Switching| Registration Listener|REG
@@ -172,26 +153,40 @@ class MainActivity : ComponentActivity(),
         phone.setRegistrationStateListener(object : OnRegistrationListener {
             override fun onRegistered(accId: Long) {
                 showSnackBar(AccountStatus.REGISTERED.status)
-                accountStatusRepository.fetchStatus(AccountStatus.REGISTERED)
+                accountRepository.fetchStatus(AccountStatus.REGISTERED)
                 Timber.d("REG STATUS: ${phone.getSipProfileState(phone.currentAccountId).statusCode}")
             }
 
             override fun onUnRegistered(accId: Long) {
                 showSnackBar("Регистрация аккаунта отменена")
-                accountStatusRepository.fetchStatus(AccountStatus.UNREGISTERED)
+                accountRepository.fetchStatus(AccountStatus.UNREGISTERED)
             }
 
             override fun onRegistrationFailed(accId: Long, statusCode: Int, statusText: String?) {
                 showSnackBar(
                     "Аккаунт \"${phone.getSipUsername(accId)}\" не зарегистрирован.\nПричина: $statusText"
                 )
-                accountStatusRepository.fetchStatus(
+
+                accountRepository.fetchStatus(
                     AccountStatus.REGISTRATION_FAILED,
-                    "Code: $statusCode, Text: $statusText, ${Calendar.getInstance().time}"
+                    "Ошибка $statusCode: $statusText"
                 )
 
+                if (statusCode == 405) {
+                    accountRepository.fetchStatus(AccountStatus.NO_CONNECTION)
+                }
+
+                // 408 Request Timeout, 502 Bad Gateway
                 if (statusCode == 408 || statusCode == 502) {
-                    enableSip()
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(2000)
+                        accountRepository.fetchStatus(
+                            AccountStatus.CHANGING,
+                            "Переподключение, ошибка $statusCode"
+                        )
+                        delay(15000)
+                        accountRepository.retryRegistration()
+                    }
                 }
             }
         })
@@ -251,7 +246,7 @@ class MainActivity : ComponentActivity(),
         mBuilder.setOngoing(true)
         mBuilder.setContentIntent(pendingIntent)
         mBuilder.setContentText(getString(R.string.notification_title))
-        mBuilder.setSubText(accountStatusRepository.status.value.status)
+        mBuilder.setSubText(accountRepository.status.value.status)
         mBuilder.setSmallIcon(R.drawable.logo_voip)
         val notification = mBuilder.build()
 
@@ -298,13 +293,13 @@ class MainActivity : ComponentActivity(),
     override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
 
     }
-//
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String>,
-//        grantResults: IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
-//    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
 }

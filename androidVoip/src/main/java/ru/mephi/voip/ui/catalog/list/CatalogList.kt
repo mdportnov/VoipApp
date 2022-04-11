@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,9 +41,9 @@ import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
-import ru.mephi.voip.ui.caller.ExpandableCard
-import ru.mephi.voip.ui.caller.ExpandableContent
 import ru.mephi.voip.ui.catalog.CatalogViewModel
+import ru.mephi.voip.ui.components.ExpandableCard
+import ru.mephi.voip.ui.components.ExpandableContent
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -82,7 +83,7 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
             }
         }
 
-        LazyColumn(state = listState) {
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
             if (catalogPageState > 0) {
                 scope.launch {
                     listState.animateScrollToItem(index = 0)
@@ -135,6 +136,7 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
                             },
                             dismissContent = {
                                 ExpandableCard(
+                                    modifier = Modifier.fillMaxWidth(),
                                     onCardArrowClick = {
                                         viewModel.onCardArrowClicked(
                                             currentItems.indexOf(recordItem)
@@ -145,6 +147,7 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
                                     ),
                                     content = {
                                         UserCatalogItem(
+                                            modifier = it,
                                             record = recordItem,
                                             viewModel = viewModel,
                                             navController = navController

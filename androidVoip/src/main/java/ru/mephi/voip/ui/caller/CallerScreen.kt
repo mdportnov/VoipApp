@@ -27,10 +27,12 @@ import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.ui.MainActivity
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.list.CallRecordsList
 import ru.mephi.voip.ui.caller.list.NumberHistoryList
-import ru.mephi.voip.ui.caller.numpad.NumPad
+import ru.mephi.voip.ui.components.AccountStatusWidget
+import ru.mephi.voip.ui.components.numpad.NumPad
 import timber.log.Timber
 
 @Composable
@@ -66,7 +68,6 @@ fun CallerScreen(
         isNumPadStateUp = true
     }
 
-
     fun onNumPadStateChange() {
         if (callerNumber.isNullOrEmpty())
             isNumPadStateUp = !isNumPadStateUp
@@ -89,8 +90,10 @@ fun CallerScreen(
             backgroundColor = Color.White,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if (isBackArrowVisible)
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -103,11 +106,11 @@ fun CallerScreen(
 
                 Text(
                     text = "Звонки", style = TextStyle(color = Color.Black, fontSize = 20.sp),
-                    modifier = Modifier.align(Alignment.Center)
                 )
+
                 AccountStatusWidget(
-                    accountStatusRepository,
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                    accountStatusRepository = accountStatusRepository,
+                    scaffoldState = scaffoldState
                 )
             }
         }
@@ -116,7 +119,7 @@ fun CallerScreen(
 
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
-                StatusBar()
+                CallStatusBar()
                 CallRecordsList(setSelectedRecord) { deletedRecord ->
                     scope.launch {
                         scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
@@ -219,6 +222,12 @@ fun CallerScreen(
                             } else {
                                 isNumPadStateUp = !isNumPadStateUp
                             }
+                        else {
+                            scope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar("Приложению нужны разрешения для совершения звонков")
+                            }
+                            (context as MainActivity).requestPermissions()
+                        }
                     }, backgroundColor = colorResource(id = R.color.colorGreen)
                 ) {
                     if (isNumPadStateUp)

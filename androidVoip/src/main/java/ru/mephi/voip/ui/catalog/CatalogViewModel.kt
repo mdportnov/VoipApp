@@ -13,7 +13,6 @@ import ru.mephi.shared.data.network.Resource
 import ru.mephi.voip.R
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.utils.isOnline
-import ru.mephi.voip.utils.toast
 
 data class HistorySearchModelState(
     val searchText: String = "",
@@ -124,10 +123,9 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     fun onRefresh() {
         if (isOnline(appContext)) {
             if (catalogStack.value.isNullOrEmpty())
-                goNext("01 000 000")
+                goNext("01 000 00")
         } else {
-            appContext.toast("Обновление невозможно")
-//            showSnackBar
+            showSnackBar("Обновление невозможно")
         }
         _isRefreshing.value = false
     }
@@ -177,6 +175,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                         }
                         is Resource.Error.ServerNotRespondError -> {
                             showSnackBar(appContext.getString(R.string.smth_wrong))
+                            dismissProgressBar()
                         }
                         else -> dismissProgressBar()
                     }
