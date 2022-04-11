@@ -22,6 +22,7 @@ interface SettingsStore {
     fun isSipEnabled(): Boolean
     fun toggleSipStatus()
     fun isBackgroundWorkEnabled(): Boolean
+    fun isCallScreenAlways(): Boolean
 }
 
 class SharedPrefsSettings : SettingsStore {
@@ -39,6 +40,8 @@ class SharedPrefsSettings : SettingsStore {
     override fun isBackgroundWorkEnabled(): Boolean =
         prefs.getBoolean(appContext.getString(R.string.sp_background_enabled), false)
 
+    override fun isCallScreenAlways(): Boolean =
+        prefs.getBoolean(appContext.getString(R.string.call_screen_always_settings), false)
 }
 
 suspend inline fun <reified T> DataStore<Preferences>.getFromLocalStorage(
@@ -95,6 +98,10 @@ class DataStoreSettings(val context: Context) : SettingsStore {
     }
 
     override fun isBackgroundWorkEnabled(): Boolean {
+        return true
+    }
+
+    override fun isCallScreenAlways(): Boolean {
         return true
     }
 

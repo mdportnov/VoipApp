@@ -12,8 +12,8 @@ android {
         applicationId = "ru.mephi.voip"
         minSdk = 23
         targetSdk = 30 // 31 causes error with pendingIntents and abto
-        versionCode = 17
-        versionName = "0.9.0"
+        versionCode = 18
+        versionName = "0.9.2"
         multiDexEnabled = true
         signingConfig = signingConfigs.getByName("debug")
     }
@@ -106,9 +106,6 @@ dependencies {
     // Coil
     implementation("io.coil-kt:coil:2.0.0-rc02")
     implementation("io.coil-kt:coil-compose:2.0.0-rc02")
-    implementation("jp.wasabeef.transformers:coil:1.0.3")
-    // Use the GPU Filters
-    implementation("jp.wasabeef.transformers:coil-gpu:1.0.3")
 
     // DI
     implementation("io.insert-koin:koin-android:3.1.5")

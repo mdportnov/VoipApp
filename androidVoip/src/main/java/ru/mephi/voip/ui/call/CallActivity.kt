@@ -168,8 +168,13 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         }
         try {
             if (bIsIncoming) {
+                callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU)
                 phone.rejectCall(callViewModel.activeCallId)
-            } else phone.hangUp(callViewModel.activeCallId)
+            } else {
+                callViewModel.changeCallStatus(CallStatus.OUTCOMING)
+                phone.hangUp(callViewModel.activeCallId)
+                callViewModel.saveInfoAboutCall(callViewModel.number)
+            }
         } finally {
             stopActivity()
         }

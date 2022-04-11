@@ -149,7 +149,7 @@ fun ImageCallStatus(status: CallStatus) {
                     R.drawable.ic_baseline_call_declined_24
                 CallStatus.DECLINED_FROM_YOU ->
                     R.drawable.ic_baseline_call_declined_from_side_24
-                else -> R.drawable.ic_baseline_error_24
+                CallStatus.NONE -> R.drawable.ic_baseline_error_24
             }
         ),
         contentDescription = "",

@@ -36,7 +36,6 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import jp.wasabeef.transformers.coil.gpu.PixelationFilterTransformation
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.components.numpad.NumPad
 import ru.mephi.voip.utils.getImageUrl
@@ -81,7 +80,6 @@ fun CallScreen(
             .apply(block = fun ImageRequest.Builder.() {
                 diskCachePolicy(CachePolicy.ENABLED)
                 memoryCachePolicy(CachePolicy.ENABLED)
-                transformations(PixelationFilterTransformation(context = context))
             }).build()
     )
 

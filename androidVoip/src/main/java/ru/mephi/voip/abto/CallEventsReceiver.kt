@@ -8,7 +8,6 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
@@ -20,6 +19,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.voip.R
+import ru.mephi.voip.data.SettingsStore
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.call.CallButtonsState
 import ru.mephi.voip.ui.call.CallState
@@ -29,7 +29,7 @@ import timber.log.Timber
 class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnectedListener {
     lateinit var abtoApp: AbtoApp
     lateinit var phone: AbtoPhone
-    private val sp: SharedPreferences by inject()
+    private val sp: SettingsStore by inject()
     private val callViewModel: CallViewModel by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -103,9 +103,7 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
 
         // Проверка, что приложение сейчас в фоне и что есть разрешение на показ поверх других приложений
         // тогда открываем активность звонка и всё ок, иначе - уведомление для взаимодействия
-        if (Settings.canDrawOverlays(context)
-            && sp.getBoolean(context.getString(R.string.call_screen_always_settings), false)
-        ) {
+        if (Settings.canDrawOverlays(context) && sp.isCallScreenAlways()) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
             return
