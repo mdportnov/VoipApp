@@ -84,7 +84,10 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
                     callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_SIDE)
                 }
             CallState.REQUEST_TERMINATED -> {
-                callViewModel.changeCallStatus(CallStatus.MISSED)
+                if (callViewModel.isDeclinedFromMySide) {
+                    callViewModel.changeCallStatus(CallStatus.OUTCOMING)
+                } else
+                    callViewModel.changeCallStatus(CallStatus.MISSED)
             }
             CallState.BUSY_HERE -> callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU)
             else -> callViewModel.changeCallStatus(CallStatus.NONE)

@@ -26,6 +26,8 @@ class CallViewModel(
     private var _isNumPadVisible = mutableStateOf(false)
     val isNumPadVisible: State<Boolean> get() = _isNumPadVisible
 
+    var isDeclinedFromMySide = false
+
     private var _inputState = mutableStateOf("")
     val inputState: State<String> get() = _inputState
 
@@ -105,6 +107,7 @@ class CallViewModel(
         _callerUnit.value = ""
         _callerAppointment.value = ""
         _callerName.value = ""
+        isDeclinedFromMySide = false
     }
 
     fun changeCallStatus(callStatus: CallStatus) {

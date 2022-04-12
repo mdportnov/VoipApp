@@ -163,17 +163,23 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
     override fun onBackPressed() {}
 
     private fun hangUp() {
+        callViewModel.isDeclinedFromMySide = true
         if (callViewModel.callState.value != CallState.OK) {
             callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU)
         }
         try {
             if (bIsIncoming) {
-                callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU)
+                if (callViewModel.mTotalTime > 1000) {
+                    callViewModel.changeCallStatus(CallStatus.INCOMING)
+                } else {
+                    callViewModel.changeCallState(CallState.CALL_OUTGOING)
+                    callViewModel.changeCallStatus(CallStatus.DECLINED_FROM_YOU)
+                }
+
                 phone.rejectCall(callViewModel.activeCallId)
             } else {
                 callViewModel.changeCallStatus(CallStatus.OUTCOMING)
                 phone.hangUp(callViewModel.activeCallId)
-                callViewModel.saveInfoAboutCall(callViewModel.number)
             }
         } finally {
             stopActivity()
