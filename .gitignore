@@ -8,4 +8,7 @@
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+keys.jks
+androidVoip/src/release/google-services.json
+androidVoip/src/debug/google-services.json
+androidVoip/src/google-services.json
