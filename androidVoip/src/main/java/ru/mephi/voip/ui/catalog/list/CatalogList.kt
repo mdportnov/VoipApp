@@ -162,6 +162,7 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
                         )
                     }
                     is UnitM -> {
+                        Divider(color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f))
                         UnitCatalogItem(record = recordItem, viewModel = viewModel)
                     }
                 }

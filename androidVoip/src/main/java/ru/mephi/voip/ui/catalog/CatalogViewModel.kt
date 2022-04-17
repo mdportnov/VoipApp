@@ -37,7 +37,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     val isProgressBarVisible: StateFlow<Boolean> get() = _isProgressBarVisible
 
     var isSearchFieldVisible: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    var searchType: MutableStateFlow<SearchType> = MutableStateFlow(SearchType.UNITS)
+    var searchType: MutableStateFlow<SearchType> = MutableStateFlow(SearchType.USERS)
 
     private var allSearchHistory: ArrayList<SearchRecord> = ArrayList()
     private var searchText: MutableStateFlow<String> = MutableStateFlow("")
@@ -62,10 +62,6 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     }
 
     fun isExistsInDatabase(codeStr: String) = repository.isExistsInDatabase(codeStr = codeStr)
-
-//    init {
-//        goNext(init_code_str)
-//    }
 
     val searchHistoryModelState =
         combine(searchText, matchedRecords) { searchText, matchedSearchRecords ->

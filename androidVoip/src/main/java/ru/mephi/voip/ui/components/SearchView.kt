@@ -6,13 +6,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -25,9 +26,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import ru.mephi.shared.data.model.SearchType
-import ru.mephi.voip.utils.ColorAccent
-import ru.mephi.voip.utils.ColorGray
-import ru.mephi.voip.utils.ColorRed
+import ru.mephi.voip.ui.catalog.search.IconSwitch
 
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
@@ -49,7 +48,6 @@ fun SearchView(
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
-
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
@@ -94,15 +92,13 @@ fun SearchView(
                 onSubmit()
             })
         )
-        Switch(
-            checked = searchType == SearchType.UNITS, onCheckedChange = {
+        IconSwitch(
+            Icons.Default.Person, Icons.Default.Groups,
+            searchType == SearchType.USERS,
+            onCheckedChange = {
                 onChangeSearchType()
-            }, modifier = Modifier.fillMaxWidth(),
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = ColorRed,
-                checkedTrackColor = ColorAccent,
-                uncheckedThumbColor = ColorGray
-            )
+            }
         )
+
     }
 }
