@@ -31,9 +31,9 @@ class CatalogDao : KoinComponent {
         return kodeinDB.find<UnitMKodeIn>().all().useModels { it.toList() }.map { it.fromKodein }
     }
 
-    fun getUnitByCodeStr(code_str: String): List<UnitM>? {
+    fun getUnitByCodeStr(code_str: String): UnitM? {
         return try {
-            listOf(kodeinDB.find<UnitMKodeIn>().byId(code_str).model().fromKodein)
+            kodeinDB.find<UnitMKodeIn>().byId(code_str).model().fromKodein
         } catch (e: Exception) {
             return null
         }

@@ -11,7 +11,7 @@ import ru.mephi.shared.data.network.exception.NotFoundException
 class KtorApiService : BaseApiService {
     private var httpClient = KtorClientBuilder.createHttpClient()
 
-    override suspend fun getUnitByCodeStr(codeStr: String): Resource<List<UnitM>?> {
+    override suspend fun getUnitByCodeStr(codeStr: String): Resource<UnitM> {
         try {
             val units: List<UnitM> =
                 httpClient.post {
@@ -22,7 +22,7 @@ class KtorApiService : BaseApiService {
                 }
             if (units.isEmpty())
                 return Resource.Error.EmptyError(exception = EmptyUnitException())
-            return Resource.Success(data = units)
+            return Resource.Success(data = units[0])
         } catch (exception: Throwable) {
             return when (exception) {
                 is NetworkException -> Resource.Error.NetworkError(exception = exception)

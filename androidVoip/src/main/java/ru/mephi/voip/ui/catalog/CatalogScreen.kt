@@ -6,12 +6,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +31,6 @@ import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.rememberFlowWithLifecycle
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CatalogScreen(navController: NavController) {
     val viewModel: CatalogViewModel by inject()
@@ -82,10 +82,15 @@ fun CatalogScreen(navController: NavController) {
                 modifier = Modifier.align(Alignment.Center)
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(100.dp), color = ColorAccent,
+                    modifier = Modifier.size(100.dp), color = ColorAccent,
                     strokeWidth = 10.dp
                 )
+            }
+
+            if (items.isEmpty()) {
+                IconButton(onClick = { viewModel.onRefresh() }, modifier = Modifier.fillMaxSize()) {
+                    Icon(Icons.Default.Refresh, contentDescription = "Обновить")
+                }
             }
 
             if (searchHistoryModelState.historyRecords.isNotEmpty()) {

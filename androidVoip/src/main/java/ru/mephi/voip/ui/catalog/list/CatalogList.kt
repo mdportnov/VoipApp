@@ -3,7 +3,6 @@ package ru.mephi.voip.ui.catalog.list
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,10 +17,7 @@ import androidx.compose.material.DismissDirection.StartToEnd
 import androidx.compose.material.DismissValue.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -30,7 +26,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.Stack
@@ -44,8 +39,9 @@ import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.components.ExpandableCard
 import ru.mephi.voip.ui.components.ExpandableContent
+import timber.log.Timber
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CatalogList(items: Stack<UnitM>, navController: NavController) {
     val viewModel: CatalogViewModel by inject()
@@ -56,6 +52,13 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
 
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+
+    val currentItems = mutableListOf<CatalogItem>()
+
+    LaunchedEffect(Unit) {
+        Timber.d("Catalog List Launched")
+        viewModel.onRefresh()
+    }
 
     val onSwipeToCall: (Appointment) -> Unit = { record ->
         if (accountStatusRepository.status.value == AccountStatus.REGISTERED && !record.line.isNullOrEmpty()) {
@@ -72,8 +75,8 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
     val expandedCardIds = viewModel.expandedCardIdsList.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        val currentItems = mutableListOf<CatalogItem>()
         if (catalogPageState > 0) {
+            currentItems.clear()
             items[catalogPageState - 1].appointments?.let {
                 currentItems.addAll(it)
             }
@@ -82,7 +85,6 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
                 currentItems.addAll(it)
             }
         }
-
         LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
             if (catalogPageState > 0) {
                 scope.launch {

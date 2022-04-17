@@ -4,15 +4,16 @@ import androidx.core.text.isDigitsOnly
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.mephi.shared.*
+import ru.mephi.shared.Stack
 import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.Resource
-import ru.mephi.voip.R
+import ru.mephi.shared.pop
+import ru.mephi.shared.popFromCatalogTill
+import ru.mephi.shared.push
 import ru.mephi.voip.data.CatalogRepository
-import ru.mephi.voip.utils.isOnline
 
 data class HistorySearchModelState(
     val searchText: String = "",
@@ -22,6 +23,8 @@ data class HistorySearchModelState(
         val Empty = HistorySearchModelState()
     }
 }
+
+const val init_code_str = "01 000 00"
 
 class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecutor() {
     private val _expandedCardIdsList = MutableStateFlow(listOf<Int>())
@@ -54,25 +57,20 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     }
 
     fun changeSearchType() {
-        searchType.value = if (searchType.value == SearchType.UNITS)
-            SearchType.USERS else SearchType.UNITS
+        searchType.value =
+            if (searchType.value == SearchType.UNITS) SearchType.USERS else SearchType.UNITS
     }
 
     fun isExistsInDatabase(codeStr: String) = repository.isExistsInDatabase(codeStr = codeStr)
 
     init {
-        goNext("01 000 00")
+        goNext(init_code_str)
     }
 
-    val searchHistoryModelState = combine(
-        searchText,
-        matchedRecords,
-    ) { searchText, matchedSearchRecords ->
-        HistorySearchModelState(
-            searchText,
-            matchedSearchRecords,
-        )
-    }
+    val searchHistoryModelState =
+        combine(searchText, matchedRecords) { searchText, matchedSearchRecords ->
+            HistorySearchModelState(searchText, matchedSearchRecords)
+        }
 
     fun onSearchTextChanged(changedSearchText: String) {
         searchText.value = changedSearchText
@@ -81,8 +79,9 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
             return
         }
         val searchResults = allSearchHistory.filter { x ->
-            x.name.startsWith(changedSearchText, true) && x.type == searchType.value
-                    && !x.name.equals(changedSearchText, ignoreCase = true)
+            x.name.startsWith(
+                changedSearchText, true
+            ) && x.type == searchType.value && !x.name.equals(changedSearchText, ignoreCase = true)
         }
         matchedRecords.value = searchResults
     }
@@ -101,17 +100,11 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     fun performSearch(query: String) {
         if (query.length < 3) {
             showSnackBar("Введите более длинный запрос")
-        } else
-            _catalogStack.value.lastOrNull()?.let {
-                if (it.shortname != query) {
-                    if (searchType.value == SearchType.USERS) {
-                        search(query, SearchType.USERS)
-                    }
-                    if (searchType.value == SearchType.UNITS) {
-                        search(query, SearchType.UNITS)
-                    }
-                }
+        } else _catalogStack.value.lastOrNull()?.let {
+            if (it.shortname != query) {
+                search(query, searchType.value)
             }
+        }
     }
 
     private fun addSearchRecord(record: SearchRecord) =
@@ -121,12 +114,8 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
         repository.containsSearchRecord(searchRecord)
 
     fun onRefresh() {
-        if (isOnline(appContext)) {
-            if (catalogStack.value.isNullOrEmpty())
-                goNext("01 000 00")
-        } else {
-            showSnackBar("Обновление невозможно")
-        }
+        _catalogStateFlow.value = _catalogStateFlow.value
+        if (catalogStack.value.isEmpty()) goNext(init_code_str)
         _isRefreshing.value = false
     }
 
@@ -153,84 +142,31 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     fun goNext(codeStr: String, currScrollPos: Int = 0) {
         jobGoNext?.cancel()
         jobGoNext = launch(ioDispatcher) {
-            repository.getUnitByCodeStr(codeStr)
-                .onEach { resource ->
-                    when (resource) {
-                        is Resource.Loading -> showProgressBar()
-                        is Resource.Success -> {
-                            dismissProgressBar()
-                            resource.data?.let { units ->
-                                units[0].scrollPosition = currScrollPos
-                                pushPageToCatalog(units[0])
-                            }
+            repository.getUnitByCodeStr(codeStr).onEach { resource ->
+                when (resource) {
+                    is Resource.Loading -> showProgressBar()
+                    is Resource.Success -> {
+                        dismissProgressBar()
+                        resource.data?.let { unit ->
+                            unit.scrollPosition = currScrollPos
+                            pushPageToCatalog(unit)
                         }
-                        is Resource.Error.EmptyError -> {
-                            showSnackBar(appContext.getString(R.string.empty_unit))
-                        }
-                        is Resource.Error.NotFoundError -> {
-                            showSnackBar(resource.message!!)
-                        }
-                        is Resource.Error.NetworkError -> {
-                            showSnackBar(appContext.getString(R.string.connection_lost))
-                        }
-                        is Resource.Error.ServerNotRespondError -> {
-                            showSnackBar(appContext.getString(R.string.smth_wrong))
-                            dismissProgressBar()
-                        }
-                        else -> dismissProgressBar()
                     }
-                }.launchIn(this)
+                    is Resource.Error.EmptyError -> showSnackBar(resource.message!!)
+                    is Resource.Error.NotFoundError -> showSnackBar(resource.message!!)
+                    is Resource.Error.NetworkError -> showSnackBar(resource.message!!)
+                    is Resource.Error.ServerNotRespondError -> showSnackBar(resource.message!!)
+                    is Resource.Error.UndefinedError -> showSnackBar(resource.message!!)
+                }
+            }.launchIn(this)
         }
     }
 
     private fun search(query: String, type: SearchType) {
         addSearchRecord(SearchRecord(name = query, type = type))
         launch(ioDispatcher) {
-            if (type == SearchType.USERS)
-                if (query.isDigitsOnly()) {
-                    repository.getUserByPhone(query).onEach { resource ->
-                        when (resource) {
-                            is Resource.Loading -> showProgressBar()
-                            is Resource.Success -> {
-                                dismissProgressBar()
-                                resource.data?.let { newPage ->
-                                    pushPageToCatalog(newPage)
-                                }
-                            }
-                            is Resource.Error.NotFoundError -> {
-                                resource.message?.let { showSnackBar(it) }
-                            }
-                            is Resource.Error.UndefinedError -> {
-                                resource.message?.let {
-                                    showSnackBar(it)
-                                }
-                            }
-                            else -> dismissProgressBar()
-                        }
-                    }.launchIn(this)
-                } else
-                    repository.getUsersByName(query).onEach { resource ->
-                        when (resource) {
-                            is Resource.Loading -> showProgressBar()
-                            is Resource.Success -> {
-                                dismissProgressBar()
-                                resource.data?.let { newPage ->
-                                    pushPageToCatalog(newPage)
-                                }
-                            }
-                            is Resource.Error.NotFoundError -> {
-                                resource.message?.let { showSnackBar(it) }
-                            }
-                            is Resource.Error.UndefinedError -> {
-                                resource.message?.let {
-                                    showSnackBar(it)
-                                }
-                            }
-                            else -> dismissProgressBar()
-                        }
-                    }.launchIn(this)
-            else
-                repository.getUnitsByName(query).onEach { resource ->
+            if (type == SearchType.USERS) if (query.isDigitsOnly()) {
+                repository.getUserByPhone(query).onEach { resource ->
                     when (resource) {
                         is Resource.Loading -> showProgressBar()
                         is Resource.Success -> {
@@ -239,17 +175,45 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
                                 pushPageToCatalog(newPage)
                             }
                         }
-                        is Resource.Error.NotFoundError -> {
-                            resource.message?.let { showSnackBar(it) }
-                        }
-                        is Resource.Error.UndefinedError -> {
-                            resource.message?.let {
-                                showSnackBar(it)
-                            }
-                        }
-                        else -> {}
+                        is Resource.Error.NotFoundError -> showSnackBar(resource.message!!)
+                        is Resource.Error.UndefinedError -> showSnackBar(resource.message!!)
+                        is Resource.Error.EmptyError -> showSnackBar(resource.message!!)
+                        is Resource.Error.NetworkError -> showSnackBar(resource.message!!)
+                        is Resource.Error.ServerNotRespondError -> showSnackBar(resource.message!!)
                     }
                 }.launchIn(this)
+            } else repository.getUsersByName(query).onEach { resource ->
+                when (resource) {
+                    is Resource.Loading -> showProgressBar()
+                    is Resource.Success -> {
+                        dismissProgressBar()
+                        resource.data?.let { newPage ->
+                            pushPageToCatalog(newPage)
+                        }
+                    }
+                    is Resource.Error.NotFoundError -> showSnackBar(resource.message!!)
+                    is Resource.Error.UndefinedError -> showSnackBar(resource.message!!)
+                    is Resource.Error.EmptyError -> showSnackBar(resource.message!!)
+                    is Resource.Error.NetworkError -> showSnackBar(resource.message!!)
+                    is Resource.Error.ServerNotRespondError -> showSnackBar(resource.message!!)
+                }
+            }.launchIn(this)
+            else repository.getUnitsByName(query).onEach { resource ->
+                when (resource) {
+                    is Resource.Loading -> showProgressBar()
+                    is Resource.Success -> {
+                        dismissProgressBar()
+                        resource.data?.let { newPage ->
+                            pushPageToCatalog(newPage)
+                        }
+                    }
+                    is Resource.Error.NotFoundError -> showSnackBar(resource.message!!)
+                    is Resource.Error.UndefinedError -> showSnackBar(resource.message!!)
+                    is Resource.Error.EmptyError -> showSnackBar(resource.message!!)
+                    is Resource.Error.NetworkError -> showSnackBar(resource.message!!)
+                    is Resource.Error.ServerNotRespondError -> showSnackBar(resource.message!!)
+                }
+            }.launchIn(this)
         }
     }
 
