@@ -31,7 +31,15 @@ fun UnitCatalogItem(record: UnitM, viewModel: CatalogViewModel) {
     }
 
     Column {
-        TextButton(onClick = { viewModel.goNext(record.code_str) }) {
+        TextButton(onClick = {
+            if (isOnline(appContext)) {
+                viewModel.goNext(record.code_str)
+            } else {
+                if (viewModel.isExistsInDatabase(record.code_str)) {
+                    viewModel.goNext(record.code_str)
+                }
+            }
+        }) {
             Text(
                 text = record.fullname,
                 textAlign = TextAlign.Center,
