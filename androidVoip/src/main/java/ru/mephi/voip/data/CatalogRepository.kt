@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ru.mephi.shared.appContext
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.database.SearchDB
 import ru.mephi.shared.data.database.dto.toKodeIn
@@ -15,7 +14,6 @@ import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.network.exception.*
 import ru.mephi.voip.ui.catalog.init_code_str
-import ru.mephi.voip.utils.isOnline
 import java.util.*
 
 class CatalogRepository : KoinComponent {
@@ -35,7 +33,7 @@ class CatalogRepository : KoinComponent {
                     emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
                 }
                 is Resource.Error.UndefinedError<*> -> {
-                    emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+                    emit(Resource.Error.UndefinedError(exception = UndefinedException()))
                 }
                 is Resource.Error.NotFoundError -> emit(Resource.Error.NotFoundError())
                 is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
@@ -47,7 +45,7 @@ class CatalogRepository : KoinComponent {
                 }
             }
         } catch (exception: Exception) {
-            emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+            emit(Resource.Error.UndefinedError(exception = UndefinedException()))
         }
     }
 
@@ -63,7 +61,7 @@ class CatalogRepository : KoinComponent {
                     emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
                 }
                 is Resource.Error.UndefinedError<*> -> {
-                    emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+                    emit(Resource.Error.UndefinedError(exception = UndefinedException()))
                 }
                 is Resource.Error.NotFoundError -> emit(Resource.Error.NotFoundError())
                 is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
@@ -81,7 +79,7 @@ class CatalogRepository : KoinComponent {
                 }
             }
         } catch (exception: Exception) {
-            emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+            emit(Resource.Error.UndefinedError(exception = UndefinedException()))
         }
     }
 
@@ -96,7 +94,7 @@ class CatalogRepository : KoinComponent {
                     emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
                 }
                 is Resource.Error.UndefinedError<*> -> {
-                    emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+                    emit(Resource.Error.UndefinedError(exception = UndefinedException()))
                 }
                 is Resource.Error.NotFoundError<*> -> {
                     emit(Resource.Error.NotFoundError(exception = NotFoundException(query)))
@@ -125,7 +123,7 @@ class CatalogRepository : KoinComponent {
                 }
             }
         } catch (exception: Exception) {
-            emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+            emit(Resource.Error.UndefinedError(exception = UndefinedException()))
         }
     }
 
@@ -142,16 +140,9 @@ class CatalogRepository : KoinComponent {
         }
 
         when (val resource = api.getUnitByCodeStr(codeStr)) {
-            is Resource.Error.NetworkError<*> -> {
-                emit(Resource.Error.NetworkError(exception = NetworkException()))
-            }
-            is Resource.Error.EmptyError<*> -> {
-                emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
-            }
-            is Resource.Error.UndefinedError<*> -> {
-                if (isOnline(appContext)) emit(Resource.Error.ServerNotRespondError(exception = UndefinedErrorException()))
-                else emit(Resource.Error.NetworkError(exception = NetworkException()))
-            }
+            is Resource.Error.NetworkError<*> -> emit(Resource.Loading())
+            is Resource.Error.EmptyError<*> -> emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
+            is Resource.Error.UndefinedError<*> -> emit(Resource.Error.UndefinedError(exception = UndefinedException()))
             is Resource.Error.NotFoundError -> emit(Resource.Error.NotFoundError())
             is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
             is Resource.Loading -> emit(Resource.Loading())
@@ -173,18 +164,14 @@ class CatalogRepository : KoinComponent {
 
         try {
             when (val resource = api.getUserByPhone(phone)) {
-                is Resource.Error.NetworkError -> {
-                    emit(Resource.Error.NetworkError(exception = NetworkException()))
-                }
-                is Resource.Error.EmptyError<*> -> {
-                    emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
-                }
-                is Resource.Error.UndefinedError<*> -> {
-                    emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
-                }
-                is Resource.Error.NotFoundError<*> -> {
-                    emit(Resource.Error.NotFoundError(exception = NotFoundException(phone)))
-                }
+                is Resource.Error.NetworkError -> emit(Resource.Error.NetworkError(exception = NetworkException()))
+                is Resource.Error.EmptyError<*> -> emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
+                is Resource.Error.UndefinedError<*> -> emit(Resource.Error.UndefinedError(exception = UndefinedException()))
+                is Resource.Error.NotFoundError<*> -> emit(
+                    Resource.Error.NotFoundError(
+                        exception = NotFoundException(phone)
+                    )
+                )
                 is Resource.Success<*> -> {
                     val unitOfUsers = (resource.data as UnitM)
                     unitOfUsers.shortname = phone
@@ -195,13 +182,15 @@ class CatalogRepository : KoinComponent {
                     )
                     else emit(Resource.Success(unitOfUsers))
                 }
-                is Resource.Error.ServerNotRespondError -> {
-                    emit(Resource.Error.ServerNotRespondError(exception = ServerNotRespondException()))
-                }
+                is Resource.Error.ServerNotRespondError -> emit(
+                    Resource.Error.ServerNotRespondError(
+                        exception = ServerNotRespondException()
+                    )
+                )
                 is Resource.Loading -> emit(Resource.Loading())
             }
         } catch (exception: Exception) {
-            emit(Resource.Error.UndefinedError(exception = UndefinedErrorException()))
+            emit(Resource.Error.UndefinedError(exception = UndefinedException()))
         }
     }
 

@@ -1,7 +1,6 @@
 package ru.mephi.shared.data.network
 
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
@@ -11,7 +10,8 @@ import io.ktor.http.ContentType.Application.Json
 import kotlinx.serialization.json.Json
 import ru.mephi.shared.data.network.exception.ForbiddenException
 import ru.mephi.shared.data.network.exception.NetworkException
-import ru.mephi.shared.data.network.exception.UndefinedErrorException
+import ru.mephi.shared.data.network.exception.ServerNotRespondException
+import ru.mephi.shared.data.network.exception.UndefinedException
 
 private val json = Json {
     ignoreUnknownKeys = true
@@ -38,18 +38,21 @@ object KtorClientBuilder {
             HttpResponseValidator {
                 handleResponseException { exception ->
                     if (exception !is ClientRequestException) {
+                        if (exception.message?.startsWith("Unable to resolve host") == true ||
+                            exception.message?.startsWith("Request timeout") == true
+                        )
+                            throw NetworkException()
                         print("UndefinedErrorException from request: $exception")
-                        throw UndefinedErrorException()
+                        throw UndefinedException()
                     }
                     val exceptionResponse = exception.response
                     println("handleResponseException: $exceptionResponse with status: ${exceptionResponse.status}")
                     when (exceptionResponse.status) {
-                        HttpStatusCode.Forbidden ->
-                            throw ForbiddenException()
+                        HttpStatusCode.Forbidden -> throw ForbiddenException()
                         HttpStatusCode.BadGateway, HttpStatusCode.InternalServerError,
                         HttpStatusCode.NotImplemented, HttpStatusCode.ServiceUnavailable,
                         HttpStatusCode.GatewayTimeout -> {
-                            throw UndefinedErrorException()
+                            throw ServerNotRespondException()
                         }
                     }
                     if (exceptionResponse.status != HttpStatusCode.OK)

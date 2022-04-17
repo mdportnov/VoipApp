@@ -14,7 +14,7 @@ class KtorApiService : BaseApiService {
     override suspend fun getUnitByCodeStr(codeStr: String): Resource<UnitM> {
         try {
             val units: List<UnitM> =
-                httpClient.post {
+                httpClient.get {
                     url {
                         path("get_units_mobile_catalog.json")
                         parameter("filter_code_str", codeStr)

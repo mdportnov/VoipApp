@@ -17,7 +17,10 @@ import androidx.compose.material.DismissDirection.StartToEnd
 import androidx.compose.material.DismissValue.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -39,7 +42,6 @@ import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.components.ExpandableCard
 import ru.mephi.voip.ui.components.ExpandableContent
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -54,11 +56,6 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
     val scope = rememberCoroutineScope()
 
     val currentItems = mutableListOf<CatalogItem>()
-
-    LaunchedEffect(Unit) {
-        Timber.d("Catalog List Launched")
-        viewModel.onRefresh()
-    }
 
     val onSwipeToCall: (Appointment) -> Unit = { record ->
         if (accountStatusRepository.status.value == AccountStatus.REGISTERED && !record.line.isNullOrEmpty()) {

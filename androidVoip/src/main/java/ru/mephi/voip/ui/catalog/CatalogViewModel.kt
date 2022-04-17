@@ -63,9 +63,9 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
 
     fun isExistsInDatabase(codeStr: String) = repository.isExistsInDatabase(codeStr = codeStr)
 
-    init {
-        goNext(init_code_str)
-    }
+//    init {
+//        goNext(init_code_str)
+//    }
 
     val searchHistoryModelState =
         combine(searchText, matchedRecords) { searchText, matchedSearchRecords ->
@@ -225,7 +225,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     private val snackBarEventsChannel = MutableSharedFlow<Event>()
     val snackBarEvents = snackBarEventsChannel.asSharedFlow()
 
-    private fun showSnackBar(text: String) {
+    fun showSnackBar(text: String) {
         dismissProgressBar()
         launch(ioDispatcher) {
             snackBarEventsChannel.emit(Event.ShowSnackBar(text))

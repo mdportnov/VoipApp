@@ -38,12 +38,14 @@ fun CatalogScreen(navController: NavController) {
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val isProgressBarVisible by viewModel.isProgressBarVisible.collectAsState()
     val activity = LocalContext.current as? Activity
-    val searchHistoryModelState by rememberFlowWithLifecycle(viewModel.searchHistoryModelState)
-        .collectAsState(initial = HistorySearchModelState.Empty)
+    val searchHistoryModelState by rememberFlowWithLifecycle(viewModel.searchHistoryModelState).collectAsState(
+        initial = HistorySearchModelState.Empty
+    )
 
     val scaffoldState = rememberScaffoldState()
 
     LaunchedEffect(true) {
+        viewModel.onRefresh()
         viewModel.snackBarEvents.collect {
             when (it) {
                 is CatalogViewModel.Event.ShowSnackBar -> {
@@ -59,8 +61,7 @@ fun CatalogScreen(navController: NavController) {
 
     BackHandler {
         viewModel.goBack()
-        if (viewModel.catalogStack.value.isEmpty())
-            activity?.finish()
+        if (viewModel.catalogStack.value.isEmpty()) activity?.finish()
     }
 
     Scaffold(
@@ -78,12 +79,10 @@ fun CatalogScreen(navController: NavController) {
             }
 
             androidx.compose.animation.AnimatedVisibility(
-                visible = isProgressBarVisible,
-                modifier = Modifier.align(Alignment.Center)
+                visible = isProgressBarVisible, modifier = Modifier.align(Alignment.Center)
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(100.dp), color = ColorAccent,
-                    strokeWidth = 10.dp
+                    modifier = Modifier.size(100.dp), color = ColorAccent, strokeWidth = 10.dp
                 )
             }
 
