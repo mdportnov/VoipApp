@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity(),
     @Subscribe
     fun disableSip(messageEvent: Event.DisableAccount? = null) {
         phone.unregister()
-        phone.stopForeground()
+//        phone.stopForeground()
         phone.destroy()
     }
 
