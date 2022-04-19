@@ -9,6 +9,7 @@ import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 import ru.mephi.shared.data.database.CallsDB
 import ru.mephi.shared.data.database.CatalogDao
+import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.data.database.SearchDB
 import ru.mephi.shared.data.database.dto.AppointmentKodein
 import ru.mephi.shared.data.database.dto.UnitMKodeIn
@@ -47,6 +48,7 @@ val repositoryModule = module {
         })
 
     single { SearchDB() }
+    single { FavouritesDB() }
     single { CallerViewModel() }
     single { CallsDB(get()) }
     single { KtorApiService() }

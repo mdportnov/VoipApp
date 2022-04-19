@@ -12,3 +12,11 @@ CREATE TABLE IF NOT EXISTS search_history (
     type TEXT NOT NULL,
     PRIMARY KEY(id)
 );
+
+CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER,
+    sipNumber TEXT NOT NULL,
+    sipName TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY(id)
+);

@@ -1,43 +1,33 @@
 package ru.mephi.voip.di
 
 import org.koin.android.ext.koin.androidApplication
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import ru.mephi.shared.appContext
 import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.voip.abto.CallEventsReceiver
-import ru.mephi.voip.data.*
+import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.call.CallViewModel
 import ru.mephi.voip.ui.catalog.CatalogViewModel
 import ru.mephi.voip.ui.profile.ProfileViewModel
+import ru.mephi.voip.ui.settings.PreferenceRepository
+import ru.mephi.voip.ui.settings.SettingsViewModel
+import ru.mephi.voip.utils.NotificationHandler
 
 val koinModule = module {
-    single(named("account_prefs")) { provideSharedPrefs() }
-    single { provideSharedPrefs() }
     single { KtorApiService() }
     single { CallEventsReceiver() }
-}
-
-
-private fun providePreferenceDataStore(): SettingsStore {
-    return DataStoreSettings(appContext)
-}
-
-private fun provideSharedPrefs(): SettingsStore {
-    return SharedPrefsSettings()
+    single { NotificationHandler(androidApplication()) }
 }
 
 val repositories = module {
-    single {
-        AccountStatusRepository(androidApplication(), get(), get())
-    }
-
+    single { PreferenceRepository(androidApplication()) }
+    single { AccountStatusRepository(androidApplication(), get(), get(), get()) }
     single { CatalogRepository() }
 }
 
 val viewModels = module {
     single {
-        ProfileViewModel(androidApplication(), get())
+        ProfileViewModel(androidApplication(), get(), get())
     }
 
     single {
@@ -46,5 +36,9 @@ val viewModels = module {
 
     single {
         CatalogViewModel(get())
+    }
+
+    single {
+        SettingsViewModel(androidApplication(), get(), get())
     }
 }

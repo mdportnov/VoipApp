@@ -5,12 +5,20 @@
     <string name="notification_title">VoIP MEPhI</string>
     <string name="title_settings">Настройки</string>
 
+    <string name="toolbar_title_profile">Профиль</string>
+    <string name="toolbar_title_catalog">Каталог</string>
+    <string name="toolbar_title_caller">Звонки</string>
+
+    <!--    Информация-->
+    <string name="sip_domain">pbx.mephi.ru</string>
+    <string name="support_email">voip@mephi.ru</string>
+    <string name="mephi_number">+7 (495) 788 56 99</string>
+
     <string name="voip_profile_welcome_message">Для получения доступа к ip-телефонии
         НИЯУ МИФИ оставьте заявку письмом на voip@mephi.ru или по номеру
         +7 (495) 788 56 99, доб. 7777</string>
 
-    <string name="sip_domain">pbx.mephi.ru</string>
-    <string name="add_new_account">Добавить новый аккаунт</string>
+    <string name="add_new_account">Войти в новый аккаунт</string>
     <string name="add_account">Добавить</string>
     <string name="change_account">Сменить аккаунт</string>
     <string name="search_of_appointments">Поиск сотрудников…</string>
@@ -19,17 +27,34 @@
     <string name="wrong_query">Неправильный запрос</string>
     <string name="connection_lost">Интернет-соединение отсутствует</string>
     <string name="smth_wrong">Что-то пошло не так</string>
-    <string name="mephi_number">+7 (495) 788 56 99</string>
     <string name="disable_sip">Выключить SIP</string>
     <string name="enable_sip">Включить SIP</string>
-    <string name="support_email">voip@mephi.ru</string>
 
-    <string name="sp_sip_enabled">is_sip_enabled</string>
-    <string name="call_screen_always_settings">call_screen_always</string>
-    <string name="start_destination">start_destination</string>
+    <!--    Ключи настроек-->
+    <string name="setting_sip_enabled">is_sip_enabled</string>
+    <string name="setting_call_screen_enabled">call_screen_always</string>
+    <string name="setting_background_mode_enabled">background_work</string>
+    <string name="setting_start_destination">start_destination</string>
+    <string name="setting_device_theme">device_theme</string>
 
-    <string name="sp_background_enabled">background_work</string>
-    <string name="input_number">Введите номер</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="app_version_summary">Версия %s (%d)</string>
     <string name="isCallStillGoingOn">callStillGoingOn</string>
+
+    <!--    Меню настроек-->
+    <string name="main_settings">Основное</string>
+    <string name="data_settings">Данные</string>
+    <string name="about">О приложении</string>
+    <string name="enable_background_mode">Работать в фоновом режиме</string>
+    <string name="enable_incoming_activity">Экран входящего вызова</string>
+    <string name="delete_search_history">Удалить историю запросов</string>
+    <string name="delete_catalog_cache">Удалить кэш каталог</string>
+    <string name="send_feedback">Отправить фидбэк</string>
+    <string name="developed">Разработано</string>
+    <string name="developer_name">НИЯУ МИФИ, Управление информатизации</string>
+    <string name="settings_title">Настройки</string>
+    <string name="send_feedback_subtitle">Сообщить об ошибках или предложить новые функции</string>
+    <string name="enable_incoming_activity_subtitle">При активации этой функции будет появляться экран входящего вызова. Для этого надо предоставить разрешение для приложения</string>
+    <string name="start_screen">Стартовый экран</string>
+    <string name="application_theme">Тема приложения</string>
+    <string name="no_active_account">У вас не выбран активный аккаунт</string>
 </resources>

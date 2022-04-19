@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.mephi.shared.Stack
 import ru.mephi.shared.base.MainIoExecutor
+import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.shared.data.model.UnitM
@@ -221,7 +222,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     private val snackBarEventsChannel = MutableSharedFlow<Event>()
     val snackBarEvents = snackBarEventsChannel.asSharedFlow()
 
-    fun showSnackBar(text: String) {
+    private fun showSnackBar(text: String) {
         dismissProgressBar()
         launch(ioDispatcher) {
             snackBarEventsChannel.emit(Event.ShowSnackBar(text))
@@ -241,4 +242,6 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
             goBack()
         }
     }
+
+    fun addToFavourite(record: Appointment) = repository.addToFavourite(record)
 }

@@ -13,24 +13,37 @@ import android.os.Bundle
 import android.os.RemoteException
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.abtollc.sdk.AbtoPhone
 import org.abtollc.sdk.OnCallDisconnectedListener
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.data.SettingsStore
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.call.CallButtonsState
 import ru.mephi.voip.ui.call.CallState
 import ru.mephi.voip.ui.call.CallViewModel
+import ru.mephi.voip.ui.settings.PreferenceRepository
 import timber.log.Timber
 
 class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnectedListener {
+    private var isCallScreenAlways: Boolean = false
     lateinit var abtoApp: AbtoApp
     lateinit var phone: AbtoPhone
-    private val sp: SettingsStore by inject()
+
+    private val settings: PreferenceRepository by inject()
     private val callViewModel: CallViewModel by inject()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            settings.isCallScreenAlwaysEnabled.collect {
+                isCallScreenAlways = it
+            }
+        }
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         abtoApp = context.applicationContext as AbtoApp
@@ -106,7 +119,7 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
 
         // Проверка, что приложение сейчас в фоне и что есть разрешение на показ поверх других приложений
         // тогда открываем активность звонка и всё ок, иначе - уведомление для взаимодействия
-        if (Settings.canDrawOverlays(context) && sp.isCallScreenAlways()) {
+        if (Settings.canDrawOverlays(context) && isCallScreenAlways) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
             return

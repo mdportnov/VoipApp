@@ -48,6 +48,7 @@ fun SearchView(
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
+
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
@@ -76,7 +77,10 @@ fun SearchView(
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    IconButton(onClick = { onClearClick() }) {
+                    IconButton(onClick = {
+                        keyboardController?.hide()
+                        onClearClick()
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.Close,
                             contentDescription = "Очистить"

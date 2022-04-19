@@ -1,6 +1,5 @@
 package ru.mephi.voip.ui.profile
 
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -18,14 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import ru.mephi.shared.appContext
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.settings.SettingsActivity
 
 @Composable
-fun ProfileTopBar(){
+fun ProfileTopBar(openSettings: () -> Unit) {
     val hapticFeedback = LocalHapticFeedback.current
 
     TopAppBar(backgroundColor = Color.White) {
@@ -37,27 +35,18 @@ fun ProfileTopBar(){
             IconButton(onClick = { }) {
                 Image(
                     painter = painterResource(id = R.drawable.logo_mephi),
-                    contentDescription = "лого",
+                    contentDescription = null,
                 )
             }
             Text(
-                text = "Профиль", style = TextStyle(color = Color.Black, fontSize = 20.sp),
+                text = stringResource(id = R.string.toolbar_title_profile),
+                style = TextStyle(color = Color.Black, fontSize = 20.sp),
             )
-            IconButton(
-                modifier = Modifier,
-                onClick = {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    appContext.startActivity(
-                        Intent(
-                            appContext,
-                            SettingsActivity::class.java
-                        ).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
-                    )
-                }) {
-                Icon(
-                    Icons.Filled.Settings,
-                    contentDescription = "Настройки"
-                )
+            IconButton(modifier = Modifier, onClick = {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                openSettings()
+            }) {
+                Icon(Icons.Filled.Settings, contentDescription = null)
             }
         }
     }

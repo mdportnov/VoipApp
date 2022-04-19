@@ -12,8 +12,8 @@ android {
         applicationId = "ru.mephi.voip"
         minSdk = 23
         targetSdk = 30 // 31 causes error with pendingIntents and abto
-        versionCode = 20
-        versionName = "0.9.4"
+        versionCode = 21
+        versionName = "0.10.0"
         multiDexEnabled = true
         signingConfig = signingConfigs.getByName("debug")
     }
@@ -71,11 +71,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
 
     // Kotlinx
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.20")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.3.2")
 
     // Compose
@@ -83,7 +83,9 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.compose.compiler:compiler:1.2.0-alpha07")
     implementation("androidx.compose.material:material:1.1.1")
+    implementation("androidx.compose.material3:material3:1.0.0-alpha09")
     implementation("androidx.compose.material:material-icons-extended:1.1.1")
+    implementation("androidx.compose.foundation:foundation:1.2.0-alpha07")
     implementation("androidx.navigation:navigation-compose:2.4.2")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.17.0")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.0")

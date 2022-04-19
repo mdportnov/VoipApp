@@ -25,6 +25,7 @@ import ru.mephi.voip.utils.ColorGray
 import ru.mephi.voip.utils.ColorGreen
 import ru.mephi.voip.utils.ColorPrimary
 
+
 @Composable
 fun AccountStatusWidget(
     modifier: Modifier = Modifier,
@@ -32,67 +33,40 @@ fun AccountStatusWidget(
     scaffoldState: ScaffoldState
 ) {
     val accountStatus by accountStatusRepository.status.collectAsState()
+    val isSipEnabled by accountStatusRepository.isSipEnabled.collectAsState(initial = false)
     val scope = rememberCoroutineScope()
     val hapticFeedback = LocalHapticFeedback.current
     val viewModel: ProfileViewModel by inject()
 
-    IconButton(
-        modifier = modifier.background(ColorPrimary, CircleShape),
-        onClick = {
-            if (accountStatus == AccountStatus.REGISTERED) {
+    IconButton(modifier = modifier.background(ColorPrimary, CircleShape), onClick = {
+        if (accountStatus == AccountStatus.REGISTERED) {
+            scope.launch {
+                scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                scaffoldState.snackbarHostState.showSnackbar(accountStatus.status)
+            }
+        } else {
+            if (isSipEnabled) {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                viewModel.retryRegistration()
+            } else {
                 scope.launch {
                     scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        accountStatusRepository.status.value.status
-                    )
-                }
-            } else {
-                if (accountStatusRepository.isSipEnabled.value) {
-                    hapticFeedback.performHapticFeedback(
-                        HapticFeedbackType.LongPress
-                    )
-                    viewModel.retryRegistration()
-                } else {
-                    scope.launch {
-                        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                        scaffoldState.snackbarHostState.showSnackbar("Включите SIP")
-                    }
+                    scaffoldState.snackbarHostState.showSnackbar("Включите SIP")
                 }
             }
         }
-    ) {
+    }) {
         Icon(
             when (accountStatus) {
-                AccountStatus.REGISTERED, AccountStatus.NO_CONNECTION ->
-                    Icons.Filled.CheckCircle
-                AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED,
-                AccountStatus.CHANGING, AccountStatus.LOADING ->
-                    Icons.Filled.Refresh
+                AccountStatus.REGISTERED, AccountStatus.NO_CONNECTION -> Icons.Filled.CheckCircle
+                AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED, AccountStatus.CHANGING, AccountStatus.LOADING -> Icons.Filled.Refresh
             },
             "Статус",
             tint = when (accountStatus) {
                 AccountStatus.REGISTERED -> ColorGreen
-                AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED ->
-                    ColorAccent
-                AccountStatus.NO_CONNECTION, AccountStatus.CHANGING,
-                AccountStatus.LOADING -> ColorGray
+                AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED -> ColorAccent
+                AccountStatus.NO_CONNECTION, AccountStatus.CHANGING, AccountStatus.LOADING -> ColorGray
             },
         )
     }
-//    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-//        if (status != AccountStatus.UNREGISTERED)
-//            Text(text = status.status, modifier = Modifier.padding(end = 5.dp))
-//        Canvas(modifier = Modifier
-//            .padding(end = 5.dp)
-//            .size(15.dp),
-//            onDraw = {
-//                drawCircle(
-//                    color = when (status) {
-//                        AccountStatus.REGISTERED -> ColorGreen
-//                        AccountStatus.NO_CONNECTION, AccountStatus.CHANGING, AccountStatus.LOADING -> ColorGray
-//                        AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED -> ColorRed
-//                    }
-//                )
-//            })
-//    }
 }

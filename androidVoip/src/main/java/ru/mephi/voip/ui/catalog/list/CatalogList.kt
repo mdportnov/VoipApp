@@ -17,6 +17,7 @@ import androidx.compose.material.DismissDirection.StartToEnd
 import androidx.compose.material.DismissValue.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -69,6 +70,11 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
         }
     }
 
+    val onSwipeToFavourite: (Appointment) -> Unit = { record ->
+        if (!viewModel.addToFavourite(record))
+            Toast.makeText(context, "Уже сохранено в избранное", Toast.LENGTH_SHORT).show()
+    }
+
     val expandedCardIds = viewModel.expandedCardIdsList.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -93,6 +99,8 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
                     is Appointment -> {
                         val dismissState = rememberDismissState(
                             confirmStateChange = {
+                                if (it == DismissedToEnd)
+                                    onSwipeToFavourite(recordItem)
                                 if (it == DismissedToStart)
                                     onSwipeToCall(recordItem)
                                 false
@@ -100,24 +108,27 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
                         )
                         SwipeToDismiss(
                             state = dismissState,
-                            modifier = Modifier
-                                .padding(vertical = 2.dp),
-                            directions = setOf(EndToStart),
+                            modifier = Modifier.padding(vertical = 2.dp),
+                            directions = setOf(EndToStart, StartToEnd),
                             dismissThresholds = { FractionalThreshold(0.4f) },
                             background = {
                                 val direction =
                                     dismissState.dismissDirection ?: return@SwipeToDismiss
                                 val color by animateColorAsState(
                                     when (dismissState.targetValue) {
-                                        Default, DismissedToEnd -> Color.LightGray
+                                        Default -> Color.LightGray
                                         DismissedToStart -> colorResource(id = R.color.colorGreen)
+                                        DismissedToEnd -> Color.Yellow
                                     }
                                 )
                                 val alignment = when (direction) {
                                     StartToEnd -> Alignment.CenterStart
                                     EndToStart -> Alignment.CenterEnd
                                 }
-                                val icon = Icons.Default.Call
+                                val icon = when (direction) {
+                                    StartToEnd -> Icons.Outlined.Star
+                                    EndToStart -> Icons.Default.Call
+                                }
                                 val scale by animateFloatAsState(if (dismissState.targetValue == Default) 0.75f else 1f)
                                 Box(
                                     Modifier

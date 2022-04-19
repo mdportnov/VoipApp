@@ -13,6 +13,14 @@ CREATE TABLE IF NOT EXISTS search_history (
     PRIMARY KEY(id)
 );
 
+CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER,
+    sipNumber TEXT NOT NULL,
+    sipName TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY(id)
+);
+
 getAllSearches:
     SELECT * FROM search_history;
 
@@ -45,3 +53,21 @@ deleteAllCalls:
 
 deleteCallById:
     DELETE FROM call_history WHERE id = ?;
+
+getAllFavorites:
+    SELECT * FROM favorites ORDER BY created_at DESC;
+
+addFavourite:
+INSERT INTO favorites(id, sipNumber, sipName, created_at)
+        VALUES (?,?,?, ?);
+
+deleteFavouriteById:
+     DELETE FROM favorites WHERE id = ?;
+
+deleteAllFavorites:
+    DELETE FROM favorites;
+
+
+isExistsFavourite:
+    SELECT EXISTS (SELECT * FROM  favorites WHERE sipNumber = ?);
+

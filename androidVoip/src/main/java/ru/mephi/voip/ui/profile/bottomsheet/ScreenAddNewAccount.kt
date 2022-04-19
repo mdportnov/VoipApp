@@ -47,8 +47,8 @@ import ru.mephi.voip.utils.ColorPrimaryDark
 fun ScreenAddNewAccount(scaffoldState: BottomSheetScaffoldState) {
     val viewModel by inject<ProfileViewModel>()
 
-    var textLogin = viewModel.newLogin.value
-    val textPassword = viewModel.newPassword.value
+    var textLogin by viewModel.newLogin
+    val textPassword by viewModel.newPassword
     val hapticFeedback = LocalHapticFeedback.current
     val maxNumberLength = 6
     val (focusRequester) = FocusRequester.createRefs()
@@ -141,6 +141,7 @@ fun ScreenAddNewAccount(scaffoldState: BottomSheetScaffoldState) {
                     .contains(textLogin)) {
                 Toast.makeText(context, "Такой аккаунт уже существует", Toast.LENGTH_SHORT).show()
             } else {
+                keyboardController?.hide()
                 viewModel.addNewAccount()
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 scope.launch {

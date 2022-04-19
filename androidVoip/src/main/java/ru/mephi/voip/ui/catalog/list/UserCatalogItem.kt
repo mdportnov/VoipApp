@@ -24,35 +24,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
-import okhttp3.Interceptor
-import okhttp3.Response
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.catalog.CatalogViewModel
-import ru.mephi.voip.ui.navigation.BottomNavItem
-import ru.mephi.voip.ui.navigation.CALLER_NAME_KEY
-import ru.mephi.voip.ui.navigation.CALLER_NUMBER_KEY
 import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.ColorGray
 import ru.mephi.voip.utils.ColorGreen
 import ru.mephi.voip.utils.getImageUrl
 
 
-val REWRITE_CACHE_CONTROL_INTERCEPTOR: Interceptor = object : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val originalResponse: Response = chain.proceed(chain.request())
-        return originalResponse.newBuilder()
-            .header("Cache-Control", "max-age=31536000")
-            .build()
-    }
-}
-
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun UserCatalogItem(
     modifier: Modifier,
@@ -86,8 +70,7 @@ fun UserCatalogItem(
         )
         Column(horizontalAlignment = Alignment.Start) {
             Text(
-                text = record.fio, fontWeight = FontWeight.Bold,
-                style = TextStyle(fontSize = 16.sp)
+                text = record.fio, fontWeight = FontWeight.Bold, style = TextStyle(fontSize = 16.sp)
             )
 
             record.appointment?.let {
@@ -130,18 +113,13 @@ fun UserCatalogItem(
             }
 
             record.line?.let {
-                RowWithIcon(
-                    Modifier.padding(vertical = 2.dp),
+                RowWithIcon(Modifier.padding(vertical = 2.dp),
                     icon = Icons.Default.DialerSip,
                     color = ColorGreen,
                     title = "SIP: ",
                     onClick = {
-                        navController.navigate(
-                            BottomNavItem.Caller.screen_route
-                                .plus("?${CALLER_NUMBER_KEY}=${record.line}&${CALLER_NAME_KEY}=${record.fullName}"),
-                        )
-                    }
-                ) {
+                        navController.navigate("caller?caller_number=${record.line}&caller_name=${record.fullName}")
+                    }) {
                     Text(
                         text = it, style = TextStyle(fontSize = 14.sp, color = ColorGray)
                     )
@@ -163,21 +141,14 @@ fun RowWithIcon(
     Row(horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
+            .clickable(interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(bounded = true), // You can also change the color and radius of the ripple
-                onClick = {}
-            )
+                onClick = {})
             .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { onClick() }
-                )
+                detectTapGestures(onTap = { onClick() })
             }) {
         Icon(
-            icon,
-            tint = color,
-            contentDescription = title,
-            modifier = Modifier.padding(end = 5.dp)
+            icon, tint = color, contentDescription = title, modifier = Modifier.padding(end = 5.dp)
         )
 
         Text(

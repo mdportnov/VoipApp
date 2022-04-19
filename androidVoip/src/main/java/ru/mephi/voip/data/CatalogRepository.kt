@@ -5,8 +5,10 @@ import kotlinx.coroutines.flow.flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.shared.data.database.CatalogDao
+import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.data.database.SearchDB
 import ru.mephi.shared.data.database.dto.toKodeIn
+import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.UnitM
@@ -19,7 +21,12 @@ import java.util.*
 class CatalogRepository : KoinComponent {
     private val api: KtorApiService by inject()
     private val searchDB: SearchDB by inject()
+    private val favoritesDB: FavouritesDB by inject()
     private val catalogDao: CatalogDao by inject()
+
+    fun deleteAllCatalogCache() {
+        catalogDao.deleteAll()
+    }
 
     suspend fun getInfoByPhone(num: String): Flow<Resource<List<NameItem>>> = flow {
         emit(Resource.Loading())
@@ -203,4 +210,11 @@ class CatalogRepository : KoinComponent {
     fun addSearchRecord(record: SearchRecord) = searchDB.insert(record)
 
     fun deleteAllSearchRecords() = searchDB.deleteAll()
+
+    fun addToFavourite(record: Appointment): Boolean {
+//        if (!favoritesDB.isExists(record.line)) {
+//            favoritesDB.addFavourite(record)
+//        }
+        return false
+    }
 }

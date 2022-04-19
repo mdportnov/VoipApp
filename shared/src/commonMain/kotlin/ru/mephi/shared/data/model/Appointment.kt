@@ -25,3 +25,7 @@ data class Appointment(
     @SerialName("appointments")
     val positions: List<PositionInfo>? = null
 ) : CatalogItem()
+
+//fun Appointment.toFavouriteRecord(): FavouriteRecord {
+//    return FavouriteRecord(sipName = fullName, sipNumber = line)
+//}

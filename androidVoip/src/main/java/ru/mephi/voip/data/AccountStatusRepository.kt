@@ -1,11 +1,6 @@
 package ru.mephi.voip.data
 
 import android.app.Application
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context.NOTIFICATION_SERVICE
-import android.content.Intent
-import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,16 +24,17 @@ import ru.mephi.voip.abto.AbtoApp
 import ru.mephi.voip.abto.decryptAccountJson
 import ru.mephi.voip.abto.encryptAccountJson
 import ru.mephi.voip.eventbus.Event
-import ru.mephi.voip.ui.MainActivity
+import ru.mephi.voip.ui.settings.PreferenceRepository
+import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
 
 class AccountStatusRepository(
-    app: Application, var sp: SettingsStore, private val repository: CatalogRepository
+    app: Application,
+    var settings: PreferenceRepository,
+    private val repository: CatalogRepository,
+    private val notificationHandler: NotificationHandler
 ) : KoinComponent {
     private var phone: AbtoPhone = (app as AbtoApp).abtoPhone
-
-    private val _accountsList: MutableStateFlow<List<Account>> = MutableStateFlow(listOf())
-    val accountList: StateFlow<List<Account>> = _accountsList
 
     private var _displayName = MutableStateFlow<NameItem?>(null)
     val displayName: StateFlow<NameItem?> = _displayName
@@ -46,37 +42,52 @@ class AccountStatusRepository(
     private val _status = MutableStateFlow(AccountStatus.UNREGISTERED)
     val status: StateFlow<AccountStatus> = _status
 
+    private var _isSipEnabled = MutableStateFlow(false)
+    val isSipEnabled: StateFlow<Boolean> = _isSipEnabled
+
+    val isBackgroundWork = settings.isBackgroundModeEnabled
+
+    private val _accountsList: MutableStateFlow<List<Account>> = MutableStateFlow(listOf())
+    val accountList: StateFlow<List<Account>> = _accountsList
+
     private var _accountsCount = MutableStateFlow(0)
     val accountsCount: StateFlow<Int> = _accountsCount
 
-    private var _isSipEnabled = MutableStateFlow(sp.isSipEnabled())
-    val isSipEnabled: StateFlow<Boolean> = _isSipEnabled
+    private var _activeAccount = MutableStateFlow<Account?>(null)
+    val activeAccount: StateFlow<Account?> = _activeAccount
 
-    private var _isBackGroundWork = MutableStateFlow(sp.isBackgroundWorkEnabled())
-    val isBackgroundWork: StateFlow<Boolean> = _isBackGroundWork
+    val hasActiveAccount
+        get() = activeAccount.value != null
 
-    fun changeBackGroundWork(isWorking: Boolean) {
-        _isBackGroundWork.value = isWorking
-    }
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     init {
-        fetchStatus()
+        updateAccountsList()
+        _activeAccount.value = accountList.value.firstOrNull { it.isActive }
+        scope.launch {
+            settings.isSipEnabled.collect { enabled ->
+                _isSipEnabled.value = enabled
+                fetchStatus(_status.value)
+
+                when (enabled) {
+                    true -> {
+                        enableAccount()
+                    }
+                    false -> {
+                        disableAccount()
+                    }
+                }
+            }
+        }
     }
 
     private fun updateAccountsList() {
         val jsonDecrypted = decryptAccountJson()
         Timber.d("AccountsListJSON: \n${jsonDecrypted ?: "empty"}")
-        _accountsList.value = if (jsonDecrypted.isNullOrEmpty())
-            mutableListOf()
+        _accountsList.value = if (jsonDecrypted.isNullOrEmpty()) mutableListOf()
         else Json.decodeFromString(jsonDecrypted)
         _accountsCount.value = _accountsList.value.size
     }
-
-    fun getActiveAccount(): Account? = accountList.value.firstOrNull { it.isActive }
-
-    private fun getAccountsJson(list: List<Account>?) = Json.encodeToJsonElement(list).toString()
-
-    private fun saveAccounts(list: List<Account>) = encryptAccountJson(getAccountsJson(list))
 
     fun fetchStatus(newStatus: AccountStatus? = null, statusCode: String = "") {
         CoroutineScope(Dispatchers.Main).launch {
@@ -90,7 +101,10 @@ class AccountStatusRepository(
 
             if (accountsCount.value == 0) {
                 _status.emit(AccountStatus.UNREGISTERED)
-                _isSipEnabled.value = false
+                settings.enableSip(false)
+                notificationHandler.updateNotificationStatus(
+                    _status.value, statusCode, activeAccount.value?.login ?: ""
+                )
                 return@launch
             }
 
@@ -99,52 +113,24 @@ class AccountStatusRepository(
                 // statusCode аккаунт = 200 (зарегистрирован). Вызывается при отрисовке фрагмента
                 _status.value = AccountStatus.REGISTERED
                 fetchName()
-            } else if (newStatus != null)
-                _status.value = newStatus
+            } else if (newStatus != null) _status.value = newStatus
 
-            if (isSipEnabled.value)
-                updateNotificationStatus(_status.value, statusCode)
-            else
-                _status.value = AccountStatus.UNREGISTERED
+            if (newStatus == AccountStatus.REGISTERED) fetchName()
+            else if (newStatus == AccountStatus.UNREGISTERED || newStatus == AccountStatus.REGISTRATION_FAILED) _displayName.emit(
+                null
+            )
 
-            if (newStatus == AccountStatus.REGISTERED)
-                fetchName()
-            else if (newStatus == AccountStatus.UNREGISTERED || newStatus == AccountStatus.REGISTRATION_FAILED)
-                _displayName.emit(null)
+            notificationHandler.updateNotificationStatus(
+                _status.value, statusCode, activeAccount.value?.login ?: ""
+            )
         }
-    }
-
-    private val notificationManager =
-        appContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-    private val mNotificationId = 1
-
-    private fun updateNotificationStatus(accountStatus: AccountStatus, statusCode: String) {
-        val intent = Intent(appContext, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val pendingIntent = PendingIntent.getActivity(
-            appContext, 0, intent,
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val mBuilder = NotificationCompat.Builder(appContext, MainActivity.CHANNEL_ID)
-        mBuilder.setAutoCancel(false)
-        mBuilder.setOngoing(true)
-        mBuilder.setContentIntent(pendingIntent)
-        mBuilder.setContentText(statusCode.ifEmpty { appContext.getString(R.string.notification_title) })
-        mBuilder.setSubText(accountStatus.status)
-        mBuilder.setSmallIcon(R.drawable.logo_voip)
-        val notification = mBuilder.build()
-
-        notificationManager.notify(mNotificationId, notification)
     }
 
     private var fetchNameJob: Job? = null
 
     fun getUserNumber() = when {
         phone.config.accountsCount == 0 -> null
-        phone.config.getAccount(phone.currentAccountId).active ->
-            phone.config.getAccount(phone.currentAccountId)?.sipUserName
+        phone.config.getAccount(phone.currentAccountId).active -> phone.config.getAccount(phone.currentAccountId)?.sipUserName
         else -> null
     }
 
@@ -171,60 +157,54 @@ class AccountStatusRepository(
         }
     }
 
-    fun removeAccount(account: Account) {
-        val list = accountList.value.toMutableList()
-        list.removeAll { it.login == account.login }
-
-        if (getActiveAccount() == account) // если активный аккаунт удаляется
-            phone.unregister()
-
+    private fun updateAccounts(list: List<Account>) {
+        _accountsList.value = list
         _accountsCount.value = list.size
-
-        saveAccounts(list)
+        _activeAccount.value = accountList.value.firstOrNull { it.isActive }
+        val json = Json.encodeToJsonElement(list).toString()
+        encryptAccountJson(jsonForEncrypt = json)
     }
 
     fun addNewAccount(newLogin: String, newPassword: String) {
         val list = accountList.value.toMutableList()
-
         list.forEach { it.isActive = false }
 
         list.add(Account(newLogin, newPassword, true))
 
-        _accountsCount.value = list.size
-
-        saveAccounts(list)
+        updateAccounts(list)
         retryRegistration()
     }
 
-    fun retryRegistration() {
-        fetchStatus(AccountStatus.CHANGING)
-        getActiveAccount()?.let {
-            updateActiveAccount(it)
+    fun removeAccount(account: Account) {
+        val list = accountList.value.toMutableList()
+        list.removeAll { it.login == account.login }
+
+        if (activeAccount.value == account) {// если активный аккаунт удаляется
+            phone.unregister()
+            _activeAccount.value = null
+            retryRegistration()
         }
+
+        updateAccounts(list)
     }
 
     fun updateActiveAccount(account: Account): String {
+        _activeAccount.value = accountList.value.firstOrNull { it.isActive }
         val list = accountList.value
         fetchStatus(AccountStatus.CHANGING)
 
         list.forEach { it.isActive = false }
         list.forEach {
-            if (account.login == it.login)
-                it.isActive = true
+            if (account.login == it.login) it.isActive = true
         }
 
-        saveAccounts(list)
+        updateAccounts(list)
 
-        val acc = getActiveAccount()
-        val username = acc?.login
-        val password = acc?.password
+        val username = activeAccount.value?.login
+        val password = activeAccount.value?.password
 
         phone.config.addAccount(
-            appContext.getString(R.string.sip_domain),
-            "",
-            username, password, null, "",
-            300,
-            true
+            appContext.getString(R.string.sip_domain), "", username, password, null, "", 300, true
         )
 
         phone.config.registerTimeout = 3000
@@ -233,16 +213,21 @@ class AccountStatusRepository(
         _accountsList.value = list
         _accountsCount.value = list.size
 
-        return acc!!.login
+        return activeAccount.value!!.login
     }
 
-    fun toggleSipStatus() {
-        sp.toggleSipStatus()
-        _isSipEnabled.value = !_isSipEnabled.value
-
-        if (_isSipEnabled.value)
-            enableAccount()
-        else disableAccount()
+    fun retryRegistration() {
+        if (!hasActiveAccount) {
+            fetchStatus(AccountStatus.UNREGISTERED)
+            scope.launch {
+                settings.enableSip(false)
+            }
+        } else {
+            fetchStatus(AccountStatus.CHANGING)
+            activeAccount.value?.let {
+                updateActiveAccount(it)
+            }
+        }
     }
 
     private fun enableAccount() {

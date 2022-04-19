@@ -8,6 +8,7 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetScreen
@@ -18,7 +19,7 @@ import ru.mephi.voip.ui.profile.bottomsheet.SheetLayout
 @ExperimentalMaterialApi
 @ExperimentalComposeUiApi
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(openSettings: () -> Unit) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
     var currentBottomSheet: BottomSheetScreen? by remember { mutableStateOf(null) }
@@ -30,8 +31,11 @@ fun ProfileScreen() {
     if (scaffoldState.bottomSheetState.isCollapsed)
         currentBottomSheet = null
 
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     val closeSheet: () -> Unit = {
         scope.launch {
+            keyboardController?.hide()
             scaffoldState.bottomSheetState.collapse()
         }
     }
@@ -53,7 +57,7 @@ fun ProfileScreen() {
             }
         }) { paddingValues ->
         Box(Modifier.padding(paddingValues)) {
-            ProfileContent(openSheet)
+            ProfileContent(openSheet, openSettings)
         }
     }
 }

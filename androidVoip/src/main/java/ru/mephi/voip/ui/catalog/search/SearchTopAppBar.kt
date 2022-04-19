@@ -39,12 +39,14 @@ fun SearchTopAppBar() {
     val viewModel: CatalogViewModel by inject()
     val isSearchFieldVisible by viewModel.isSearchFieldVisible.collectAsState()
     val searchType by viewModel.searchType.collectAsState()
-    val searchHistoryModelState by rememberFlowWithLifecycle(viewModel.searchHistoryModelState)
-        .collectAsState(initial = HistorySearchModelState.Empty)
+    val searchHistoryModelState by rememberFlowWithLifecycle(viewModel.searchHistoryModelState).collectAsState(
+        initial = HistorySearchModelState.Empty
+    )
 
     TopAppBar(backgroundColor = Color.White) {
         AnimatedVisibility(
-            visible = !isSearchFieldVisible, modifier = Modifier.fillMaxWidth(),
+            visible = !isSearchFieldVisible,
+            modifier = Modifier.fillMaxWidth(),
             enter = expandVertically(),
             exit = shrinkVertically()
         ) {
@@ -52,35 +54,34 @@ fun SearchTopAppBar() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = { }) {
+                IconButton(onClick = {
+                    viewModel.goToStartPage()
+                }) {
                     Image(
                         painter = painterResource(id = R.drawable.logo_mephi),
-                        contentDescription = "лого",
+                        contentDescription = null,
                     )
                 }
                 Text(
-                    text = "Каталог", style = TextStyle(color = Color.Black, fontSize = 20.sp),
+                    text = stringResource(id = R.string.toolbar_title_catalog),
+                    style = TextStyle(color = Color.Black, fontSize = 20.sp),
                 )
                 IconButton(
                     modifier = Modifier,
                     onClick = { viewModel.isSearchFieldVisible.value = true }) {
-                    Icon(
-                        Icons.Filled.Search,
-                        contentDescription = "Поиск"
-                    )
+                    Icon(Icons.Filled.Search, contentDescription = null)
                 }
             }
         }
         AnimatedVisibility(
-            visible = isSearchFieldVisible, modifier = Modifier.fillMaxWidth(),
+            visible = isSearchFieldVisible,
+            modifier = Modifier.fillMaxWidth(),
             enter = expandVertically(),
             exit = shrinkVertically()
         ) {
-            SearchView(
-                searchText = searchHistoryModelState.searchText,
+            SearchView(searchText = searchHistoryModelState.searchText,
                 placeholderText = stringResource(
-                    if (searchType == SearchType.UNITS)
-                        R.string.search_of_units else R.string.search_of_appointments
+                    if (searchType == SearchType.UNITS) R.string.search_of_units else R.string.search_of_appointments
                 ),
                 onSearchTextChanged = {
                     viewModel.onSearchTextChanged(it)
@@ -96,8 +97,7 @@ fun SearchTopAppBar() {
                     viewModel.performSearch(searchHistoryModelState.searchText)
                     viewModel.onClearClick()
                 },
-                onFocused = { viewModel.retrieveSearchHistory() }
-            )
+                onFocused = { viewModel.retrieveSearchHistory() })
         }
     }
 }
