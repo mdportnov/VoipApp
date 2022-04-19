@@ -17,6 +17,7 @@ import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repository.CallsRepository
 import ru.mephi.voip.data.CatalogRepository
 
+@Suppress("DEPRECATION")
 class CallViewModel(
     private val catalogRepository: CatalogRepository,
     private val callsRepository: CallsRepository,
@@ -42,7 +43,7 @@ class CallViewModel(
     private var _isStatusBarShowed = MutableStateFlow(false)
     val isStatusBarShowed: StateFlow<Boolean> get() = _isStatusBarShowed
 
-    fun hideStatusBar() {
+    private fun hideStatusBar() {
         _isStatusBarShowed.value = false
     }
 

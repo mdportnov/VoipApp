@@ -12,6 +12,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.sharp.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,23 +20,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
+import coil.request.ImageRequest
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.utils.durationStringFromMillis
-import ru.mephi.voip.utils.stringFromDate
+import ru.mephi.voip.utils.*
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -48,12 +49,13 @@ fun NumberHistoryList(
         val callsHistory: List<CallRecord> =
             viewModel.getAllCallsBySipNumber(selectedRecord.sipNumber).executeAsList()
 
-        val painter = rememberImagePainter(
-            data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + selectedRecord.sipNumber,
-            builder = {
-                crossfade(true)
-                diskCachePolicy(CachePolicy.ENABLED)
-            }
+        val painter = rememberAsyncImagePainter(
+            ImageRequest.Builder(LocalContext.current)
+                .data(data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + selectedRecord.sipNumber)
+                .apply(block = fun ImageRequest.Builder.() {
+                    crossfade(true)
+                    diskCachePolicy(CachePolicy.ENABLED)
+                }).build()
         )
         Card(
             modifier = Modifier
@@ -136,24 +138,24 @@ fun CallItemPreview() =
 
 @Composable
 fun ImageCallStatus(status: CallStatus) {
-    Image(
-        painterResource(
-            when (status) {
-                CallStatus.INCOMING ->
-                    R.drawable.ic_baseline_call_received_24
-                CallStatus.OUTCOMING ->
-                    R.drawable.ic_baseline_call_made_24
-                CallStatus.MISSED ->
-                    R.drawable.ic_baseline_call_missed_24
-                CallStatus.DECLINED_FROM_SIDE ->
-                    R.drawable.ic_baseline_call_declined_24
-                CallStatus.DECLINED_FROM_YOU ->
-                    R.drawable.ic_baseline_call_declined_from_side_24
-                CallStatus.NONE -> R.drawable.ic_baseline_info_24
-            }
-        ),
+    Icon(
+        imageVector = when (status) {
+            CallStatus.INCOMING -> Icons.Default.CallReceived
+            CallStatus.OUTCOMING -> Icons.Default.CallMade
+            CallStatus.MISSED -> Icons.Default.CallMissed
+            CallStatus.DECLINED_FROM_SIDE -> Icons.Default.CallEnd
+            CallStatus.DECLINED_FROM_YOU -> Icons.Default.CallMissedOutgoing
+            CallStatus.NONE -> Icons.Default.Info
+        },
+        tint = when (status) {
+            CallStatus.INCOMING -> Color.Blue
+            CallStatus.OUTCOMING -> ColorGreen
+            CallStatus.MISSED -> ColorAccent
+            CallStatus.DECLINED_FROM_SIDE -> ColorGray
+            CallStatus.DECLINED_FROM_YOU -> ColorGray
+            CallStatus.NONE -> ColorGray
+        },
         contentDescription = "",
-        contentScale = ContentScale.Crop,
         modifier = Modifier.padding(end = 10.dp)
     )
 }
@@ -163,7 +165,10 @@ fun CallItem(callRecord: CallRecord) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         ImageCallStatus(callRecord.status)
 
-        Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text(
                 text = callRecord.time.stringFromDate(),
                 style = TextStyle(color = colorResource(id = R.color.colorAccent))

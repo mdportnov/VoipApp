@@ -10,7 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -21,7 +21,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -157,15 +156,18 @@ fun CallScreen(
             )
 
             Column(
-                horizontalAlignment = Alignment.Start, modifier = Modifier
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
                     .background(brush = Brush.verticalGradient(gradient))
                     .padding(20.dp)
                     .fillMaxWidth()
                     .layoutId("info")
             ) {
                 Text(
-                    text = callerName, textAlign = TextAlign.Left,
-                    fontSize = 20.sp, fontWeight = FontWeight.Medium
+                    text = callerName,
+                    textAlign = TextAlign.Left,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
                 )
                 callerAppointment?.let { appointment ->
                     Text(
@@ -176,8 +178,10 @@ fun CallScreen(
                     )
                 }
                 Text(
-                    text = callerUnit, textAlign = TextAlign.Left,
-                    fontSize = 20.sp, fontWeight = FontWeight.Medium
+                    text = callerUnit,
+                    textAlign = TextAlign.Left,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
                 )
 
                 holdState.status?.let {
@@ -188,8 +192,7 @@ fun CallScreen(
             ButtonsRow(
                 Modifier
                     .fillMaxWidth()
-                    .layoutId("options"),
-                viewModel, pickUp, holdCall, hangUp
+                    .layoutId("options"), viewModel, pickUp, holdCall, hangUp
             )
 
             val constraintSetTopBar = ConstraintSet {
@@ -225,18 +228,14 @@ fun CallScreen(
                     .padding(0.dp, 33.dp)
                     .layoutId("topRow"),
             ) {
-                IconButton(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 8.dp)
-                        .background(
-                            colorResource(id = R.color.colorPrimary),
-                            CircleShape
-                        )
-                        .layoutId("back"),
-                    onClick = {
-                        stopActivity()
-                    }
-                ) {
+                IconButton(modifier = Modifier
+                    .padding(16.dp, 0.dp, 0.dp, 8.dp)
+                    .background(
+                        colorResource(id = R.color.colorPrimary), CircleShape
+                    )
+                    .layoutId("back"), onClick = {
+                    stopActivity()
+                }) {
                     Icon(
                         Icons.Filled.ArrowBack,
                         contentDescription = "back",
@@ -247,81 +246,74 @@ fun CallScreen(
                 Box(
                     modifier = Modifier
                         .background(
-                            colorResource(id = R.color.colorPrimary),
-                            CircleShape
+                            colorResource(id = R.color.colorPrimary), CircleShape
                         )
                         .padding(20.dp, 10.dp)
                         .layoutId("number")
                 ) {
                     Text(
-                        text = viewModel.number, textAlign = TextAlign.Left,
-                        fontSize = 20.sp, fontWeight = FontWeight.Bold
+                        text = viewModel.number,
+                        textAlign = TextAlign.Left,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
-                if (timeState.isNotBlank())
-                    Box(
-                        modifier = Modifier
-                            .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                            .background(
-                                colorResource(id = R.color.colorPrimary),
-                                CircleShape
-                            )
-                            .padding(20.dp, 10.dp)
-                            .layoutId("time")
-                    ) {
-                        Text(
-                            text = timeState,
-                            fontSize = 20.sp, fontWeight = FontWeight.Bold
+                if (timeState.isNotBlank()) Box(
+                    modifier = Modifier
+                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                        .background(
+                            colorResource(id = R.color.colorPrimary), CircleShape
                         )
-                    }
+                        .padding(20.dp, 10.dp)
+                        .layoutId("time")
+                ) {
+                    Text(
+                        text = timeState, fontSize = 20.sp, fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
-        if (viewModel.isNumPadVisible.value)
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center
+        if (viewModel.isNumPadVisible.value) Column(
+            modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center
+        ) {
+            NumPad(limitation = 11,
+                inputState = viewModel.inputState.value,
+                numPadState = viewModel.isNumPadVisible.value,
+                onInputStateChanged = {
+                    viewModel.changeInputState(it)
+                },
+                onNumPadStateChange = {
+                    viewModel.toggleNumPad()
+                },
+                onLimitExceeded = {
+                    activity.toast("Превышен размер номера")
+                })
+            AnimatedVisibility(
+                visible = viewModel.inputState.value.length > 3,
+                enter = slideInVertically() + expandVertically() + fadeIn(initialAlpha = 0.3f),
+                exit = shrinkVertically() + fadeOut()
             ) {
-                NumPad(
-                    limitation = 11,
-                    inputState = viewModel.inputState.value,
-                    numPadState = viewModel.isNumPadVisible.value,
-                    onInputStateChanged = {
-                        viewModel.changeInputState(it)
+                OutlinedButton(
+                    onClick = {
+                        transferCall()
                     },
-                    onNumPadStateChange = {
-                        viewModel.toggleNumPad()
-                    },
-                    onLimitExceeded = {
-                        activity.toast("Превышен размер номера")
-                    }
-                )
-                AnimatedVisibility(
-                    visible = viewModel.inputState.value.length > 3,
-                    enter = slideInVertically() + expandVertically()
-                            + fadeIn(initialAlpha = 0.3f),
-                    exit = shrinkVertically() + fadeOut()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        colorResource(id = R.color.colorGreen)
+                    ),
+                    elevation = ButtonDefaults.elevation()
                 ) {
-                    OutlinedButton(
-                        onClick = {
-                            transferCall()
-                        }, modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            colorResource(id = R.color.colorGreen)
-                        ),
-                        elevation = ButtonDefaults.elevation()
-                    ) {
-                        Text(
-                            text = "Перевести звонок на: ${viewModel.inputState.value}",
-                            color = Color.White
-                        )
-                    }
+                    Text(
+                        text = "Перевести звонок на: ${viewModel.inputState.value}",
+                        color = Color.White
+                    )
                 }
             }
+        }
     }
 }
 
@@ -342,8 +334,7 @@ private fun ButtonsRow(
 
     Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
         Row(
-            horizontalArrangement = Arrangement.SpaceAround,
-            modifier = Modifier.fillMaxWidth()
+            horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()
         ) {
             // Если входящий, показать кнопку ответа на вызов
             if (buttonsState == CallButtonsState.INCOMING_CALL) {
@@ -360,7 +351,8 @@ private fun ButtonsRow(
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_baseline_dialer_sip_24_white),
+                        Icons.Default.DialerSip,
+                        tint = Color.White,
                         contentDescription = null,
                         modifier = Modifier.size(iconSize)
                     )
@@ -385,7 +377,8 @@ private fun ButtonsRow(
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_baseline_volume_up_24),
+                        Icons.Default.VolumeUp,
+                        tint = Color.White,
                         contentDescription = null,
                         modifier = Modifier.size(iconSize)
                     )
@@ -406,9 +399,8 @@ private fun ButtonsRow(
                     shape = RoundedCornerShape(20.dp),
                 ) {
                     Icon(
-                        painter = painterResource(
-                            R.drawable.ic_baseline_mic_off_24
-                        ),
+                        Icons.Default.MicOff,
+                        tint = Color.White,
                         contentDescription = null,
                         modifier = Modifier.size(iconSize)
                     )
@@ -428,94 +420,87 @@ private fun ButtonsRow(
                 shape = RoundedCornerShape(20.dp),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_baseline_call_end_24),
+                    Icons.Default.CallEnd,
+                    tint = Color.White,
                     contentDescription = null,
                     modifier = Modifier.size(iconSize)
                 )
             }
         }
 
-        if (buttonsState == CallButtonsState.CALL_PROCESS)
-            Row(
-                horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth()
+        if (buttonsState == CallButtonsState.CALL_PROCESS) Row(
+            horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = { holdCall() },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(buttonSize)
+                    .clickable { },
+                colors = ButtonDefaults.buttonColors(
+                    colorResource(
+                        id = if (holdState == HoldState.LOCAL_HOLD) R.color.colorAccent
+                        else R.color.colorGray
+                    )
+                ),
+                elevation = ButtonDefaults.elevation(),
+                shape = RoundedCornerShape(20.dp),
             ) {
-                Button(
-                    onClick = { holdCall() },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(buttonSize)
-                        .clickable { },
-                    colors = ButtonDefaults.buttonColors(
-                        colorResource(
-                            id = if (holdState == HoldState.LOCAL_HOLD)
-                                R.color.colorAccent
-                            else R.color.colorGray
-                        )
-                    ),
-                    elevation = ButtonDefaults.elevation(),
-                    shape = RoundedCornerShape(20.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            R.drawable.ic_baseline_phone_paused_24
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
-
-                Button(
-                    onClick = { viewModel.changeBluetooth() },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(buttonSize)
-                        .clickable { },
-                    colors = ButtonDefaults.buttonColors(
-                        colorResource(
-                            id = if (isBluetoothEnabled.value)
-                                R.color.colorPrimaryDark
-                            else R.color.colorGray
-                        )
-                    ),
-                    elevation = ButtonDefaults.elevation(),
-                    shape = RoundedCornerShape(20.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            R.drawable.ic_baseline_phone_bluetooth_speaker_24
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        viewModel.toggleNumPad()
-                    },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(buttonSize)
-                        .clickable { },
-                    colors = ButtonDefaults.buttonColors(
-                        colorResource(
-                            id = if (viewModel.isNumPadVisible.value)
-                                R.color.colorAccent
-                            else R.color.colorGray
-                        )
-                    ),
-                    elevation = ButtonDefaults.elevation(),
-                    shape = RoundedCornerShape(20.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            R.drawable.ic_baseline_swap_calls_24
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
+                Icon(
+                    Icons.Default.PhonePaused,
+                    tint = Color.White,
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSize)
+                )
             }
+
+            Button(
+                onClick = { viewModel.changeBluetooth() },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(buttonSize)
+                    .clickable { },
+                colors = ButtonDefaults.buttonColors(
+                    colorResource(
+                        id = if (isBluetoothEnabled.value) R.color.colorPrimaryDark
+                        else R.color.colorGray
+                    )
+                ),
+                elevation = ButtonDefaults.elevation(),
+                shape = RoundedCornerShape(20.dp),
+            ) {
+                Icon(
+                    Icons.Default.PhoneBluetoothSpeaker,
+                    tint = Color.White,
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSize)
+                )
+            }
+
+            Button(
+                onClick = {
+                    viewModel.toggleNumPad()
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(buttonSize)
+                    .clickable { },
+                colors = ButtonDefaults.buttonColors(
+                    colorResource(
+                        id = if (viewModel.isNumPadVisible.value) R.color.colorAccent
+                        else R.color.colorGray
+                    )
+                ),
+                elevation = ButtonDefaults.elevation(),
+                shape = RoundedCornerShape(20.dp),
+            ) {
+                Icon(
+                    Icons.Default.SwapCalls,
+                    tint = Color.White,
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSize)
+                )
+            }
+        }
     }
 }

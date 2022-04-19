@@ -171,7 +171,7 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
         bigText.setBigContentTitle(title)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_CALL_ID)
-        builder.setSmallIcon(R.drawable.ic_baseline_dialer_sip_24)
+        builder.setSmallIcon(R.drawable.notification_dialer_sip_icon)
             .setColor(-0xff0100)
             .setAutoCancel(true)
             .setContentTitle(title)
@@ -182,8 +182,8 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setSmallIcon(R.drawable.logo_voip)
-            .addAction(R.drawable.ic_baseline_call_end_24, "Отклонить", pendingRejectCall)
-            .addAction(R.drawable.ic_baseline_volume_up_24, "Принять", pickUpAudioPendingIntent)
+            .addAction(R.drawable.notification_call_end_icon, "Отклонить", pendingRejectCall)
+            .addAction(R.drawable.notification_volume_up_icon, "Принять", pickUpAudioPendingIntent)
             .setFullScreenIntent(notificationPendingIntent, true)
         val mNotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

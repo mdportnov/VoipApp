@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,10 +70,8 @@ fun CallerScreen(
     }
 
     fun onNumPadStateChange() {
-        if (callerNumber.isNullOrEmpty())
-            isNumPadStateUp = !isNumPadStateUp
-        else
-            navController.popBackStack()
+        if (callerNumber.isNullOrEmpty()) isNumPadStateUp = !isNumPadStateUp
+        else navController.popBackStack()
     }
 
     BackHandler {
@@ -87,30 +86,26 @@ fun CallerScreen(
 
     Scaffold(topBar = {
         TopAppBar(
-            backgroundColor = Color.White,
-            modifier = Modifier.fillMaxWidth()
+            backgroundColor = Color.White, modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if (isBackArrowVisible)
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
-                    } else
-                    Image(
-                        painter = painterResource(id = R.drawable.logo_mephi),
-                        contentDescription = "лого",
-                    )
+                if (isBackArrowVisible) IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
+                } else Image(
+                    painter = painterResource(id = R.drawable.logo_mephi),
+                    contentDescription = "лого",
+                )
 
                 Text(
                     text = "Звонки", style = TextStyle(color = Color.Black, fontSize = 20.sp),
                 )
 
                 AccountStatusWidget(
-                    accountStatusRepository = accountStatusRepository,
-                    scaffoldState = scaffoldState
+                    accountStatusRepository = accountStatusRepository, scaffoldState = scaffoldState
                 )
             }
         }
@@ -124,8 +119,7 @@ fun CallerScreen(
                     scope.launch {
                         scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
                         val snackBarResult = scaffoldState.snackbarHostState.showSnackbar(
-                            "Запись ${deletedRecord.sipNumber} удалена",
-                            actionLabel = "Вернуть"
+                            "Запись ${deletedRecord.sipNumber} удалена", actionLabel = "Вернуть"
                         )
                         when (snackBarResult) {
                             SnackbarResult.Dismissed -> Timber.d("SnackBar dismissed")
@@ -137,18 +131,17 @@ fun CallerScreen(
                 }
             }
             Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Bottom
+                modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom
             ) {
                 if (callerName != null) {
                     AnimatedVisibility(
                         visible = inputState == callerNumber && inputState.isNotEmpty(),
-                        enter = slideInVertically() + expandVertically()
-                                + fadeIn(initialAlpha = 0.3f),
+                        enter = slideInVertically() + expandVertically() + fadeIn(initialAlpha = 0.3f),
                         exit = shrinkVertically() + fadeOut()
                     ) {
                         OutlinedButton(
-                            onClick = {}, modifier = Modifier
+                            onClick = {},
+                            modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp),
                             colors = ButtonDefaults.buttonColors(
@@ -162,66 +155,57 @@ fun CallerScreen(
                 } else {
                     AnimatedVisibility(
                         visible = list.map { it.sipNumber }.contains(inputState),
-                        enter = slideInVertically() + expandVertically()
-                                + fadeIn(initialAlpha = 0.3f),
+                        enter = slideInVertically() + expandVertically() + fadeIn(initialAlpha = 0.3f),
                         exit = shrinkVertically() + fadeOut()
                     ) {
                         val index = list.map { it.sipNumber }.indexOf(inputState)
-                        if (index > 0 && !list[index].sipName.isNullOrEmpty())
-                            OutlinedButton(
-                                onClick = {}, modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    colorResource(id = R.color.colorGreen)
-                                ),
-                                elevation = ButtonDefaults.elevation()
-                            ) {
-                                Text(text = list[index].sipName!!, color = Color.White)
-                            }
+                        if (index > 0 && !list[index].sipName.isNullOrEmpty()) OutlinedButton(
+                            onClick = {},
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                colorResource(id = R.color.colorGreen)
+                            ),
+                            elevation = ButtonDefaults.elevation()
+                        ) {
+                            Text(text = list[index].sipName!!, color = Color.White)
+                        }
                     }
                 }
 
-                NumPad(
-                    11, inputState, isNumPadStateUp,
-                    onLimitExceeded = {
-                        scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("Превышен размер номера")
-                        }
-                    },
-                    onNumPadStateChange = {
-                        onNumPadStateChange()
-                    },
-                    onInputStateChanged = {
-                        inputState = it
+                NumPad(11, inputState, isNumPadStateUp, onLimitExceeded = {
+                    scope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar("Превышен размер номера")
                     }
-                )
+                }, onNumPadStateChange = {
+                    onNumPadStateChange()
+                }, onInputStateChanged = {
+                    inputState = it
+                })
                 FloatingActionButton(
                     modifier = Modifier
                         .padding(16.dp)
                         .align(Alignment.End), onClick = {
-                        if (isPermissionGranted)
-                            if (isNumPadStateUp) {
-                                if (inputState.length <= 3) {
-                                    scope.launch {
-                                        scaffoldState.snackbarHostState.showSnackbar("Слишком короткий номер")
-                                    }
-                                    return@FloatingActionButton
+                        if (isPermissionGranted) if (isNumPadStateUp) {
+                            if (inputState.length <= 3) {
+                                scope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar("Слишком короткий номер")
                                 }
-                                if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
-                                    CallActivity.create(
-                                        context,
-                                        inputState,
-                                        false
-                                    )
-                                } else {
-                                    scope.launch {
-                                        scaffoldState.snackbarHostState.showSnackbar("Нет активного аккаунта для совершения звонка")
-                                    }
-                                }
-                            } else {
-                                isNumPadStateUp = !isNumPadStateUp
+                                return@FloatingActionButton
                             }
+                            if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                                CallActivity.create(
+                                    context, inputState, false
+                                )
+                            } else {
+                                scope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar("Нет активного аккаунта для совершения звонка")
+                                }
+                            }
+                        } else {
+                            isNumPadStateUp = !isNumPadStateUp
+                        }
                         else {
                             scope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar("Приложению нужны разрешения для совершения звонков")
@@ -230,23 +214,15 @@ fun CallerScreen(
                         }
                     }, backgroundColor = colorResource(id = R.color.colorGreen)
                 ) {
-                    if (isNumPadStateUp)
-                        Icon(
-                            Icons.Default.Call,
-                            contentDescription = "",
-                            tint = colorResource(
-                                id = if (isPermissionGranted)
-                                    R.color.colorPrimary else R.color.colorGray
-                            )
-                        ) else
-                        Icon(
-                            painterResource(id = R.drawable.ic_baseline_dialpad_24),
-                            contentDescription = "",
-                            tint = colorResource(
-                                id = if (isPermissionGranted)
-                                    R.color.colorPrimary else R.color.colorGray
-                            )
+                    if (isNumPadStateUp) Icon(
+                        Icons.Default.Call, contentDescription = "", tint = colorResource(
+                            id = if (isPermissionGranted) R.color.colorPrimary else R.color.colorGray
                         )
+                    ) else Icon(
+                        Icons.Default.Dialpad, contentDescription = null, tint = colorResource(
+                            id = if (isPermissionGranted) R.color.colorPrimary else R.color.colorGray
+                        )
+                    )
                 }
             }
 
@@ -256,8 +232,7 @@ fun CallerScreen(
                 exit = slideOutVertically() + shrinkVertically()
             ) {
                 NumberHistoryList(
-                    selectedRecord = selectedRecord,
-                    setSelectedRecord = setSelectedRecord
+                    selectedRecord = selectedRecord, setSelectedRecord = setSelectedRecord
                 )
             }
         }
