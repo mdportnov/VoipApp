@@ -151,7 +151,7 @@ fun ImageCallStatus(status: CallStatus) {
             CallStatus.INCOMING -> Color.Blue
             CallStatus.OUTCOMING -> ColorGreen
             CallStatus.MISSED -> ColorAccent
-            CallStatus.DECLINED_FROM_SIDE -> ColorGray
+            CallStatus.DECLINED_FROM_SIDE -> ColorAccent
             CallStatus.DECLINED_FROM_YOU -> ColorGray
             CallStatus.NONE -> ColorGray
         },

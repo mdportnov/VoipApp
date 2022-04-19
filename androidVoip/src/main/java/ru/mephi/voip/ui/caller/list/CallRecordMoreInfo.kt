@@ -74,7 +74,6 @@ fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> U
                     contentDescription = "Позвонить",
                 )
             }
-
         }
     }
 }

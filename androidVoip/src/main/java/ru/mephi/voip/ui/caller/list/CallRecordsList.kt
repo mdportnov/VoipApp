@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.sip.AccountStatus
@@ -39,7 +38,7 @@ import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.components.ExpandableCard
 import ru.mephi.voip.ui.components.ExpandableContent
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun CallRecordsList(
     setSelectedRecord: (CallRecord?) -> Unit,

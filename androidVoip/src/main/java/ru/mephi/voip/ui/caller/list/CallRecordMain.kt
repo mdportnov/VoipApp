@@ -7,34 +7,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
+import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.network.KtorClientBuilder
 import ru.mephi.voip.R
 import ru.mephi.voip.utils.stringFromDate
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CallRecordMain(modifier: Modifier = Modifier, record: CallRecord) {
     Row(modifier = modifier) {
         Image(
-            painter = rememberImagePainter(
-                data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + record.sipNumber,
-                builder = {
-                    placeholder(R.drawable.nophoto)
-                    crossfade(true)
-                    diskCachePolicy(CachePolicy.ENABLED)
-                    memoryCachePolicy(CachePolicy.ENABLED)
-                    transformations(RoundedCornersTransformation(15f))
-                    error(R.drawable.nophoto)
-                }
+            painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current)
+                    .data(data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + record.sipNumber)
+                    .apply(block = fun ImageRequest.Builder.() {
+                        placeholder(R.drawable.nophoto)
+                        crossfade(true)
+                        diskCachePolicy(CachePolicy.ENABLED)
+                        memoryCachePolicy(CachePolicy.ENABLED)
+                        transformations(RoundedCornersTransformation(15f))
+                        error(R.drawable.nophoto)
+                    }).build()
             ),
             modifier = Modifier
                 .width(50.dp)
