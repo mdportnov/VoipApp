@@ -30,7 +30,8 @@ fun SettingsScreen(navController: NavController) {
                 onBackgroundModeEnableChange = viewModel::enableBackgroundMode,
                 onCallScreenAlwaysEnableChange = viewModel::enableCallScreenAlways,
                 deleteAllCatalogCache = viewModel::deleteAllCatalogCache,
-                deleteAllSearchRecords = viewModel::deleteAllSearchRecords
+                deleteAllSearchRecords = viewModel::deleteAllSearchRecords,
+                deleteAllFavouritesRecords = viewModel::deleteAllFavouritesRecords
             )
         })
 }

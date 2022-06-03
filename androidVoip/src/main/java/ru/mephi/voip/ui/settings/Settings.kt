@@ -36,6 +36,7 @@ internal fun Settings(
     onCallScreenAlwaysEnableChange: (Boolean) -> Unit,
     deleteAllCatalogCache: () -> Unit,
     deleteAllSearchRecords: () -> Unit,
+    deleteAllFavouritesRecords: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -135,6 +136,16 @@ internal fun Settings(
             scope.launch {
                 scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
                 scaffoldState.snackbarHostState.showSnackbar("Кэш каталога удалён")
+            }
+        }
+
+        Preference(
+            icon = Icons.Default.DeleteForever, title = stringResource(R.string.delete_favourites)
+        ) {
+            deleteAllFavouritesRecords()
+            scope.launch {
+                scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                scaffoldState.snackbarHostState.showSnackbar("Избранные контакты удалены")
             }
         }
 

@@ -39,6 +39,6 @@ val viewModels = module {
     }
 
     single {
-        SettingsViewModel(androidApplication(), get(), get())
+        SettingsViewModel(androidApplication(), get(), get(), get())
     }
 }

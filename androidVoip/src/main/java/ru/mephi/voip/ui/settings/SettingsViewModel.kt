@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.mephi.shared.base.MainIoExecutor
+import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.navigation.Screen
 
@@ -14,6 +15,7 @@ class SettingsViewModel constructor(
     application: Application,
     private val preferenceRepository: PreferenceRepository,
     private val catalogRepository: CatalogRepository,
+    private val favoriteDB: FavouritesDB,
 ) : MainIoExecutor() {
 
     private val _uiState = MutableStateFlow(
@@ -107,5 +109,9 @@ class SettingsViewModel constructor(
 
     fun deleteAllCatalogCache() {
         catalogRepository.deleteAllCatalogCache()
+    }
+
+    fun deleteAllFavouritesRecords() {
+        favoriteDB.deleteAll()
     }
 }

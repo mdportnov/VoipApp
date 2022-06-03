@@ -48,6 +48,7 @@
     <string name="enable_incoming_activity">Экран входящего вызова</string>
     <string name="delete_search_history">Удалить историю запросов</string>
     <string name="delete_catalog_cache">Удалить кэш каталог</string>
+    <string name="delete_favourites">Удалить список избранных контакты</string>
     <string name="send_feedback">Отправить фидбэк</string>
     <string name="developed">Разработано</string>
     <string name="developer_name">НИЯУ МИФИ, Управление информатизации</string>
