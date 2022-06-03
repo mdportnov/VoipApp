@@ -13,7 +13,7 @@ android {
         minSdk = 23
         targetSdk = 30 // 31 causes error with pendingIntents and abto (should be 30)
         versionCode = 22
-        versionName = "0.11.0"
+        versionName = "1.0.1"
         multiDexEnabled = true
         signingConfig = signingConfigs.getByName("debug")
     }
