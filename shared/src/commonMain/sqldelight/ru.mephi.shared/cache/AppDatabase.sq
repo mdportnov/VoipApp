@@ -64,6 +64,9 @@ INSERT INTO favorites(id, sipNumber, sipName, created_at)
 deleteFavouriteById:
      DELETE FROM favorites WHERE id = ?;
 
+deleteFavouriteBySipNumber:
+    DELETE FROM favorites WHERE sipNumber = ?;
+
 deleteAllFavorites:
     DELETE FROM favorites;
 

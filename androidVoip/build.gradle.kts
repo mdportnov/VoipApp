@@ -11,9 +11,9 @@ android {
     defaultConfig {
         applicationId = "ru.mephi.voip"
         minSdk = 23
-        targetSdk = 30 // 31 causes error with pendingIntents and abto
+        targetSdk = 30 // 31 causes error with pendingIntents and abto (should be 30)
         versionCode = 21
-        versionName = "0.10.0"
+        versionName = "0.11.0"
         multiDexEnabled = true
         signingConfig = signingConfigs.getByName("debug")
     }
@@ -65,13 +65,13 @@ android {
 
 dependencies {
     // Androidx
-    implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.4.1")
+    implementation("androidx.core:core-ktx:1.8.0")
+    implementation("androidx.appcompat:appcompat:1.4.2")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
 
     // Kotlinx
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.20")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
@@ -81,19 +81,21 @@ dependencies {
     // Compose
     implementation("androidx.compose.ui:ui-tooling:1.1.1")
     implementation("androidx.activity:activity-compose:1.4.0")
-    implementation("androidx.compose.compiler:compiler:1.2.0-alpha07")
+    implementation("androidx.compose.compiler:compiler:1.2.0-beta01")
     implementation("androidx.compose.material:material:1.1.1")
-    implementation("androidx.compose.material3:material3:1.0.0-alpha09")
+    implementation("androidx.compose.material3:material3:1.0.0-alpha11")
     implementation("androidx.compose.material:material-icons-extended:1.1.1")
-    implementation("androidx.compose.foundation:foundation:1.2.0-alpha07")
+    implementation("androidx.compose.foundation:foundation:1.2.0-beta01")
     implementation("androidx.navigation:navigation-compose:2.4.2")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.17.0")
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.0")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     implementation("com.google.accompanist:accompanist-swiperefresh:0.23.1")
     implementation("com.google.accompanist:accompanist-permissions:0.23.1")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.23.1")
-    implementation("com.google.android.material:material:1.5.0")
+    implementation("com.google.android.material:material:1.6.1")
+
+    implementation("com.github.judemanutd:autostarter:1.1.0")
 
     // Network
     implementation("io.ktor:ktor-client-okhttp:1.6.2")

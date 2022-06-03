@@ -7,9 +7,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,11 +38,10 @@ import ru.mephi.shared.data.model.NameItem
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.components.AccountStatusWidget
-import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetScreen
 import ru.mephi.voip.utils.*
 
 @Composable
-fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, openSettings: () -> Unit) {
+fun ProfileContent(modifier: Modifier) {
     val viewModel: ProfileViewModel by inject()
     val accountRepository: AccountStatusRepository by inject()
     val hapticFeedback = LocalHapticFeedback.current
@@ -68,196 +64,148 @@ fun ProfileContent(openSheet: (BottomSheetScreen) -> Unit, openSettings: () -> U
     val name by accountRepository.displayName.collectAsState(NameItem())
     val switchColor = if (isSipEnabled) ColorAccent else ColorGreen
 
-    Scaffold(scaffoldState = scaffoldState, topBar = { ProfileTopBar(openSettings) }, content = {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Column(
+        modifier.verticalScroll(rememberScrollState()),
+        horizontalAlignment = CenterHorizontally,
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.wrapContentHeight()
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.wrapContentHeight()
+            Image(
+                painter = painterResource(id = R.drawable.logo_mephi),
+                contentDescription = "лого"
+            )
+
+            if (activeAccount != null) Box(
+                modifier = Modifier.size(120.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.logo_mephi),
-                    contentDescription = "лого"
+                    painter = painter,
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(100.dp)
+                        .align(Alignment.Center)
                 )
 
-                if (activeAccount != null) Box(
-                    modifier = Modifier.size(120.dp)
-                ) {
-                    Image(
-                        painter = painter,
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .size(100.dp)
-                            .align(Alignment.Center)
-                    )
-
-                    when (painter.state) {
-                        is AsyncImagePainter.State.Loading -> {
-                            CircularProgressIndicator(Modifier.align(Alignment.Center))
-                        }
-                        else -> {}
+                when (painter.state) {
+                    is AsyncImagePainter.State.Loading -> {
+                        CircularProgressIndicator(Modifier.align(Alignment.Center))
                     }
+                    else -> {}
+                }
 
-                    AccountStatusWidget(
-                        modifier = Modifier.align(Alignment.BottomEnd),
-                        accountStatusRepository = accountRepository,
-                        scaffoldState = scaffoldState
+                AccountStatusWidget(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    accountStatusRepository = accountRepository,
+                    scaffoldState = scaffoldState
+                )
+            }
+        }
+
+        Column(horizontalAlignment = Alignment.Start, modifier = modifier) {
+            if (activeAccount != null) Column {
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (isSipEnabled) stringResource(R.string.disable_sip)
+                        else stringResource(R.string.enable_sip),
+                        color = switchColor,
+                        fontSize = with(LocalDensity.current) {
+                            (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
+                        },
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Switch(
+                        checked = isSipEnabled,
+                        onCheckedChange = {
+                            viewModel.toggleSipStatus()
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = switchColor, uncheckedThumbColor = switchColor
+                        ),
                     )
                 }
-            }
+                if (!name?.display_name.isNullOrEmpty()) Text(fontSize = with(LocalDensity.current) {
+                    (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
+                },
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Left,
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(ColorAccent)) {
+                            append("Имя: ")
+                        }
+                        append(name!!.display_name)
+                    })
 
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp, 0.dp, 20.dp, 0.dp),
-                horizontalAlignment = Alignment.Start
-            ) {
-                if (activeAccount != null) Column {
-                    Row(
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = if (isSipEnabled) stringResource(R.string.disable_sip)
-                            else stringResource(R.string.enable_sip),
-                            color = switchColor,
-                            fontSize = with(LocalDensity.current) {
-                                (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
-                            },
-                            fontWeight = FontWeight.Medium,
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Switch(
-                            checked = isSipEnabled,
-                            onCheckedChange = {
-                                viewModel.toggleSipStatus()
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = switchColor, uncheckedThumbColor = switchColor
-                            ),
-                        )
-                    }
-                    if (!name?.display_name.isNullOrEmpty()) Text(fontSize = with(LocalDensity.current) {
+                viewModel.getCurrentUserNumber()?.let {
+                    Text(fontSize = with(LocalDensity.current) {
                         (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
                     },
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Left,
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(ColorAccent)) {
-                                append("Имя: ")
+                                append("Номер SIP: ")
                             }
-                            append(name!!.display_name)
+                            append(it)
+                        })
+                }
+
+                if (isSipEnabled)
+                    Text(fontSize = with(LocalDensity.current) {
+                        (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
+                    },
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Left,
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(ColorAccent)) {
+                                append("Статус: ")
+                            }
+                            append(accountStatus.status)
                         })
 
-                    viewModel.getCurrentUserNumber()?.let {
-                        Text(fontSize = with(LocalDensity.current) {
-                            (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
-                        },
-                            fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Left,
-                            text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(ColorAccent)) {
-                                    append("Номер SIP: ")
-                                }
-                                append(it)
-                            })
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+            else if (accountsCount > 0) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(CenterHorizontally),
+                    text = stringResource(id = R.string.no_active_account),
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp
+                    )
+                )
+            }
+
+            if (accountsCount == 0) {
+                val annotatedText = getAnnotatedText()
+                ClickableText(text = annotatedText, onClick = { offset ->
+                    annotatedText.getStringAnnotations(
+                        tag = "email", start = offset, end = offset
+                    ).firstOrNull()?.let { annotation ->
+                        localContext.launchMailClientIntent(annotation.item)
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     }
 
-                    if (isSipEnabled)
-                        Text(fontSize = with(LocalDensity.current) {
-                            (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
-                        },
-                            fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Left,
-                            text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(ColorAccent)) {
-                                    append("Статус: ")
-                                }
-                                append(accountStatus.status)
-                            })
-
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-                else {
-                    if (accountsCount > 0)
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(CenterHorizontally),
-                            text = stringResource(id = R.string.no_active_account),
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = dimensionResource(id = R.dimen.profile_text_size).value.sp
-                            )
-                        )
-                }
-
-                if (accountsCount == 0) {
-                    val annotatedText = getAnnotatedText()
-                    ClickableText(text = annotatedText, onClick = { offset ->
-                        annotatedText.getStringAnnotations(
-                            tag = "email", start = offset, end = offset
-                        ).firstOrNull()?.let { annotation ->
-                            localContext.launchMailClientIntent(annotation.item)
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                        }
-
-                        annotatedText.getStringAnnotations(
-                            tag = "phone", start = offset, end = offset
-                        ).firstOrNull()?.let { annotation ->
-                            localContext.launchDialer(annotation.item)
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                        }
-                    })
-                }
+                    annotatedText.getStringAnnotations(
+                        tag = "phone", start = offset, end = offset
+                    ).firstOrNull()?.let { annotation ->
+                        localContext.launchDialer(annotation.item)
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
+                })
             }
         }
-
-        Column(
-            modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom
-        ) {
-            if (accountsCount > 0) ExtendedFloatingActionButton(icon = {
-                Icon(
-                    Icons.Filled.Edit, "", tint = Color.White
-                )
-            },
-                text = {
-                    Text(
-                        text = stringResource(R.string.change_account) + " (${accountsCount})",
-                        color = Color.White
-                    )
-                },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(16.dp, 16.dp, 16.dp, 0.dp),
-                backgroundColor = ColorGreen,
-                onClick = {
-                    openSheet(BottomSheetScreen.ScreenChangeAccount)
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                })
-            ExtendedFloatingActionButton(icon = { Icon(Icons.Filled.Add, "", tint = Color.White) },
-                text = {
-                    Text(
-                        text = stringResource(R.string.add_new_account), color = Color.White
-                    )
-                },
-                backgroundColor = ColorGreen,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(16.dp, 8.dp, 16.dp, 16.dp),
-                onClick = {
-                    openSheet(BottomSheetScreen.ScreenAddNewAccount)
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                })
-        }
-    })
+    }
 }
 
 

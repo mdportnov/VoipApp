@@ -57,7 +57,7 @@ fun ScreenAddNewAccount(scaffoldState: BottomSheetScaffoldState) {
 
     val context = LocalContext.current
 
-    val accountList = viewModel.accountRepository.accountList.collectAsState()
+    val accountList = viewModel.accountList.collectAsState()
 
     Column(
         modifier = Modifier

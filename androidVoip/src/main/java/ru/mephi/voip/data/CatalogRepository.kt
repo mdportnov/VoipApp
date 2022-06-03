@@ -8,10 +8,7 @@ import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.data.database.SearchDB
 import ru.mephi.shared.data.database.dto.toKodeIn
-import ru.mephi.shared.data.model.Appointment
-import ru.mephi.shared.data.model.NameItem
-import ru.mephi.shared.data.model.SearchRecord
-import ru.mephi.shared.data.model.UnitM
+import ru.mephi.shared.data.model.*
 import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.network.exception.*
@@ -212,9 +209,14 @@ class CatalogRepository : KoinComponent {
     fun deleteAllSearchRecords() = searchDB.deleteAll()
 
     fun addToFavourite(record: Appointment): Boolean {
-//        if (!favoritesDB.isExists(record.line)) {
-//            favoritesDB.addFavourite(record)
-//        }
+        record.line?.let { line ->
+            if (!favoritesDB.isExists(line)) {
+                favoritesDB.addFavourite(
+                    FavouriteRecord(sipName = record.fio, sipNumber = line)
+                )
+                return true
+            }
+        }
         return false
     }
 }

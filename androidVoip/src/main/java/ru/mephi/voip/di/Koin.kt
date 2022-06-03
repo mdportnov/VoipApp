@@ -27,7 +27,7 @@ val repositories = module {
 
 val viewModels = module {
     single {
-        ProfileViewModel(androidApplication(), get(), get())
+        ProfileViewModel(androidApplication(), get(), get(), get())
     }
 
     single {

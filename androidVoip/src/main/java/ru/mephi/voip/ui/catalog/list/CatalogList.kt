@@ -71,8 +71,10 @@ fun CatalogList(items: Stack<UnitM>, navController: NavController) {
     }
 
     val onSwipeToFavourite: (Appointment) -> Unit = { record ->
-        if (!viewModel.addToFavourite(record))
-            Toast.makeText(context, "Уже сохранено в избранное", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context, if (!viewModel.addToFavourites(record)) "Уже сохранено в избранное"
+            else "Успешно сохранено в избранное", Toast.LENGTH_SHORT
+        ).show()
     }
 
     val expandedCardIds = viewModel.expandedCardIdsList.collectAsState()

@@ -1,6 +1,5 @@
 package ru.mephi.voip.ui.profile.bottomsheet
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,11 +15,10 @@ import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.inject
 import ru.mephi.voip.ui.profile.ProfileViewModel
 
-@SuppressLint("MutableCollectionMutableState")
 @Composable
 fun ScreenChangeAccount(onCloseBottomSheet: () -> Unit) {
     val viewModel by inject<ProfileViewModel>()
-    val accountList = viewModel.accountRepository.accountList.collectAsState()
+    val accountList = viewModel.accountList.collectAsState()
 
     Box(
         modifier = Modifier
