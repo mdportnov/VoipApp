@@ -243,5 +243,5 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
         }
     }
 
-    fun addToFavourites(appointment: Appointment) = repository.addToFavourite(appointment)
+    fun addToFavourites(appointment: Appointment) = repository.addToFavourites(appointment)
 }

@@ -80,7 +80,7 @@ fun ProfileScreen(openSettings: () -> Unit) {
         topBar = { ProfileTopBar(openSettings) },
     ) { paddingValues ->
         Box(Modifier.padding(paddingValues)) {
-            Column(Modifier.padding(horizontal = 20.dp)) {
+            Column(Modifier.padding(horizontal = 20.dp).fillMaxHeight()) {
                 ProfileContent(modifier = fillMaxWidthModifier)
                 FavouriteContactsBoard(
                     modifier = fillMaxWidthModifier,

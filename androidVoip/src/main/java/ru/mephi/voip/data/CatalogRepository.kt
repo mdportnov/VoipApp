@@ -208,15 +208,17 @@ class CatalogRepository : KoinComponent {
 
     fun deleteAllSearchRecords() = searchDB.deleteAll()
 
-    fun addToFavourite(record: Appointment): Boolean {
-        record.line?.let { line ->
-            if (!favoritesDB.isExists(line)) {
+    fun addToFavourites(record: Appointment): SavingResult {
+        return if (record.line.isNullOrEmpty()) {
+            SavingResult.EMPTY_LINE
+        } else
+            if (favoritesDB.isExists(record.line!!)) {
+                SavingResult.ALREADY_SAVED
+            } else {
                 favoritesDB.addFavourite(
-                    FavouriteRecord(sipName = record.fio, sipNumber = line)
+                    FavouriteRecord(sipName = record.fio, sipNumber = record.line!!)
                 )
-                return true
+                SavingResult.SUCCESS
             }
-        }
-        return false
     }
 }
