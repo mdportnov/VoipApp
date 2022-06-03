@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.judemanutd.autostarter.AutoStartPermissionHelper
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
 import kotlinx.coroutines.CoroutineScope
@@ -72,7 +71,7 @@ class MainActivity : ComponentActivity(), EasyPermissions.PermissionCallbacks {
             App(scaffoldState = scaffoldState!!)
         }
 
-        AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
+//        AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
 
         lifecycleScope.launch {
             accountRepository.isSipEnabled.collect {
