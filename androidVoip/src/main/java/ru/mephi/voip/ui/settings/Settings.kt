@@ -38,7 +38,9 @@ internal fun Settings(
     deleteAllSearchRecords: () -> Unit,
     deleteAllFavouritesRecords: () -> Unit,
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    onCallScreenAlwaysEnableChange(Settings.canDrawOverlays(context))
 
     Column(
         modifier = Modifier
@@ -46,7 +48,6 @@ internal fun Settings(
             .verticalScroll(rememberScrollState())
             .fillMaxSize()
     ) {
-        val context = LocalContext.current
         SectionTitle(stringResource(id = R.string.main_settings))
 
         SwitchPreference(
@@ -73,16 +74,16 @@ internal fun Settings(
             subtitle = stringResource(R.string.enable_incoming_activity_subtitle),
             checked = uiState.isCallScreenAlwaysEnabled,
             onCheckedChange = {
-                if (!Settings.canDrawOverlays(context)) {
-                    val intent = Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:$PACKAGE_NAME")
-                    )
-                    (context as Activity).startActivityForResult(
-                        intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
-                    )
-                }
-                onCallScreenAlwaysEnableChange(it)
+//                if (!Settings.canDrawOverlays(context)) {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$PACKAGE_NAME")
+                )
+                (context as Activity).startActivityForResult(
+                    intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
+                )
+//                }
+                onCallScreenAlwaysEnableChange(Settings.canDrawOverlays(context))
             },
         )
 

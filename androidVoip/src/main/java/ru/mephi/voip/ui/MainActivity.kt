@@ -71,7 +71,9 @@ class MainActivity : ComponentActivity(), EasyPermissions.PermissionCallbacks {
             App(scaffoldState = scaffoldState!!)
         }
 
-//        AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
+//        if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {
+//            AutoStartPermissionHelper.getInstance().getAutoStartPermission(this, newTask = true)
+//        }
 
         lifecycleScope.launch {
             accountRepository.isSipEnabled.collect {
