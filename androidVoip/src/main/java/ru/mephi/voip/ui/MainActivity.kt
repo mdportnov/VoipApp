@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity(), EasyPermissions.PermissionCallbacks {
         super.onCreate(savedInstanceState)
         setContent {
             scaffoldState = rememberScaffoldState()
-            App(scaffoldState = scaffoldState!!)
+            App()
         }
 
 //        if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {

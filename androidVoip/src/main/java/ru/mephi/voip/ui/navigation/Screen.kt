@@ -23,27 +23,27 @@ sealed class Screen(
         route = "caller?caller_number={caller_number}&caller_name={caller_name}",
         title = R.string.caller,
         icon = Icons.Outlined.Call,
-        selectedIcon = Icons.Filled.Call
+        selectedIcon = Icons.Default.Call
     )
 
     object Catalog : Screen(
         route = "catalog",
         title = R.string.catalog,
         icon = Icons.Outlined.Home,
-        selectedIcon = Icons.Filled.Home,
+        selectedIcon = Icons.Default.Home,
     )
 
     object Profile : Screen(
         route = "profile",
         title = R.string.profile,
         icon = Icons.Outlined.Person,
-        selectedIcon = Icons.Filled.Person,
+        selectedIcon = Icons.Default.Person,
     )
 
     object Settings : Screen(
         route = "settings",
         title = R.string.settings,
         icon = Icons.Outlined.Settings,
-        selectedIcon = Icons.Filled.Settings,
+        selectedIcon = Icons.Default.Settings,
     )
 }
