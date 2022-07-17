@@ -58,4 +58,10 @@
     <string name="start_screen">Стартовый экран</string>
     <string name="application_theme">Тема приложения</string>
     <string name="no_active_account">У вас не выбран активный аккаунт</string>
+
+    <!-- Master Screen -->
+    <string name="caller">Звонки</string>
+    <string name="catalog">Каталог</string>
+    <string name="profile">Профиль</string>
+    <string name="settings">Настройки</string>
 </resources>

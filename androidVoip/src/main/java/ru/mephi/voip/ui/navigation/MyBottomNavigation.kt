@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -32,8 +33,8 @@ fun HomeBottomNavigation(navController: NavController) {
                 currentDestination?.hierarchy?.any { it.route == item.route } == true
             val icon = if (selected) item.selectedIcon else item.icon
             BottomNavigationItem(
-                icon = { Icon(icon, contentDescription = item.title) },
-                label = { Text(text = item.title, fontSize = 10.sp) },
+                icon = { Icon(icon, contentDescription = stringResource(id = item.title)) },
+                label = { Text(text = stringResource(id = item.title), fontSize = 10.sp) },
                 selectedContentColor = ColorAccent,
                 unselectedContentColor = Color.Black.copy(0.4f),
                 alwaysShowLabel = true,
@@ -44,7 +45,6 @@ fun HomeBottomNavigation(navController: NavController) {
                             viewModel.goToStartPage()
                         }
                     }
-
                     navController.navigate(item.route) {
                         navController.graph.startDestinationRoute?.let { screen_route ->
                             popUpTo(screen_route) {

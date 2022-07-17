@@ -1,5 +1,6 @@
 package ru.mephi.voip.ui.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Home
@@ -10,23 +11,39 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
-
+import ru.mephi.voip.R
 
 sealed class Screen(
-    var title: String,
+    var route: String,
+    @StringRes var title: Int,
     var icon: ImageVector,
     var selectedIcon: ImageVector,
-    var route: String
 ) {
     object Caller : Screen(
-        "Звонки",
-        Icons.Outlined.Call,
-        Icons.Filled.Call,
-        "caller?caller_number={caller_number}&caller_name={caller_name}"
+        route = "caller?caller_number={caller_number}&caller_name={caller_name}",
+        title = R.string.caller,
+        icon = Icons.Outlined.Call,
+        selectedIcon = Icons.Filled.Call
     )
 
-    object Catalog : Screen("Каталог", Icons.Outlined.Home, Icons.Filled.Home, "catalog")
-    object Profile : Screen("Профиль", Icons.Outlined.Person, Icons.Filled.Person, "profile")
-    object Settings :
-        Screen("Настройки", Icons.Outlined.Settings, Icons.Filled.Settings, "settings")
+    object Catalog : Screen(
+        route = "catalog",
+        title = R.string.catalog,
+        icon = Icons.Outlined.Home,
+        selectedIcon = Icons.Filled.Home,
+    )
+
+    object Profile : Screen(
+        route = "profile",
+        title = R.string.profile,
+        icon = Icons.Outlined.Person,
+        selectedIcon = Icons.Filled.Person,
+    )
+
+    object Settings : Screen(
+        route = "settings",
+        title = R.string.settings,
+        icon = Icons.Outlined.Settings,
+        selectedIcon = Icons.Filled.Settings,
+    )
 }

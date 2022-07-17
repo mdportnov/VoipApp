@@ -112,8 +112,8 @@ internal fun Settings(
                 Screen.Profile, Screen.Settings -> Icons.Default.Person
             },
             title = stringResource(id = R.string.start_screen),
-            subtitle = uiState.startScreen.title,
-            options = startScreenOptions.map { it.title },
+            subtitle = stringResource(id = uiState.startScreen.title),
+            options = startScreenOptions.map { stringResource(id = it.title) },
         ) { index ->
             onStartScreenChange(startScreenOptions[index])
         }
