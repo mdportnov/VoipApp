@@ -3,12 +3,14 @@ package ru.mephi.voip.ui.navigation
 import android.Manifest
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -38,16 +40,24 @@ fun AppNavigation(navController: NavHostController) {
         composable(
             route = Screen.Caller.route,
             enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentScope.SlideDirection.Right,
-                    animationSpec = tween(400)
-                )
+                when (initialState.destination.route) {
+                    Screen.Catalog.route,
+                    Screen.Profile.route,
+                    Screen.Settings.route -> {
+                        slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
+                    }
+                    else -> null
+                }
             },
             exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentScope.SlideDirection.Right,
-                    animationSpec = tween(400)
-                )
+                when (targetState.destination.route) {
+                    Screen.Catalog.route,
+                    Screen.Profile.route,
+                    Screen.Settings.route -> {
+                        slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
+                    }
+                    else -> null
+                }
             }
         ) { backStackEntry ->
             val callerNumber = backStackEntry.arguments?.getString("caller_number")
@@ -62,16 +72,28 @@ fun AppNavigation(navController: NavHostController) {
         composable(
             route = Screen.Catalog.route,
             enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentScope.SlideDirection.Left,
-                    animationSpec = tween(400)
-                )
+                when (initialState.destination.route) {
+                    Screen.Caller.route -> {
+                        slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
+                    }
+                    Screen.Profile.route,
+                    Screen.Settings.route -> {
+                        slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
+                    }
+                    else -> null
+                }
             },
             exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentScope.SlideDirection.Right,
-                    animationSpec = tween(400)
-                )
+                when (targetState.destination.route) {
+                    Screen.Caller.route -> {
+                        slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
+                    }
+                    Screen.Profile.route,
+                    Screen.Settings.route -> {
+                        slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
+                    }
+                    else -> null
+                }
             }
         ) {
             CatalogScreen(navController)
@@ -79,17 +101,30 @@ fun AppNavigation(navController: NavHostController) {
         composable(
             route = Screen.Profile.route,
             enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentScope.SlideDirection.Left,
-                    animationSpec = tween(400)
-                )
+                when (initialState.destination.route) {
+                    Screen.Caller.route,
+                    Screen.Catalog.route -> {
+                        slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
+                    }
+                    Screen.Settings.route -> {
+                        slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
+                    }
+                    else -> null
+                }
             },
             exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentScope.SlideDirection.Right,
-                    animationSpec = tween(400)
-                )
-            }) {
+                when (targetState.destination.route) {
+                    Screen.Caller.route,
+                    Screen.Catalog.route -> {
+                        slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
+                    }
+                    Screen.Settings.route -> {
+                        slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
+                    }
+                    else -> null
+                }
+            }
+        ) {
             ProfileScreen {
                 navController.navigate(Screen.Settings.route)
             }
@@ -97,18 +132,34 @@ fun AppNavigation(navController: NavHostController) {
         composable(
             route = Screen.Settings.route,
             enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentScope.SlideDirection.Left,
-                    animationSpec = tween(400)
-                )
+                when (initialState.destination.route) {
+                    Screen.Caller.route,
+                    Screen.Catalog.route,
+                    Screen.Profile.route -> {
+                        slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
+                    }
+                    else -> null
+                }
             },
             exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentScope.SlideDirection.Right,
-                    animationSpec = tween(400)
-                )
-            }) {
+                when (targetState.destination.route) {
+                    Screen.Caller.route,
+                    Screen.Catalog.route,
+                    Screen.Profile.route -> {
+                        slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
+                    }
+                    else -> null
+                }
+            }
+        ) {
             SettingsScreen(navController)
         }
     }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+object NavAnimationUtils {
+    val SLIDE_RIGHT = AnimatedContentScope.SlideDirection.Right
+    val SLIDE_LEFT = AnimatedContentScope.SlideDirection.Left
+    val ANIMATION: FiniteAnimationSpec<IntOffset> = tween(400)
 }
