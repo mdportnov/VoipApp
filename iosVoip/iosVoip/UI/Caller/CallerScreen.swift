@@ -116,7 +116,7 @@ struct CallerScreen: View {
     func tryToCall(sipName: String) {
         if (state.inputLine.count > 3) {
             startCall(to: sipName)
-            viewModel.addRecord(sipNumber: state.inputLine, sipName: sipName, status: CallStatus.outcoming)
+            viewModel.addRecord(sipNumber: state.inputLine, sipName: sipName, status: CallStatus.outcoming, duration: 0)
             updateCalls()
             state.inputLine = ""
             changeNumPadState()

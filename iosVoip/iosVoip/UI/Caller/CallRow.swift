@@ -52,6 +52,6 @@ func stringFromDate(_ date: Date) -> String {
 
 struct CallRow_Previews: PreviewProvider {
     static var previews: some View {
-        CallRow(callRecord: CallRecord(id: 1, sipNumber: "8877", sipName: "Труттце А.А.", status: CallStatus.incoming, time: 1643057784), viewModel: nil)
+        CallRow(callRecord: CallRecord(id: 1, sipNumber: "8877", sipName: "Труттце А.А.", status: CallStatus.incoming, time: 1643057784, duration: 0), viewModel: nil)
     }
 }

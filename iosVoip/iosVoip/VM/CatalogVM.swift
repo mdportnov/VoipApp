@@ -143,43 +143,45 @@ class CatalogVM: ObservableObject {
                     print("ResourceErrorNetworkError response on .\(codeStr)!")
                     if currentSavedUnits != nil {
                         let newUnits = self.catalogDao.getUnitByCodeStr(code_str: codeStr)
-                        self.loadingResource = ResourceSuccess(data: newUnits?.first)
-                        CommonUtilsKt.push(self.catalogStack, item: newUnits?.first)
-                        self.catalogTitle = newUnits?.first!.shortname.uppercased() ?? "VoIP MEPhI"
+                        self.loadingResource = ResourceSuccess(data: newUnits)
+                        CommonUtilsKt.push(self.catalogStack, item: newUnits)
+ //                       self.catalogTitle = newUnits?.first!.shortname.uppercased() ?? "VoIP MEPhI"
+                        self.catalogTitle = ""
                     } else {
                         Toast(text: resource?.message, duration: Delay.short).show()
                         self.goBack()
                     }
                 }
-                if resource is ResourceSuccess<NSArray> {
-                    print("ResourceSuccess response on .\(codeStr)!")
-                    remoteUnits = resource?.data ?? []
-                    currentSavedUnits?.forEach { UnitM in
-                        self.catalogDao.deleteByCodeStr(code_str: UnitM.code_str)
-                    }
-
-                    remoteUnits.forEach { UnitM in
-                        self.catalogDao.add(unitM: (UnitM as AnyObject).toKodeIn)
-                    }
-
-                    let newUnits = self.catalogDao.getUnitByCodeStr(code_str: codeStr)
-                    self.loadingResource = ResourceSuccess(data: newUnits?.first)
-                    CommonUtilsKt.push(self.catalogStack, item: newUnits?.first)
-                    self.catalogTitle = newUnits?.first!.shortname.uppercased() ?? "VoIP MEPhI"
-
-                    print("Current stack:\n")
-                    self.catalogStack.forEach { item in
-                        print((item as! UnitM).shortname)
-                    }
-                }
+//                if resource is ResourceSuccess<NSArray> {
+//                    print("ResourceSuccess response on .\(codeStr)!")
+//                    remoteUnits = resource?.data
+//                    currentSavedUnits?.forEach { UnitM in
+//                        self.catalogDao.deleteByCodeStr(code_str: UnitM.code_str)
+//                    }
+//
+//                    remoteUnits.forEach { UnitM in
+//                        self.catalogDao.add(unitM: (UnitM as AnyObject).toKodeIn)
+//                    }
+//
+//                    let newUnits = self.catalogDao.getUnitByCodeStr(code_str: codeStr)
+//                    self.loadingResource = ResourceSuccess(data: newUnits)
+//                    CommonUtilsKt.push(self.catalogStack, item: newUnits)
+////                    self.catalogTitle = newUnits?.first!.shortname.uppercased() ?? "VoIP MEPhI"
+//                    self.catalogTitle = ""
+//                    print("Current stack:\n")
+//                    self.catalogStack.forEach { item in
+//                        print((item as! UnitM).shortname)
+//                    }
+//                }
             }
 
         } else {
             if currentSavedUnits != nil {
                 let newUnits = self.catalogDao.getUnitByCodeStr(code_str: codeStr)
-                self.loadingResource = ResourceSuccess(data: newUnits?.first)
-                CommonUtilsKt.push(self.catalogStack, item: newUnits?.first)
-                self.catalogTitle = newUnits?.first!.shortname.uppercased() ?? "VoIP MEPhI"
+                self.loadingResource = ResourceSuccess(data: newUnits)
+                CommonUtilsKt.push(self.catalogStack, item: newUnits)
+//                self.catalogTitle = newUnits?.first!.shortname.uppercased() ?? "VoIP MEPhI"
+                self.catalogTitle = ""
             } else {
                 Toast(text: "Информация не закэширована", duration: Delay.short).show()
                 self.goBack()
