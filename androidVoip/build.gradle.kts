@@ -128,7 +128,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
 
     implementation("com.jakewharton.timber:timber:5.0.1")
-    implementation("com.vmadalin:easypermissions-ktx:1.0.0")
     implementation("com.github.leonardoxh:keystore-ultimate:1.3.0")
 
     implementation(project(":shared"))

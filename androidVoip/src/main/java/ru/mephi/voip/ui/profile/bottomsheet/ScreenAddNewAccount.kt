@@ -178,10 +178,7 @@ fun AccountItem(account: Account, onCloseBottomSheet: () -> Unit) {
                 onClick = {
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     onCloseBottomSheet()
-                    if ((context as MainActivity).hasPermissions())
-                        viewModel.updateActiveAccount(account)
-                    else
-                        context.requestPermissions()
+                    if ((context as MainActivity).checkNonGrantedPermissions()) viewModel.updateActiveAccount(account)
                 }, modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(10.dp)

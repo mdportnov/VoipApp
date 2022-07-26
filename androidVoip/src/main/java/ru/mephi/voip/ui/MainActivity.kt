@@ -3,23 +3,21 @@ package ru.mephi.voip.ui
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import androidx.activity.ComponentActivity
+import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.vmadalin.easypermissions.EasyPermissions
-import com.vmadalin.easypermissions.dialogs.SettingsDialog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
 import org.abtollc.sdk.AbtoPhoneCfg
@@ -40,7 +38,10 @@ import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
 
 
-class MainActivity : ComponentActivity(), EasyPermissions.PermissionCallbacks {
+class MainActivity : AppCompatActivity() {
+
+    private val requiredPermission = listOf(Manifest.permission.USE_SIP, Manifest.permission.RECORD_AUDIO)
+
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val accountRepository: AccountStatusRepository by inject()
     private val notificationHandler: NotificationHandler by inject()
@@ -97,7 +98,7 @@ class MainActivity : ComponentActivity(), EasyPermissions.PermissionCallbacks {
         intent.data = Uri.parse("package:$packageName")
         startActivity(intent)
 
-        if (!hasPermissions()) requestPermissions()
+        checkNonGrantedPermissions()
 
         if (isSipEnabled) enableSip()
     }
@@ -119,7 +120,7 @@ class MainActivity : ComponentActivity(), EasyPermissions.PermissionCallbacks {
     @Subscribe
     fun enableSip(messageEvent: Event.EnableAccount? = null) {
         initAccount()
-        if (hasPermissions()) initPhone()
+        if (checkNonGrantedPermissions()) initPhone()
     }
 
     @Subscribe
@@ -234,36 +235,59 @@ class MainActivity : ComponentActivity(), EasyPermissions.PermissionCallbacks {
         }
     }
 
-    fun hasPermissions(): Boolean = EasyPermissions.hasPermissions(
-        this, Manifest.permission.RECORD_AUDIO, Manifest.permission.USE_SIP
-    )
-
-    fun requestPermissions() {
-        EasyPermissions.requestPermissions(
-            this,
-            "Это приложение требует разрешение на совершение звонков и использование микрофона",
-            124,
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.USE_SIP
-        )
+    fun checkNonGrantedPermissions(
+        permissions: List<String> = requiredPermission
+    ): Boolean {
+        permissions.filter { p -> !isPermissionGranted(p) }.let {
+            if (it.isEmpty()) return true else {
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(150)
+                    showPermissionsRequestDialog(it)
+                }
+                return false
+            }
+        }
     }
 
-    override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
-        if (EasyPermissions.somePermissionPermanentlyDenied(this@MainActivity, perms)) {
-            SettingsDialog.Builder(this).title("Запрос разрешений для SIP-звонков")
-                .rationale("Это приложение требует разрешения на совершение звонков и использование микрофона")
-                .negativeButtonText("Закрыть").positiveButtonText("Предоставить").build().show()
-        } else requestPermissions()
-    }
-
-    override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
-
+    private fun isPermissionGranted(permission: String): Boolean {
+        return this.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+
+        checkNonGrantedPermissions(permissions.filter { p ->
+            grantResults[permissions.indexOf(p)] != PackageManager.PERMISSION_GRANTED
+        })
     }
+
+    private fun showPermissionsRequestDialog(
+        permissions: List<String>
+    ) {
+        MaterialAlertDialogBuilder(this).also {
+            it.setTitle("Необходимые разрешения")
+            if (permissions.contains(Manifest.permission.USE_SIP) && permissions.contains(Manifest.permission.RECORD_AUDIO)) {
+                it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения на совершения звонков и использования микрофона")
+            } else if (permissions.contains(Manifest.permission.USE_SIP)) {
+                it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения на совершения звонков")
+            } else if (permissions.contains(Manifest.permission.RECORD_AUDIO)) {
+                it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения на использования микрофона")
+            } else {
+                it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения")
+                Timber.e("dialog for ${permissions.joinToString(", ")} not implemented yet")
+            }
+            it.setNeutralButton("Отмена") { _, _ -> onRequestDialogCancellation() }
+            it.setOnCancelListener { onRequestDialogCancellation() }
+            it.setPositiveButton("Предоставить") { _, _ ->  this.requestPermissions(permissions.toTypedArray(), 0x1)}
+        }.show()
+    }
+
+    private fun onRequestDialogCancellation() {
+        Toast.makeText(this, "¯\\_(ツ)_/¯", Toast.LENGTH_SHORT).show()
+    }
+
 }

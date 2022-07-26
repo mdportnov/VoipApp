@@ -207,10 +207,7 @@ fun CallerScreen(
                             isNumPadStateUp = !isNumPadStateUp
                         }
                         else {
-                            scope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar("Приложению нужны разрешения для совершения звонков")
-                            }
-                            (context as MainActivity).requestPermissions()
+                            (context as MainActivity).checkNonGrantedPermissions()
                         }
                     }, backgroundColor = colorResource(id = R.color.colorGreen)
                 ) {
