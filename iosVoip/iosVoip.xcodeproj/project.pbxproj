@@ -41,7 +41,6 @@
 		87A5DD7D27B6A16700A00109 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A5DD7C27B6A16700A00109 /* AVFoundation.framework */; };
 		87A5DD7F27B6A16D00A00109 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A5DD7E27B6A16D00A00109 /* Accelerate.framework */; };
 		87A5DD8127B6A17200A00109 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A5DD8027B6A17200A00109 /* AudioToolbox.framework */; };
-		87A5DD8227B6A19B00A00109 /* AbtoSipClientWrapper.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87A5DD6E27B6A0DC00A00109 /* AbtoSipClientWrapper.xcframework */; };
 		87A5DDBB27B6A64D00A00109 /* abto_dtmf-pound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDAB27B6A64D00A00109 /* abto_dtmf-pound.wav */; };
 		87A5DDBC27B6A64D00A00109 /* abto_dtmf-star.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDAC27B6A64D00A00109 /* abto_dtmf-star.wav */; };
 		87A5DDBD27B6A64D00A00109 /* abto_dtmf-9.wav in Resources */ = {isa = PBXBuildFile; fileRef = 87A5DDAD27B6A64D00A00109 /* abto_dtmf-9.wav */; };
@@ -70,6 +69,7 @@
 		BFF89CC1639E59AEA051BE82 /* OutgoingInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF8991764C6144F3E823C88 /* OutgoingInterfaceView.swift */; };
 		BFF89CC247FB4C694AFB8AD9 /* IncomingInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF89831ADFE4D5B10BB51BC /* IncomingInterfaceView.swift */; };
 		BFF89FCA043C826F3C97C22A /* ProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF89E78E1C787D4903BDC0F /* ProviderDelegate.swift */; };
+		FE134B8528906C1000FB8EFB /* AbtoSipClientWrapper.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE134B8428906C1000FB8EFB /* AbtoSipClientWrapper.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -99,7 +99,6 @@
 		87A5DD5D27AE9F4500A00109 /* KeyPadButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPadButton.swift; sourceTree = "<group>"; };
 		87A5DD5E27AE9F4500A00109 /* KeyPadRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPadRow.swift; sourceTree = "<group>"; };
 		87A5DD6327AF2A4800A00109 /* CallScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallScreen.swift; sourceTree = "<group>"; };
-		87A5DD6E27B6A0DC00A00109 /* AbtoSipClientWrapper.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = AbtoSipClientWrapper.xcframework; path = "../../../Developer/ABTO_iOS_VoIP_SDK_trial(20210527)/AbtoSipClientWrapper.xcframework"; sourceTree = "<group>"; };
 		87A5DD7227B6A13300A00109 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		87A5DD7427B6A14A00A00109 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		87A5DD7627B6A15400A00109 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -137,6 +136,7 @@
 		BFF8991764C6144F3E823C88 /* OutgoingInterfaceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingInterfaceView.swift; sourceTree = "<group>"; };
 		BFF89A73A6BEBF8225C28984 /* CXCallUpdateExt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CXCallUpdateExt.swift; sourceTree = "<group>"; };
 		BFF89E78E1C787D4903BDC0F /* ProviderDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProviderDelegate.swift; sourceTree = "<group>"; };
+		FE134B8428906C1000FB8EFB /* AbtoSipClientWrapper.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = AbtoSipClientWrapper.xcframework; path = Frameworks/AbtoSipClientWrapper.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,7 +147,7 @@
 				87A5DD7D27B6A16700A00109 /* AVFoundation.framework in Frameworks */,
 				87A5DD7927B6A15B00A00109 /* CoreMedia.framework in Frameworks */,
 				87A5DD7327B6A13E00A00109 /* libc++.tbd in Frameworks */,
-				87A5DD8227B6A19B00A00109 /* AbtoSipClientWrapper.xcframework in Frameworks */,
+				FE134B8528906C1000FB8EFB /* AbtoSipClientWrapper.xcframework in Frameworks */,
 				87A5DD7727B6A15400A00109 /* SystemConfiguration.framework in Frameworks */,
 				87A5DD7B27B6A16000A00109 /* CoreGraphics.framework in Frameworks */,
 				87A5DD7527B6A14D00A00109 /* libz.tbd in Frameworks */,
@@ -208,6 +208,7 @@
 		7555FFB0242A642200829871 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FE134B8428906C1000FB8EFB /* AbtoSipClientWrapper.xcframework */,
 				87A5DD8027B6A17200A00109 /* AudioToolbox.framework */,
 				87A5DD7E27B6A16D00A00109 /* Accelerate.framework */,
 				87A5DD7C27B6A16700A00109 /* AVFoundation.framework */,
@@ -216,7 +217,6 @@
 				87A5DD7627B6A15400A00109 /* SystemConfiguration.framework */,
 				87A5DD7427B6A14A00A00109 /* libz.tbd */,
 				87A5DD7227B6A13300A00109 /* libc++.tbd */,
-				87A5DD6E27B6A0DC00A00109 /* AbtoSipClientWrapper.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -630,7 +630,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosVoip/Preview Content\"";
-				DEVELOPMENT_TEAM = S6PWM8SL29;
+				DEVELOPMENT_TEAM = 2UB4NB7L89;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
@@ -661,7 +661,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosVoip/Preview Content\"";
-				DEVELOPMENT_TEAM = S6PWM8SL29;
+				DEVELOPMENT_TEAM = 2UB4NB7L89;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
