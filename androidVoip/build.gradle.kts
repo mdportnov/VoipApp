@@ -108,8 +108,8 @@ dependencies {
     implementation("com.squareup.sqldelight:coroutines-extensions:1.5.3")
 
     // Coil
-    implementation("io.coil-kt:coil:2.0.0-rc02")
-    implementation("io.coil-kt:coil-compose:2.0.0-rc02")
+    implementation("io.coil-kt:coil:2.1.0")
+    implementation("io.coil-kt:coil-compose:2.1.0")
 
     // DI
     implementation("io.insert-koin:koin-android:3.1.5")
@@ -132,4 +132,5 @@ dependencies {
 
     implementation(project(":shared"))
     implementation(files("aars/abto_android_voip_sdk.aar"))
+    implementation(kotlin("reflect"))
 }

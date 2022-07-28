@@ -34,7 +34,7 @@
         android:theme="@style/Theme.VoIP">
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.MasterActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>

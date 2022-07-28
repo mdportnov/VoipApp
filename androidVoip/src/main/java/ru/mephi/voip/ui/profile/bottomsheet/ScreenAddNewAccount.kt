@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.Account
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.MainActivity
+import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.profile.ProfileViewModel
 import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.ColorGray
@@ -178,7 +178,7 @@ fun AccountItem(account: Account, onCloseBottomSheet: () -> Unit) {
                 onClick = {
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     onCloseBottomSheet()
-                    if ((context as MainActivity).checkNonGrantedPermissions()) viewModel.updateActiveAccount(account)
+                    if ((context as MasterActivity).checkNonGrantedPermissions()) viewModel.updateActiveAccount(account)
                 }, modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(10.dp)

@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.components.settings.*
-import ru.mephi.voip.ui.navigation.Screen
+import ru.mephi.voip.ui.home.Screens
 import ru.mephi.voip.utils.ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
 import ru.mephi.voip.utils.PACKAGE_NAME
 import ru.mephi.voip.utils.launchMailClientIntent
@@ -30,7 +30,7 @@ internal fun Settings(
     uiState: SettingsUiState,
     scaffoldState: ScaffoldState,
     onDeviceThemeChange: (DeviceTheme) -> Unit,
-    onStartScreenChange: (Screen) -> Unit,
+    onStartScreenChange: (Screens) -> Unit,
     onSipEnableChange: (Boolean) -> Unit,
     onBackgroundModeEnableChange: (Boolean) -> Unit,
     onCallScreenAlwaysEnableChange: (Boolean) -> Unit,
@@ -103,13 +103,14 @@ internal fun Settings(
             onDeviceThemeChange(DeviceTheme.values()[index])
         }
 
-        val startScreenOptions = listOf(Screen.Caller, Screen.Catalog, Screen.Profile)
+        val startScreenOptions = listOf(Screens.Dialer, Screens.Catalog, Screens.Profile)
 
         DropdownMenuPreference(
             icon = when (uiState.startScreen) {
-                Screen.Caller -> Icons.Default.Call
-                Screen.Catalog -> Icons.Default.Home
-                Screen.Profile, Screen.Settings -> Icons.Default.Person
+                Screens.Dialer -> Icons.Default.Call
+                Screens.Catalog -> Icons.Default.Home
+                Screens.History -> Icons.Default.History
+                Screens.Profile, Screens.Settings -> Icons.Default.Person
             },
             title = stringResource(id = R.string.start_screen),
             subtitle = stringResource(id = uiState.startScreen.title),

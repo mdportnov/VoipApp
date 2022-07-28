@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.navigation
+package ru.mephi.voip.ui.common
 
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.RippleTheme

@@ -1,6 +1,7 @@
 package ru.mephi.voip.di
 
 import org.koin.android.ext.koin.androidApplication
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import ru.mephi.shared.data.network.KtorApiService
 import ru.mephi.voip.abto.CallEventsReceiver
@@ -26,7 +27,7 @@ val repositories = module {
 }
 
 val viewModels = module {
-    single {
+    viewModel {
         ProfileViewModel(androidApplication(), get(), get(), get())
     }
 

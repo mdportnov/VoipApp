@@ -28,7 +28,7 @@ import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
-import ru.mephi.voip.ui.MainActivity
+import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.list.CallRecordsList
 import ru.mephi.voip.ui.caller.list.NumberHistoryList
@@ -207,7 +207,7 @@ fun CallerScreen(
                             isNumPadStateUp = !isNumPadStateUp
                         }
                         else {
-                            (context as MainActivity).checkNonGrantedPermissions()
+                            (context as MasterActivity).checkNonGrantedPermissions()
                         }
                     }, backgroundColor = colorResource(id = R.color.colorGreen)
                 ) {

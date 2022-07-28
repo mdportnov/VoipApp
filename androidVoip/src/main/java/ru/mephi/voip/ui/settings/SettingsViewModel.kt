@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.voip.data.CatalogRepository
-import ru.mephi.voip.ui.navigation.Screen
+import ru.mephi.voip.ui.home.Screens
 
 class SettingsViewModel constructor(
     application: Application,
@@ -91,7 +91,7 @@ class SettingsViewModel constructor(
         }
     }
 
-    fun setStartScreen(startScreen: Screen) {
+    fun setStartScreen(startScreen: Screens) {
         launch {
             preferenceRepository.setStartScreen(startScreen)
         }

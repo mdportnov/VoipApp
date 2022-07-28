@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalAnimationApi::class)
+
 package ru.mephi.voip.ui
 
 import android.Manifest
@@ -10,9 +12,15 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -34,11 +42,12 @@ import ru.mephi.voip.R
 import ru.mephi.voip.abto.getSipUsername
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.eventbus.Event
+import ru.mephi.voip.ui.home.HomeScreen
 import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
 
 
-class MainActivity : AppCompatActivity() {
+class MasterActivity : AppCompatActivity() {
 
     private val requiredPermission = listOf(Manifest.permission.USE_SIP, Manifest.permission.RECORD_AUDIO)
 
@@ -69,7 +78,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             scaffoldState = rememberScaffoldState()
-            App()
+            MaterialTheme {
+                MasterNavCtl()
+            }
         }
 
 //        if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {
@@ -195,7 +206,7 @@ class MainActivity : AppCompatActivity() {
         phone.setInitializeListener { state, message ->
             when (state) {
                 InitializeState.START, InitializeState.INFO, InitializeState.WARNING -> {}
-                InitializeState.FAIL -> AlertDialog.Builder(this@MainActivity).setTitle("Error")
+                InitializeState.FAIL -> AlertDialog.Builder(this@MasterActivity).setTitle("Error")
                     .setMessage(message).setPositiveButton("Ok") { dlg, _ -> dlg.dismiss() }
                     .create().show()
                 InitializeState.SUCCESS -> {}
@@ -288,6 +299,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun onRequestDialogCancellation() {
         Toast.makeText(this, "¯\\_(ツ)_/¯", Toast.LENGTH_SHORT).show()
+    }
+
+    @Composable
+    private fun MasterNavCtl() {
+        val navController = rememberAnimatedNavController()
+        AnimatedNavHost(navController = navController, startDestination = MasterScreens.HomeScreen.route) {
+            composable(
+                route = MasterScreens.HomeScreen.route
+            ) {
+                HomeScreen(masterNavController = navController)
+            }
+            composable(
+                route = MasterScreens.DetailedInfoScreen.route
+            ) {
+
+            }
+            composable(
+                route = MasterScreens.AccountManagerScreen.route
+            ) {
+
+            }
+        }
     }
 
 }

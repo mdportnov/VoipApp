@@ -11,7 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.MainActivity
+import ru.mephi.voip.ui.MasterActivity
 
 class NotificationHandler(private val context: Context) {
     private val notificationManager =
@@ -32,7 +32,7 @@ class NotificationHandler(private val context: Context) {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(context, MasterActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val pendingIntent = PendingIntent.getActivity(

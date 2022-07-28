@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.mephi.shared.appContext
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.navigation.Screen
+import ru.mephi.voip.ui.home.Screens
 
 class PreferenceRepository(val context: Context) {
     private val Context.dataStore by preferencesDataStore(
@@ -52,15 +52,15 @@ class PreferenceRepository(val context: Context) {
         prefs[PreferenceKeys.DEVICE_THEME]?.let { DeviceTheme.valueOf(it) } ?: DeviceTheme.SYSTEM
     }
 
-    val startScreen: Flow<Screen> = context.dataStore.data.map { prefs ->
+    val startScreen: Flow<Screens> = context.dataStore.data.map { prefs ->
         prefs[PreferenceKeys.START_SCREEN]?.let {
             when (it) {
-                Screen.Caller.route-> Screen.Caller
-                Screen.Catalog.route -> Screen.Catalog
-                Screen.Profile.route -> Screen.Profile
-                else -> Screen.Catalog
+                Screens.Dialer.route-> Screens.Dialer
+                Screens.Catalog.route -> Screens.Catalog
+                Screens.Profile.route -> Screens.Profile
+                else -> Screens.Catalog
             }
-        } ?: Screen.Catalog
+        } ?: Screens.Catalog
     }
 
     suspend fun setDeviceTheme(deviceTheme: DeviceTheme) {
@@ -69,7 +69,7 @@ class PreferenceRepository(val context: Context) {
         }
     }
 
-    suspend fun setStartScreen(startScreen: Screen) {
+    suspend fun setStartScreen(startScreen: Screens) {
         context.dataStore.edit { prefs ->
             prefs[PreferenceKeys.START_SCREEN] = startScreen.route
         }
