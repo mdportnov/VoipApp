@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.catalog.search
+package ru.mephi.voip.ui.home.screens.catalog.search
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.SearchType
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.catalog.CatalogViewModel
-import ru.mephi.voip.ui.catalog.HistorySearchModelState
+import ru.mephi.voip.ui.home.screens.catalog.CatalogViewModel
+import ru.mephi.voip.ui.home.screens.catalog.HistorySearchModelState
 import ru.mephi.voip.ui.components.SearchView
 import ru.mephi.voip.utils.rememberFlowWithLifecycle
 

@@ -13,11 +13,13 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -26,6 +28,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
 import org.abtollc.sdk.AbtoPhoneCfg
@@ -34,20 +37,29 @@ import org.abtollc.sdk.OnRegistrationListener
 import org.abtollc.utils.codec.Codec
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
+import org.koin.core.component.KoinComponent
 import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.vm.LogMessage
+import ru.mephi.shared.vm.LogType
+import ru.mephi.shared.vm.LoggerViewModel
+import ru.mephi.shared.vm.UserNotifierViewModel
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
 import ru.mephi.voip.abto.getSipUsername
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.eventbus.Event
+import ru.mephi.voip.ui.detailed.DetailedInfoScreen
 import ru.mephi.voip.ui.home.HomeScreen
+import ru.mephi.voip.ui.settings.SettingsScreen
+import ru.mephi.voip.ui.theme.MasterTheme
 import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
 
 
-class MasterActivity : AppCompatActivity() {
+class MasterActivity : AppCompatActivity(), KoinComponent {
 
     private val requiredPermission = listOf(Manifest.permission.USE_SIP, Manifest.permission.RECORD_AUDIO)
 
@@ -74,11 +86,39 @@ class MasterActivity : AppCompatActivity() {
 
     private var scaffoldState: ScaffoldState? = null
 
+    init {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val lVM: LoggerViewModel = get()
+                lVM.log.collectLatest {
+                    if (it.logMessage.isEmpty()) return@collectLatest
+                    when(it.logType) {
+                        LogType.VERBOSE -> Timber.v(it.logMessage)
+                        LogType.DEBUG -> Timber.d(it.logMessage)
+                        LogType.INFO -> Timber.i(it.logMessage)
+                        LogType.WARNING -> Timber.w(it.logMessage)
+                        LogType.ERROR -> Timber.e(it.logMessage)
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val unVM: UserNotifierViewModel = get()
+                unVM.notifyMsg.collectLatest {
+                    if (it.isNotEmpty()) {
+                        Toast.makeText(this@MasterActivity, it, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             scaffoldState = rememberScaffoldState()
-            MaterialTheme {
+            MasterTheme {
                 MasterNavCtl()
             }
         }
@@ -303,6 +343,8 @@ class MasterActivity : AppCompatActivity() {
 
     @Composable
     private fun MasterNavCtl() {
+        val lVM: LoggerViewModel = get()
+        lVM.log.collectAsState(initial = LogMessage(LogType.VERBOSE, ""))
         val navController = rememberAnimatedNavController()
         AnimatedNavHost(navController = navController, startDestination = MasterScreens.HomeScreen.route) {
             composable(
@@ -313,12 +355,19 @@ class MasterActivity : AppCompatActivity() {
             composable(
                 route = MasterScreens.DetailedInfoScreen.route
             ) {
-
+                DetailedInfoScreen {
+                    navController.popBackStack()
+                }
             }
             composable(
                 route = MasterScreens.AccountManagerScreen.route
             ) {
 
+            }
+            composable(
+                route = MasterScreens.SettingsScreen.route
+            ) {
+                SettingsScreen(navController)
             }
         }
     }

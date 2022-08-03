@@ -33,12 +33,12 @@ import coil.request.ImageRequest
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
-import ru.mephi.shared.data.network.KtorClientBuilder
+import ru.mephi.shared.data.network.GET_PROFILE_PIC_URL_BY_SIP
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.utils.*
 
-@OptIn(ExperimentalCoilApi::class)
+
 @Composable
 fun NumberHistoryList(
     selectedRecord: CallRecord?,
@@ -51,7 +51,7 @@ fun NumberHistoryList(
 
         val painter = rememberAsyncImagePainter(
             ImageRequest.Builder(LocalContext.current)
-                .data(data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + selectedRecord.sipNumber)
+                .data(data = GET_PROFILE_PIC_URL_BY_SIP + selectedRecord.sipNumber)
                 .apply(block = fun ImageRequest.Builder.() {
                     crossfade(true)
                     diskCachePolicy(CachePolicy.ENABLED)

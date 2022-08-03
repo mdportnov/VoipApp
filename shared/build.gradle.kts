@@ -32,8 +32,10 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
+                implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
                 implementation("io.ktor:ktor-client-serialization:$ktorVersion")
+
 
                 implementation("io.insert-koin:koin-core:${koinVersion}")
 

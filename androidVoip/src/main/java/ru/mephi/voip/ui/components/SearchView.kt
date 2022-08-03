@@ -26,7 +26,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import ru.mephi.shared.data.model.SearchType
-import ru.mephi.voip.ui.catalog.search.IconSwitch
+import ru.mephi.voip.ui.home.screens.catalog.search.IconSwitch
 
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi

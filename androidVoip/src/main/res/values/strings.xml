@@ -65,6 +65,7 @@
     <string name="settings">Настройки</string>
     <string name="dialer">Набор</string>
     <string name="history">История</string>
+    <string name="info">Инфо</string>
 
     <string name="no_active_account_call">Нет активного аккаунта для совершения звонка</string>
 </resources>

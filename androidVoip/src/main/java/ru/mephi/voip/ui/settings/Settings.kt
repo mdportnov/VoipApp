@@ -110,7 +110,7 @@ internal fun Settings(
                 Screens.Dialer -> Icons.Default.Call
                 Screens.Catalog -> Icons.Default.Home
                 Screens.History -> Icons.Default.History
-                Screens.Profile, Screens.Settings -> Icons.Default.Person
+                Screens.Profile -> Icons.Default.Person
             },
             title = stringResource(id = R.string.start_screen),
             subtitle = stringResource(id = uiState.startScreen.title),

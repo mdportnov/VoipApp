@@ -1,4 +1,4 @@
-package ru.mephi.shared.data.repository
+package ru.mephi.shared.data.repo
 
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
@@ -10,13 +10,10 @@ import kotlinx.datetime.Clock
 import ru.mephi.shared.data.database.CallsDB
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
-import ru.mephi.shared.data.network.KtorApiService
+import ru.mephi.shared.data.network.VoIPServiceApiImpl
 import ru.mephi.shared.data.network.Resource
 
-class CallsRepository(
-    private val dao: CallsDB,
-    private val api: KtorApiService
-) {
+class CallsRepository(private val dao: CallsDB) {
     private fun logAllCalls() {
         CoroutineScope(Dispatchers.Default).launch {
             dao.getAllCallRecords().asFlow().mapToList().collect {
@@ -34,7 +31,7 @@ class CallsRepository(
 
         if (sipName == null) {
             CoroutineScope(Dispatchers.Default).launch {
-                when (val resource = api.getInfoByPhone(sipNumber)) {
+                when (val resource = VoIPServiceApiImpl.getInfoByPhone(sipNumber)) {
                     is Resource.Loading -> {}
                     is Resource.Success -> {
                         if (resource.data.isNullOrEmpty())

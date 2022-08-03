@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.catalog
+package ru.mephi.voip.ui.home.screens.catalog
 
 import androidx.core.text.isDigitsOnly
 import kotlinx.coroutines.Job
@@ -75,12 +75,12 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
             matchedRecords.value = arrayListOf()
             return
         }
-        val searchResults = allSearchHistory.filter { x ->
-            x.name.startsWith(
-                changedSearchText, true
-            ) && x.type == searchType.value && !x.name.equals(changedSearchText, ignoreCase = true)
-        }
-        matchedRecords.value = searchResults
+//        val searchResults = allSearchHistory.filter { x ->
+//            x.name.startsWith(
+//                changedSearchText, true
+//            ) && x.type == searchType.value && !x.name.equals(changedSearchText, ignoreCase = true)
+//        }
+//        matchedRecords.value = searchResults
     }
 
     fun onClearClick() {
@@ -104,11 +104,11 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
         }
     }
 
-    private fun addSearchRecord(record: SearchRecord) =
-        if (!containsSearchRecord(record)) repository.addSearchRecord(record) else Unit
+    private fun addSearchRecord(record: SearchRecord) {  }
+//        if (!containsSearchRecord(record)) repository.addSearchRecord(record) else Unit
 
-    private fun containsSearchRecord(searchRecord: SearchRecord) =
-        repository.containsSearchRecord(searchRecord)
+//    private fun containsSearchRecord(searchRecord: SearchRecord) =
+//        repository.containsSearchRecord(searchRecord)
 
     fun onRefresh() {
         _catalogStateFlow.value = _catalogStateFlow.value
@@ -160,7 +160,7 @@ class CatalogViewModel(private val repository: CatalogRepository) : MainIoExecut
     }
 
     private fun search(query: String, type: SearchType) {
-        addSearchRecord(SearchRecord(name = query, type = type))
+//        addSearchRecord(SearchRecord(name = query, type = type))
         launch(ioDispatcher) {
             if (type == SearchType.USERS) if (query.isDigitsOnly()) {
                 repository.getUserByPhone(query).onEach { resource ->

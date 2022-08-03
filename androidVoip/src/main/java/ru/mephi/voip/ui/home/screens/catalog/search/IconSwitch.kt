@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.catalog.search
+package ru.mephi.voip.ui.home.screens.catalog.search
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Icon

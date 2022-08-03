@@ -93,6 +93,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-swiperefresh:0.23.1")
     implementation("com.google.accompanist:accompanist-permissions:0.23.1")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.23.1")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
     implementation("com.google.android.material:material:1.6.1")
 
     implementation("com.github.judemanutd:autostarter:1.1.0")
@@ -129,6 +130,8 @@ dependencies {
 
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("com.github.leonardoxh:keystore-ultimate:1.3.0")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.1.1")
 
     implementation(project(":shared"))
     implementation(files("aars/abto_android_voip_sdk.aar"))

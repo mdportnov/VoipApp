@@ -8,13 +8,12 @@ import ru.mephi.shared.data.network.exception.ForbiddenException
 import ru.mephi.shared.data.network.exception.NetworkException
 import ru.mephi.shared.data.network.exception.NotFoundException
 
-class KtorApiService : BaseApiService {
-    private var httpClient = KtorClientBuilder.createHttpClient()
+object VoIPServiceApiImpl : VoIPServiceApi {
 
     override suspend fun getUnitByCodeStr(codeStr: String): Resource<UnitM> {
         try {
             val units: List<UnitM> =
-                httpClient.get {
+                VoIPServiceClient.get {
                     url {
                         path("get_units_mobile_catalog.json")
                         parameter("filter_code_str", codeStr)
@@ -36,17 +35,15 @@ class KtorApiService : BaseApiService {
 
     override suspend fun getUsersByName(filterLike: String): Resource<UnitM> {
         try {
-            val unitOfUsers: UnitM = httpClient.get {
+            val unitOfUsers: UnitM = VoIPServiceClient.get {
                 url {
                     path("get_subscribers_mobile.json")
                     parameter("filter_lastname", "LIKE|%$filterLike%")
                 }
             } ?: return Resource.Error.NetworkError(exception = NotFoundException(filterLike))
-
-            if (unitOfUsers.appointments.isNullOrEmpty()) {
+            if (unitOfUsers.appointments.isEmpty()) {
                 return Resource.Error.EmptyError(exception = NotFoundException(filterLike))
             }
-
             return Resource.Success(data = unitOfUsers)
         } catch (exception: Throwable) {
             return when (exception) {
@@ -61,14 +58,14 @@ class KtorApiService : BaseApiService {
 
     override suspend fun getUnitsByName(filterLike: String): Resource<List<UnitM>> {
         try {
-            val units: List<UnitM> = httpClient.get {
+            val units: List<UnitM> = VoIPServiceClient.get {
                 url {
                     path("get_units_mobile_find.json")
                     parameter("filter_fullname", "LIKE|%$filterLike%")
                 }
             } ?: return Resource.Error.NetworkError(exception = NetworkException())
 
-            if (units.isNullOrEmpty())
+            if (units.isEmpty())
                 return Resource.Error.NotFoundError(exception = NotFoundException(filterLike))
 
             return Resource.Success(data = units)
@@ -85,14 +82,14 @@ class KtorApiService : BaseApiService {
 
     override suspend fun getInfoByPhone(phone: String): Resource<List<NameItem>> {
         try {
-            val nameItems: List<NameItem> = httpClient.get {
+            val nameItems: List<NameItem> = VoIPServiceClient.get {
                 url {
                     path("get_displayname.json")
                     parameter("line", phone)
                 }
             } ?: return Resource.Error.NetworkError(exception = NetworkException())
 
-            if (nameItems.isNullOrEmpty())
+            if (nameItems.isEmpty())
                 return Resource.Error.NotFoundError(exception = NotFoundException(query = phone))
             return Resource.Success(data = nameItems)
         } catch (exception: Throwable) {
@@ -108,14 +105,13 @@ class KtorApiService : BaseApiService {
 
     override suspend fun getUserByPhone(phone: String): Resource<UnitM> {
         try {
-            val userUnit: UnitM = httpClient.get {
+            val userUnit: UnitM = VoIPServiceClient.get {
                 url {
                     path("get_subscribers_mobile_by_phone.json")
                     parameter("filter_extension", phone)
                 }
             } ?: return Resource.Error.NetworkError(exception = NetworkException())
-
-            if (userUnit.appointments.isNullOrEmpty())
+            if (userUnit.appointments.isEmpty())
                 return Resource.Error.NotFoundError(exception = NotFoundException(query = phone))
             return Resource.Success(data = userUnit)
         } catch (exception: Throwable) {

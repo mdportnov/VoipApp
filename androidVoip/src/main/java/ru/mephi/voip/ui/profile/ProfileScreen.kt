@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
-import ru.mephi.voip.ui.catalog.CatalogViewModel
+import ru.mephi.voip.ui.home.screens.catalog.CatalogViewModel
 import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetScreen
 import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetShape
 import ru.mephi.voip.ui.profile.bottomsheet.SheetLayout

@@ -1,10 +1,11 @@
 package ru.mephi.shared.data.model
 
 import kotlinx.serialization.Serializable
+import ru.mephi.shared.vm.SearchType
 
 @Serializable
 data class SearchRecord(
     val id: Long? = null,
-    val name: String,
-    val type: SearchType
+    val searchStr: String,
+    val searchType: SearchType
 )

@@ -28,7 +28,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import ru.mephi.shared.data.model.FavouriteRecord
-import ru.mephi.shared.data.network.KtorClientBuilder
+import ru.mephi.shared.data.network.GET_PROFILE_PIC_URL_BY_SIP
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.CallActivity
@@ -51,7 +51,7 @@ fun FavouriteItem(
 
     val painter = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
-            .data(data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + favouriteRecord.sipNumber)
+            .data(data = GET_PROFILE_PIC_URL_BY_SIP + favouriteRecord.sipNumber)
             .apply(block = fun ImageRequest.Builder.() {
                 crossfade(true)
                 diskCachePolicy(CachePolicy.ENABLED)

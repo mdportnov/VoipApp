@@ -3,7 +3,7 @@ package ru.mephi.shared.data.network
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.UnitM
 
-interface BaseApiService {
+interface VoIPServiceApi {
     // При щелчке по юниту из списка и стартовой загрузке
     // get_units_mobile.json?api_key=ВАШКЛЮЧ&filter_code_str=01 536 00
     suspend fun getUnitByCodeStr(codeStr: String): Resource<UnitM>

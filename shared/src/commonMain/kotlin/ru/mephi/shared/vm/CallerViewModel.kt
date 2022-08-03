@@ -9,7 +9,7 @@ import org.koin.core.component.inject
 import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
-import ru.mephi.shared.data.repository.CallsRepository
+import ru.mephi.shared.data.repo.CallsRepository
 
 open class CallerViewModel : MainIoExecutor(), KoinComponent {
     private val repository: CallsRepository by inject()

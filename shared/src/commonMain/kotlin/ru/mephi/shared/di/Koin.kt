@@ -11,13 +11,13 @@ import ru.mephi.shared.data.database.CallsDB
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.data.database.SearchDB
-import ru.mephi.shared.data.database.dto.AppointmentKodein
+import ru.mephi.shared.data.database.dto.AppointmentKodeIn
 import ru.mephi.shared.data.database.dto.UnitMKodeIn
 import ru.mephi.shared.data.model.NameItem
-import ru.mephi.shared.data.network.KtorApiService
-import ru.mephi.shared.data.repository.CallsRepository
+import ru.mephi.shared.data.repo.CallsRepository
+import ru.mephi.shared.data.repo.VoIPServiceRepository
 import ru.mephi.shared.getApplicationFilesDirectoryPath
-import ru.mephi.shared.vm.CallerViewModel
+import ru.mephi.shared.vm.*
 
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
     startKoin {
@@ -36,14 +36,11 @@ val dispatcherModule = module {
 }
 
 val repositoryModule = module {
-    fun provideCallsRepository(dao: CallsDB, api: KtorApiService): CallsRepository {
-        return CallsRepository(dao, api)
-    }
 
     fun provideCatalogDB() = DB.open(getApplicationFilesDirectoryPath(),
         KotlinxSerializer {
             +UnitMKodeIn.serializer()
-            +AppointmentKodein.serializer()
+            +AppointmentKodeIn.serializer()
             +NameItem.serializer()
         })
 
@@ -51,8 +48,12 @@ val repositoryModule = module {
     single { FavouritesDB() }
     single { CallerViewModel() }
     single { CallsDB(get()) }
-    single { KtorApiService() }
     single { provideCatalogDB() }
-    single { CatalogDao() }
-    single { provideCallsRepository(get(), get()) }
+    single { UserNotifierViewModel() }
+    single { CatalogViewModel(get(), get(), get(), get()) }
+    single { CatalogDao(get(), get()) }
+    single { CallsRepository(get()) }
+    single { LoggerViewModel() }
+    single { VoIPServiceRepository() }
+    single { DetailedInfoViewModel(get(), get(), get()) }
 }

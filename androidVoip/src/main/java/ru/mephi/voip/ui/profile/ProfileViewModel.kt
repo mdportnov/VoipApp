@@ -11,7 +11,7 @@ import org.koin.core.component.KoinComponent
 import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.FavouriteRecord
-import ru.mephi.shared.data.network.KtorClientBuilder
+import ru.mephi.shared.data.network.GET_PROFILE_PIC_URL_BY_SIP
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.call.AbtoViewModel
 import ru.mephi.voip.ui.settings.PreferenceRepository
@@ -44,7 +44,7 @@ class ProfileViewModel(
     }
 
     val imageUrl: String
-        get() = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + accountRepository.getUserNumber()
+        get() = GET_PROFILE_PIC_URL_BY_SIP + accountRepository.getUserNumber()
 
     fun addNewAccount() {
         accountRepository.addNewAccount(

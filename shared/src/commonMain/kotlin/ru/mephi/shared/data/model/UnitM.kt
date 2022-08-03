@@ -4,13 +4,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UnitM(
-    var code_str: String,
-    val name: String,
-    val fullname: String,
-    var shortname: String,
-    var parent_code: String? = null,
-    var parent_name: String? = null,
-    val children: List<UnitM>? = null,
-    val appointments: List<Appointment>? = null,
-    var scrollPosition: Int? = null
+    var code_str: String = "",
+    val name: String = "",
+    val fullname: String = "",
+    var shortname: String = "",
+    var parent_code: String = "",
+    var parent_name: String = "",
+    val appointment_num: String = "",
+    val child_num: String = "",
+    val children: List<UnitM> = emptyList(),
+    val appointments: List<Appointment> = emptyList(),
+    var scrollPosition: Int = 0
 ) : CatalogItem()

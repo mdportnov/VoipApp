@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package ru.mephi.voip.ui.catalog.list
+package ru.mephi.voip.ui.home.screens.catalog.items
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,42 +13,34 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import ru.mephi.shared.appContext
 import ru.mephi.shared.data.model.UnitM
-import ru.mephi.voip.ui.catalog.CatalogViewModel
-import ru.mephi.voip.utils.isOnline
 
 @Composable
 internal fun UnitCatalogItem(
-    record: UnitM,
-    viewModel: CatalogViewModel,
+    unit: UnitM,
+    goNext: (codeStr: String, shortname: String) -> Unit,
     isStart: Boolean = false,
     isEnd: Boolean = false
 ) {
+    val cardShape = RoundedCornerShape(
+        topStart = (if (isStart) 8 else 0).dp,
+        topEnd = (if (isStart) 8 else 0).dp,
+        bottomStart = (if (isEnd) 8 else 0).dp,
+        bottomEnd = (if (isEnd) 8 else 0).dp
+    )
     Card(
-        shape = RoundedCornerShape(
-            topStart = (if (isStart) 8 else 0).dp,
-            topEnd = (if (isStart) 8 else 0).dp,
-            bottomStart = (if (isEnd) 8 else 0).dp,
-            bottomEnd = (if (isEnd) 8 else 0).dp
-        ),
+        shape = cardShape,
         modifier = Modifier
             .wrapContentHeight()
             .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp, top = 0.5.dp, bottom = 0.5.dp)
-            .clickable {
-                if (isOnline(appContext)) {
-                    viewModel.goNext(record.code_str)
-                } else {
-                    if (viewModel.isExistsInDatabase(record.code_str)) {
-                        viewModel.goNext(record.code_str)
-                    }
-                }
-            }
+            .padding(top = 0.5.dp, bottom = 0.5.dp)
+            .clip(cardShape)
+            .clickable { goNext(unit.code_str, unit.shortname) }
     ) {
         Text(
-            text = record.fullname,
+            text = unit.fullname,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(start = 6.dp, end = 6.dp, top = 6.dp, bottom = 6.dp)
         )

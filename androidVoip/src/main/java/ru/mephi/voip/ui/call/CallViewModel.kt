@@ -14,7 +14,7 @@ import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.Resource
-import ru.mephi.shared.data.repository.CallsRepository
+import ru.mephi.shared.data.repo.CallsRepository
 import ru.mephi.voip.data.CatalogRepository
 
 @Suppress("DEPRECATION")

@@ -4,15 +4,12 @@
 
 package ru.mephi.voip.ui.home
 
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationBar
@@ -26,7 +23,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -34,14 +30,13 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import org.koin.androidx.compose.inject
+import ru.mephi.voip.ui.MasterScreens
 import ru.mephi.voip.ui.caller.CallerScreen
-import ru.mephi.voip.ui.catalog.CatalogScreen
 import ru.mephi.voip.ui.common.NoRippleTheme
+import ru.mephi.voip.ui.home.screens.catalog.MasterCatalogScreen
 import ru.mephi.voip.ui.profile.ProfileScreen
 import ru.mephi.voip.ui.settings.PreferenceRepository
-import ru.mephi.voip.ui.settings.SettingsScreen
-
-private val homeScreensList = Screens::class.sealedSubclasses.mapNotNull { it.objectInstance }
+import ru.mephi.voip.utils.NavAnimationUtils
 
 @Composable
 internal fun HomeScreen(
@@ -111,8 +106,7 @@ private fun HomeScreenNavCtl(
             enterTransition = {
                 when (initialState.destination.route) {
                     Screens.Catalog.route,
-                    Screens.Profile.route,
-                    Screens.Settings.route -> {
+                    Screens.Profile.route -> {
                         slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
                     }
                     else -> null
@@ -121,8 +115,7 @@ private fun HomeScreenNavCtl(
             exitTransition = {
                 when (targetState.destination.route) {
                     Screens.Catalog.route,
-                    Screens.Profile.route,
-                    Screens.Settings.route -> {
+                    Screens.Profile.route -> {
                         slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
                     }
                     else -> null
@@ -145,8 +138,7 @@ private fun HomeScreenNavCtl(
                     Screens.Dialer.route -> {
                         slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
                     }
-                    Screens.Profile.route,
-                    Screens.Settings.route -> {
+                    Screens.Profile.route -> {
                         slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
                     }
                     else -> null
@@ -157,15 +149,16 @@ private fun HomeScreenNavCtl(
                     Screens.Dialer.route -> {
                         slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
                     }
-                    Screens.Profile.route,
-                    Screens.Settings.route -> {
+                    Screens.Profile.route -> {
                         slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
                     }
                     else -> null
                 }
             }
         ) {
-            CatalogScreen(navController)
+            MasterCatalogScreen {
+                masterNavController.navigate(route = MasterScreens.DetailedInfoScreen.route)
+            }
         }
         composable(
             route = Screens.Profile.route,
@@ -175,9 +168,6 @@ private fun HomeScreenNavCtl(
                     Screens.Catalog.route -> {
                         slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
                     }
-                    Screens.Settings.route -> {
-                        slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
-                    }
                     else -> null
                 }
             },
@@ -187,41 +177,13 @@ private fun HomeScreenNavCtl(
                     Screens.Catalog.route -> {
                         slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
                     }
-                    Screens.Settings.route -> {
-                        slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
-                    }
                     else -> null
                 }
             }
         ) {
             ProfileScreen {
-                navController.navigate(Screens.Settings.route)
+                masterNavController.navigate(route = MasterScreens.SettingsScreen.route)
             }
-        }
-        composable(
-            route = Screens.Settings.route,
-            enterTransition = {
-                when (initialState.destination.route) {
-                    Screens.Dialer.route,
-                    Screens.Catalog.route,
-                    Screens.Profile.route -> {
-                        slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
-                    }
-                    else -> null
-                }
-            },
-            exitTransition = {
-                when (targetState.destination.route) {
-                    Screens.Dialer.route,
-                    Screens.Catalog.route,
-                    Screens.Profile.route -> {
-                        slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
-                    }
-                    else -> null
-                }
-            }
-        ) {
-            SettingsScreen(navController)
         }
     }
 }
@@ -230,9 +192,3 @@ private fun getCurrentRoute(navController: NavController): String {
     return navController.currentBackStackEntry?.destination?.route ?: ""
 }
 
-
-object NavAnimationUtils {
-    val SLIDE_RIGHT = AnimatedContentScope.SlideDirection.Right
-    val SLIDE_LEFT = AnimatedContentScope.SlideDirection.Left
-    val ANIMATION: FiniteAnimationSpec<IntOffset> = tween(400)
-}

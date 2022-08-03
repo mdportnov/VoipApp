@@ -36,7 +36,7 @@ deleteAllSearches:
     DELETE FROM search_history;
 
 isExistsSearch:
-    SELECT EXISTS (SELECT * FROM  search_history WHERE name = ?);
+    SELECT EXISTS (SELECT * FROM search_history WHERE name = ? AND type = ?);
 
 getAllCalls:
     SELECT * FROM call_history ORDER BY time DESC;

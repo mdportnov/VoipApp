@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.catalog
+package ru.mephi.voip.ui.home.screens.catalog
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -19,20 +19,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.koin.androidx.compose.inject
-import ru.mephi.voip.ui.catalog.list.Breadcrumbs
-import ru.mephi.voip.ui.catalog.list.CatalogList
-import ru.mephi.voip.ui.catalog.search.SearchRecordsList
-import ru.mephi.voip.ui.catalog.search.SearchTopAppBar
+import ru.mephi.voip.ui.home.screens.catalog.items.Breadcrumbs
+import ru.mephi.voip.ui.home.screens.catalog.items.CatalogList
+import ru.mephi.voip.ui.home.screens.catalog.search.SearchRecordsList
+import ru.mephi.voip.ui.home.screens.catalog.search.SearchTopAppBar
 import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.rememberFlowWithLifecycle
 
 
 @Composable
-fun CatalogScreen(navController: NavController) {
+fun CatalogScreenOld(
+    openDetailedInfo: () -> Unit
+) {
     val viewModel: CatalogViewModel by inject()
     val items by viewModel.catalogStack.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
@@ -74,7 +75,7 @@ fun CatalogScreen(navController: NavController) {
             ) {
                 Column {
                     Breadcrumbs(items)
-                    CatalogList(items, navController)
+                    CatalogList(items, openDetailedInfo)
                 }
             }
 
@@ -111,8 +112,8 @@ fun CatalogScreen(navController: NavController) {
                             fontSize = 25.sp
                         )
                         SearchRecordsList(searchHistoryModelState) {
-                            viewModel.onSearchTextChanged(it.name)
-                            viewModel.performSearch(it.name)
+//                            viewModel.onSearchTextChanged(it.name)
+//                            viewModel.performSearch(it.name)
                         }
                     }
                 }

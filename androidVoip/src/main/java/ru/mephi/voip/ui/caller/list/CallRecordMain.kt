@@ -17,7 +17,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
 import ru.mephi.shared.data.model.CallRecord
-import ru.mephi.shared.data.network.KtorClientBuilder
+import ru.mephi.shared.data.network.GET_PROFILE_PIC_URL_BY_SIP
 import ru.mephi.voip.R
 import ru.mephi.voip.utils.stringFromDate
 
@@ -27,7 +27,7 @@ fun CallRecordMain(modifier: Modifier = Modifier, record: CallRecord) {
         Image(
             painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
-                    .data(data = KtorClientBuilder.PHOTO_REQUEST_URL_BY_PHONE + record.sipNumber)
+                    .data(data = GET_PROFILE_PIC_URL_BY_SIP + record.sipNumber)
                     .apply(block = fun ImageRequest.Builder.() {
                         placeholder(R.drawable.nophoto)
                         crossfade(true)

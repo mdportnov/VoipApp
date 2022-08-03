@@ -4,7 +4,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.shared.AppDatabase
 import ru.mephi.shared.data.model.SearchRecord
-import ru.mephi.shared.data.model.SearchType
+import ru.mephi.shared.vm.SearchType
 
 class SearchDB : KoinComponent {
     private val databaseDriverFactory: DatabaseDriverFactory by inject()
@@ -12,26 +12,22 @@ class SearchDB : KoinComponent {
     private val dbQuery = database.appDatabaseQueries
 
     fun getAll(): List<SearchRecord> =
-        dbQuery.getAllSearches { id, name, type ->
-            SearchRecord(id, name, SearchType.valueOf(type))
+        dbQuery.getAllSearches { id, searchStr, searchType ->
+            SearchRecord(id, searchStr, SearchType.valueOf(searchType))
         }.executeAsList()
 
     fun insert(record: SearchRecord) {
-        dbQuery.insertAllSearches(record.id, record.name, record.type.name)
-    }
-
-    fun deleteRecords(vararg record: SearchRecord) {
-        dbQuery.transaction {
-            record.forEach {
-                dbQuery.deleteSearchById(it.id)
-            }
-        }
+        dbQuery.insertAllSearches(record.id, record.searchStr, record.searchType.name)
     }
 
     fun deleteAll() {
         dbQuery.deleteAllSearches()
     }
 
-    fun isExists(name: String) =
-        dbQuery.isExistsSearch(name).executeAsOne()
+    fun isExists(
+        searchStr: String,
+        searchType: SearchType
+    ): Boolean {
+        return dbQuery.isExistsSearch(searchStr, searchType.name).executeAsOne()
+    }
 }

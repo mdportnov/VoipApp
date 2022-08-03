@@ -7,16 +7,16 @@ import org.koin.core.component.inject
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.data.database.SearchDB
-import ru.mephi.shared.data.database.dto.toKodeIn
 import ru.mephi.shared.data.model.*
-import ru.mephi.shared.data.network.KtorApiService
+import ru.mephi.shared.data.network.VoIPServiceApiImpl
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.network.exception.*
-import ru.mephi.voip.ui.catalog.init_code_str
+import ru.mephi.voip.ui.home.screens.catalog.init_code_str
 import java.util.*
 
+
+// TODO: design flaw
 class CatalogRepository : KoinComponent {
-    private val api: KtorApiService by inject()
     private val searchDB: SearchDB by inject()
     private val favoritesDB: FavouritesDB by inject()
     private val catalogDao: CatalogDao by inject()
@@ -29,7 +29,7 @@ class CatalogRepository : KoinComponent {
         emit(Resource.Loading())
 
         try {
-            when (val resource = api.getInfoByPhone(num)) {
+            when (val resource = VoIPServiceApiImpl.getInfoByPhone(num)) {
                 is Resource.Error.NetworkError<*> -> {
                     emit(Resource.Error.NetworkError(NetworkException()))
                 }
@@ -53,11 +53,12 @@ class CatalogRepository : KoinComponent {
         }
     }
 
+    // TODO: Move this fuck out to VoIPServiceRepository
     suspend fun getUsersByName(query: String): Flow<Resource<UnitM>> = flow {
         emit(Resource.Loading())
 
         try {
-            when (val resource = api.getUsersByName(query)) {
+            when (val resource = VoIPServiceApiImpl.getUsersByName(query)) {
                 is Resource.Error.NetworkError -> {
                     emit(Resource.Error.NetworkError(NetworkException()))
                 }
@@ -87,10 +88,11 @@ class CatalogRepository : KoinComponent {
         }
     }
 
+    // TODO: And this
     suspend fun getUnitsByName(query: String): Flow<Resource<UnitM>> = flow {
         emit(Resource.Loading())
         try {
-            when (val resource = api.getUnitsByName(query)) {
+            when (val resource = VoIPServiceApiImpl.getUnitsByName(query)) {
                 is Resource.Error.NetworkError<*> -> {
                     emit(Resource.Error.NetworkError(NetworkException()))
                 }
@@ -110,20 +112,20 @@ class CatalogRepository : KoinComponent {
                 is Resource.Success<*> -> {
                     val children = resource.data as List<UnitM>
 
-                    emit(
-                        Resource.Success(
-                            UnitM(
-                                UUID.randomUUID().toString(),
-                                query,
-                                query,
-                                shortname = query,
-                                "",
-                                "",
-                                children,
-                                null
-                            )
-                        )
-                    )
+//                    emit(
+//                        Resource.Success(
+//                            UnitM(
+//                                UUID.randomUUID().toString(),
+//                                query,
+//                                query,
+//                                shortname = query,
+//                                "",
+//                                "",
+//                                children,
+//                                emptyList()
+//                            )
+//                        )
+//                    )
                 }
             }
         } catch (exception: Exception) {
@@ -143,7 +145,7 @@ class CatalogRepository : KoinComponent {
             }
         }
 
-        when (val resource = api.getUnitByCodeStr(codeStr)) {
+        when (val resource = VoIPServiceApiImpl.getUnitByCodeStr(codeStr)) {
             is Resource.Error.NetworkError<*> -> emit(Resource.Loading())
             is Resource.Error.EmptyError<*> -> {
                 emit(Resource.Error.EmptyError(EmptyUnitException()))
@@ -162,7 +164,7 @@ class CatalogRepository : KoinComponent {
             is Resource.Loading -> emit(Resource.Loading())
             is Resource.Success<*> -> {
                 (resource.data as UnitM).let {
-                    catalogDao.add(it.toKodeIn)
+                    catalogDao.addUnit(it)
                 }
             }
         }
@@ -177,7 +179,7 @@ class CatalogRepository : KoinComponent {
         emit(Resource.Loading())
 
         try {
-            when (val resource = api.getUserByPhone(phone)) {
+            when (val resource = VoIPServiceApiImpl.getUserByPhone(phone)) {
                 is Resource.Error.NetworkError -> emit(Resource.Error.NetworkError(exception = NetworkException()))
                 is Resource.Error.EmptyError<*> -> emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
                 is Resource.Error.UndefinedError<*> -> emit(Resource.Error.UndefinedError(exception = UndefinedException()))
@@ -210,9 +212,9 @@ class CatalogRepository : KoinComponent {
 
     fun getSearchRecords() = searchDB.getAll()
 
-    fun isExistsInDatabase(codeStr: String) = catalogDao.checkByCodeStr(code_str = codeStr)
+    fun isExistsInDatabase(codeStr: String) = catalogDao.isUnitExistsByCodeStr(code_str = codeStr)
 
-    fun containsSearchRecord(searchRecord: SearchRecord) = searchDB.isExists(searchRecord.name)
+//    fun containsSearchRecord(searchRecord: SearchRecord) = searchDB.isExists(searchRecord.name)
 
     fun addSearchRecord(record: SearchRecord) = searchDB.insert(record)
 

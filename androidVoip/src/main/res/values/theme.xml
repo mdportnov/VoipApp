@@ -2,7 +2,9 @@
 <resources>
 
     <style name="Theme.VoIP" parent="Theme.Material3.DayNight.NoActionBar">
-
+        <!-- Status bar -->
+        <item name="android:statusBarColor">#FFFDFBFF</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
 </resources>

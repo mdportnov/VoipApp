@@ -40,11 +40,6 @@ sealed class Screens(
         icon = Icons.Outlined.Person,
         selectedIcon = Icons.Default.Person,
     )
-
-    object Settings : Screens(
-        route = "settings",
-        title = R.string.settings,
-        icon = Icons.Outlined.Settings,
-        selectedIcon = Icons.Default.Settings,
-    )
 }
+
+val homeScreensList = Screens::class.sealedSubclasses.mapNotNull { it.objectInstance }
