@@ -5,7 +5,6 @@ package ru.mephi.voip.ui.home.screens.catalog
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,6 +31,7 @@ import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.shared.vm.SearchType
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.common.CommonColor
+import ru.mephi.voip.ui.home.screens.catalog.items.SearchHistoryItem
 import ru.mephi.voip.ui.theme.md_theme_light_background
 
 @Composable
@@ -147,36 +147,6 @@ internal fun SearchHistory(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun SearchHistoryItem(
-    searchStr: String,
-    applyStr: (searchStr: String) -> Unit,
-    runSearch: (searchStr: String) -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clickable { runSearch(searchStr) }
-    ) {
-        IconButton(onClick = { runSearch(searchStr) }) {
-            Icon(imageVector = Icons.Default.History, contentDescription = null)
-        }
-        Text(
-            text = searchStr,
-            modifier = Modifier
-                .wrapContentHeight()
-                .width((LocalConfiguration.current.screenWidthDp - 128).dp),
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        IconButton(onClick = { applyStr(searchStr) }) {
-            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
         }
     }
 }

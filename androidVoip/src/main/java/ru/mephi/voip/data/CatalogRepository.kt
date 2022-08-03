@@ -7,12 +7,12 @@ import org.koin.core.component.inject
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.data.database.SearchDB
-import ru.mephi.shared.data.model.*
-import ru.mephi.shared.data.network.VoIPServiceApiImpl
+import ru.mephi.shared.data.model.Appointment
+import ru.mephi.shared.data.model.FavouriteRecord
+import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.network.Resource
+import ru.mephi.shared.data.network.VoIPServiceApiImpl
 import ru.mephi.shared.data.network.exception.*
-import ru.mephi.voip.ui.home.screens.catalog.init_code_str
-import java.util.*
 
 
 // TODO: design flaw
@@ -52,171 +52,6 @@ class CatalogRepository : KoinComponent {
             emit(Resource.Error.UndefinedError(UndefinedException()))
         }
     }
-
-    // TODO: Move this fuck out to VoIPServiceRepository
-    suspend fun getUsersByName(query: String): Flow<Resource<UnitM>> = flow {
-        emit(Resource.Loading())
-
-        try {
-            when (val resource = VoIPServiceApiImpl.getUsersByName(query)) {
-                is Resource.Error.NetworkError -> {
-                    emit(Resource.Error.NetworkError(NetworkException()))
-                }
-                is Resource.Error.EmptyError<*> -> {
-                    emit(Resource.Error.EmptyError(EmptyUnitException()))
-                }
-                is Resource.Error.UndefinedError<*> -> {
-                    emit(Resource.Error.UndefinedError(UndefinedException()))
-                }
-                is Resource.Error.NotFoundError -> emit(Resource.Error.NotFoundError())
-                is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
-                is Resource.Loading -> emit(Resource.Loading())
-                is Resource.Success<*> -> {
-                    val unitOfUsers = (resource.data as UnitM)
-                    unitOfUsers.shortname = query
-                    unitOfUsers.code_str = UUID.randomUUID().toString()
-                    if (unitOfUsers.appointments.isNullOrEmpty()) emit(
-                        Resource.Error.NotFoundError(
-                            NotFoundException(query)
-                        )
-                    )
-                    else emit(Resource.Success(unitOfUsers))
-                }
-            }
-        } catch (exception: Exception) {
-            emit(Resource.Error.UndefinedError(UndefinedException()))
-        }
-    }
-
-    // TODO: And this
-    suspend fun getUnitsByName(query: String): Flow<Resource<UnitM>> = flow {
-        emit(Resource.Loading())
-        try {
-            when (val resource = VoIPServiceApiImpl.getUnitsByName(query)) {
-                is Resource.Error.NetworkError<*> -> {
-                    emit(Resource.Error.NetworkError(NetworkException()))
-                }
-                is Resource.Error.EmptyError<*> -> {
-                    emit(Resource.Error.EmptyError(EmptyUnitException()))
-                }
-                is Resource.Error.UndefinedError<*> -> {
-                    emit(Resource.Error.UndefinedError(UndefinedException()))
-                }
-                is Resource.Error.NotFoundError<*> -> {
-                    emit(Resource.Error.NotFoundError(NotFoundException(query)))
-                }
-                is Resource.Error.ServerNotRespondError -> {
-                    emit(Resource.Error.ServerNotRespondError(ServerNotRespondException()))
-                }
-                is Resource.Loading -> emit(Resource.Loading())
-                is Resource.Success<*> -> {
-                    val children = resource.data as List<UnitM>
-
-//                    emit(
-//                        Resource.Success(
-//                            UnitM(
-//                                UUID.randomUUID().toString(),
-//                                query,
-//                                query,
-//                                shortname = query,
-//                                "",
-//                                "",
-//                                children,
-//                                emptyList()
-//                            )
-//                        )
-//                    )
-                }
-            }
-        } catch (exception: Exception) {
-            emit(Resource.Error.UndefinedError(UndefinedException()))
-        }
-    }
-
-    suspend fun getUnitByCodeStr(codeStr: String): Flow<Resource<UnitM>> = flow {
-        emit(Resource.Loading())
-
-        val unit = catalogDao.getUnitByCodeStr(codeStr)
-
-        if (unit != null) {
-            if (unit.code_str == init_code_str) {
-                emit(Resource.Success(unit))
-                return@flow
-            }
-        }
-
-        when (val resource = VoIPServiceApiImpl.getUnitByCodeStr(codeStr)) {
-            is Resource.Error.NetworkError<*> -> emit(Resource.Loading())
-            is Resource.Error.EmptyError<*> -> {
-                emit(Resource.Error.EmptyError(EmptyUnitException()))
-                return@flow
-            }
-            is Resource.Error.UndefinedError<*> -> emit(
-                Resource.Error.UndefinedError(
-                    UndefinedException()
-                )
-            )
-            is Resource.Error.NotFoundError -> {
-                emit(Resource.Error.NotFoundError())
-                return@flow
-            }
-            is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
-            is Resource.Loading -> emit(Resource.Loading())
-            is Resource.Success<*> -> {
-                (resource.data as UnitM).let {
-                    catalogDao.addUnit(it)
-                }
-            }
-        }
-
-        when (val newUnits = catalogDao.getUnitByCodeStr(codeStr)) {
-            null -> emit(Resource.Error.NetworkError(NetworkException()))
-            else -> emit(Resource.Success(newUnits))
-        }
-    }
-
-    suspend fun getUserByPhone(phone: String): Flow<Resource<UnitM>> = flow {
-        emit(Resource.Loading())
-
-        try {
-            when (val resource = VoIPServiceApiImpl.getUserByPhone(phone)) {
-                is Resource.Error.NetworkError -> emit(Resource.Error.NetworkError(exception = NetworkException()))
-                is Resource.Error.EmptyError<*> -> emit(Resource.Error.EmptyError(exception = EmptyUnitException()))
-                is Resource.Error.UndefinedError<*> -> emit(Resource.Error.UndefinedError(exception = UndefinedException()))
-                is Resource.Error.NotFoundError<*> -> emit(
-                    Resource.Error.NotFoundError(
-                        exception = NotFoundException(phone)
-                    )
-                )
-                is Resource.Success<*> -> {
-                    val unitOfUsers = (resource.data as UnitM)
-                    unitOfUsers.shortname = phone
-                    if (unitOfUsers.appointments.isNullOrEmpty()) emit(
-                        Resource.Error.NotFoundError(
-                            NotFoundException(phone)
-                        )
-                    )
-                    else emit(Resource.Success(unitOfUsers))
-                }
-                is Resource.Error.ServerNotRespondError -> emit(
-                    Resource.Error.ServerNotRespondError(
-                        exception = ServerNotRespondException()
-                    )
-                )
-                is Resource.Loading -> emit(Resource.Loading())
-            }
-        } catch (exception: Exception) {
-            emit(Resource.Error.UndefinedError(exception = UndefinedException()))
-        }
-    }
-
-    fun getSearchRecords() = searchDB.getAll()
-
-    fun isExistsInDatabase(codeStr: String) = catalogDao.isUnitExistsByCodeStr(code_str = codeStr)
-
-//    fun containsSearchRecord(searchRecord: SearchRecord) = searchDB.isExists(searchRecord.name)
-
-    fun addSearchRecord(record: SearchRecord) = searchDB.insert(record)
 
     fun deleteAllSearchRecords() = searchDB.deleteAll()
 

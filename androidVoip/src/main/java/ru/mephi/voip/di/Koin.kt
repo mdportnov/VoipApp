@@ -3,7 +3,6 @@ package ru.mephi.voip.di
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import ru.mephi.shared.data.network.VoIPServiceApiImpl
 import ru.mephi.voip.abto.CallEventsReceiver
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.data.CatalogRepository
@@ -13,7 +12,6 @@ import ru.mephi.voip.ui.profile.ProfileViewModel
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.ui.settings.SettingsViewModel
 import ru.mephi.voip.utils.NotificationHandler
-import ru.mephi.shared.vm.DetailedInfoViewModel
 
 val koinModule = module {
     single { CallEventsReceiver() }
