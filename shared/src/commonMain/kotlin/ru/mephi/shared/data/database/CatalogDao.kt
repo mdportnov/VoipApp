@@ -18,7 +18,9 @@ class CatalogDao(
 ) {
 
     fun addUnit(unitM: UnitM) {
-        kodeinDB.put(kodeinDB.keyFrom(unitM), unitM.toKodeIn)
+        unitM.toKodeIn.let {
+            kodeinDB.put(kodeinDB.keyFrom(it), it)
+        }
     }
 
     fun getUnitByCodeStr(codeStr: String): UnitM {
@@ -48,7 +50,9 @@ class CatalogDao(
     }
 
     fun addUser(appointment: Appointment) {
-        kodeinDB.put(kodeinDB.keyFrom(appointment), appointment.toKodeIn)
+        appointment.toKodeIn.let {
+            kodeinDB.put(kodeinDB.keyFrom(it), it)
+        }
     }
 
     fun isUserExistsBySIP(SIP: String): Boolean {
