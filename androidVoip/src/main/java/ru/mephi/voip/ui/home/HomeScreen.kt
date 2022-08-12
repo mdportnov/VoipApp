@@ -8,13 +8,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -29,11 +24,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.koin.androidx.compose.inject
 import ru.mephi.voip.ui.MasterScreens
 import ru.mephi.voip.ui.caller.CallerScreen
 import ru.mephi.voip.ui.common.NoRippleTheme
-import ru.mephi.voip.ui.home.screens.catalog.MasterCatalogScreen
+import ru.mephi.voip.ui.home.screens.catalog.CatalogScreen
+import ru.mephi.voip.ui.home.screens.settings.SettingsScreen
 import ru.mephi.voip.ui.profile.ProfileScreen
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.NavAnimationUtils
@@ -42,8 +39,14 @@ import ru.mephi.voip.utils.NavAnimationUtils
 internal fun HomeScreen(
     masterNavController: NavHostController
 ) {
-    val navController = rememberAnimatedNavController()
+    rememberSystemUiController().let {
+        it.setStatusBarColor(MaterialTheme.colorScheme.background)
+        it.setNavigationBarColor(
+            TopAppBarDefaults.smallTopAppBarColors().containerColor(scrollFraction = 1.0f).value
+        )
+    }
 
+    val navController = rememberAnimatedNavController()
     Scaffold(
         bottomBar = {
             HomeScreenNavBar(navController = navController)
@@ -106,7 +109,7 @@ private fun HomeScreenNavCtl(
             enterTransition = {
                 when (initialState.destination.route) {
                     Screens.Catalog.route,
-                    Screens.Profile.route -> {
+                    Screens.Settings.route -> {
                         slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
                     }
                     else -> null
@@ -115,7 +118,7 @@ private fun HomeScreenNavCtl(
             exitTransition = {
                 when (targetState.destination.route) {
                     Screens.Catalog.route,
-                    Screens.Profile.route -> {
+                    Screens.Settings.route -> {
                         slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
                     }
                     else -> null
@@ -138,7 +141,7 @@ private fun HomeScreenNavCtl(
                     Screens.Dialer.route -> {
                         slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
                     }
-                    Screens.Profile.route -> {
+                    Screens.Settings.route -> {
                         slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
                     }
                     else -> null
@@ -149,19 +152,19 @@ private fun HomeScreenNavCtl(
                     Screens.Dialer.route -> {
                         slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
                     }
-                    Screens.Profile.route -> {
+                    Screens.Settings.route -> {
                         slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
                     }
                     else -> null
                 }
             }
         ) {
-            MasterCatalogScreen {
-                masterNavController.navigate(route = MasterScreens.DetailedInfoScreen.route)
-            }
+            CatalogScreen(
+                openDetailedInfo = { masterNavController.navigate(route = MasterScreens.DetailedInfoScreen.route) }
+            )
         }
         composable(
-            route = Screens.Profile.route,
+            route = Screens.Settings.route,
             enterTransition = {
                 when (initialState.destination.route) {
                     Screens.Dialer.route,
@@ -181,6 +184,10 @@ private fun HomeScreenNavCtl(
                 }
             }
         ) {
+//            SettingsScreen(
+//                addAccount = { masterNavController.navigate(route = MasterScreens.LoginScreen.route) },
+//                switchAccount = { masterNavController.navigate(route = MasterScreens.SwitchScreen.route) }
+//            )
             ProfileScreen {
                 masterNavController.navigate(route = MasterScreens.SettingsScreen.route)
             }

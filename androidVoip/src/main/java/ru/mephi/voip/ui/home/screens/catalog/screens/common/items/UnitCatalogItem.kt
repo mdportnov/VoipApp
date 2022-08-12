@@ -1,16 +1,13 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package ru.mephi.voip.ui.home.screens.catalog.items
+package ru.mephi.voip.ui.home.screens.catalog.screens.common.items
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,8 +16,8 @@ import ru.mephi.shared.data.model.UnitM
 
 @Composable
 internal fun UnitCatalogItem(
-    unit: UnitM,
-    goNext: (codeStr: String, shortname: String) -> Unit,
+    unitM: UnitM,
+    goNext: (UnitM) -> Unit,
     isStart: Boolean = false,
     isEnd: Boolean = false
 ) {
@@ -37,10 +34,12 @@ internal fun UnitCatalogItem(
             .fillMaxWidth()
             .padding(top = 0.5.dp, bottom = 0.5.dp)
             .clip(cardShape)
-            .clickable { goNext(unit.code_str, unit.shortname) }
+            .clickable { goNext(unitM) },
+        elevation = CardDefaults.elevatedCardElevation(),
+        colors = CardDefaults.elevatedCardColors()
     ) {
         Text(
-            text = unit.fullname,
+            text = unitM.fullname,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(start = 6.dp, end = 6.dp, top = 6.dp, bottom = 6.dp)
         )

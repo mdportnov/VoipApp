@@ -5,17 +5,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repo.VoIPServiceRepository
 
-class DetailedInfoViewModel(
-    private val lVM: LoggerViewModel,
-    private val vsRepo: VoIPServiceRepository,
-    private val cDao: CatalogDao
-) : MainIoExecutor() {
+class DetailedInfoViewModel : MainIoExecutor(), KoinComponent {
+
+    private val lVM: LoggerViewModel by inject()
+    private val vsRepo: VoIPServiceRepository by inject()
+    private val cDao: CatalogDao by inject()
 
     val detailedInfo = MutableStateFlow(Appointment())
 

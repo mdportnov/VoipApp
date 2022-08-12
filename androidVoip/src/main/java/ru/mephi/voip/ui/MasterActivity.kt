@@ -16,7 +16,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -27,8 +27,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
 import org.abtollc.sdk.AbtoPhoneCfg
@@ -40,9 +43,8 @@ import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
-import ru.mephi.shared.appContext
 import ru.mephi.shared.data.sip.AccountStatus
-import ru.mephi.shared.vm.LogMessage
+import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.vm.LogType
 import ru.mephi.shared.vm.LoggerViewModel
 import ru.mephi.shared.vm.UserNotifierViewModel
@@ -50,10 +52,14 @@ import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.R
 import ru.mephi.voip.abto.getSipUsername
 import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.InitDataStore
+import ru.mephi.voip.data.InitRequirement
 import ru.mephi.voip.eventbus.Event
 import ru.mephi.voip.ui.detailed.DetailedInfoScreen
 import ru.mephi.voip.ui.home.HomeScreen
+import ru.mephi.voip.ui.login.LoginScreen
 import ru.mephi.voip.ui.settings.SettingsScreen
+import ru.mephi.voip.ui.switch.SwitchScreen
 import ru.mephi.voip.ui.theme.MasterTheme
 import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
@@ -62,6 +68,7 @@ import timber.log.Timber
 class MasterActivity : AppCompatActivity(), KoinComponent {
 
     private val requiredPermission = listOf(Manifest.permission.USE_SIP, Manifest.permission.RECORD_AUDIO)
+    var isPermissionsGranted = false
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val accountRepository: AccountStatusRepository by inject()
@@ -84,9 +91,17 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         }
     }
 
+    private val initDataStore: InitDataStore by inject()
+    private var initRequirement = InitRequirement.NOT_READY
+
     private var scaffoldState: ScaffoldState? = null
 
     init {
+        lifecycleScope.launch {
+            initDataStore.selected.collect {
+                initRequirement = InitRequirement.fromInt(it) ?: InitRequirement.NOT_READY
+            }
+        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val lVM: LoggerViewModel = get()
@@ -116,16 +131,40 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            scaffoldState = rememberScaffoldState()
-            MasterTheme {
-                MasterNavCtl()
+
+        requiredPermission.filter { p -> !isPermissionGranted(p) }.let { if (it.isEmpty()) isPermissionsGranted = true }
+
+        val splashWasDisplayed = savedInstanceState != null
+        if (!splashWasDisplayed) {
+            installSplashScreen().apply {
+                setKeepOnScreenCondition {
+                    initRequirement == InitRequirement.NOT_READY
+                }
+                setOnExitAnimationListener { view ->
+                    view.iconView
+                        .animate()
+                        .setDuration(300L)
+                        .alpha(0f)
+                        .withEndAction {
+                            view.remove()
+                            setContent {
+                                scaffoldState = rememberScaffoldState()
+                                MasterTheme {
+                                    MasterNavCtl()
+                                }
+                            }
+                        }.start()
+                }
+            }
+        } else {
+            setContent {
+                scaffoldState = rememberScaffoldState()
+                MasterTheme {
+                    MasterNavCtl()
+                }
             }
         }
 
-//        if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {
-//            AutoStartPermissionHelper.getInstance().getAutoStartPermission(this, newTask = true)
-//        }
 
         lifecycleScope.launch {
             accountRepository.isSipEnabled.collect {
@@ -181,6 +220,10 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         phone.destroy()
     }
 
+    // NEW
+//    val activeAccount = accountRepository.currentAccount
+
+    // OLD
     val activeAccount = accountRepository.activeAccount
 
     private fun initAccount() {
@@ -197,12 +240,30 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
     }
 
     private fun initPhone() {
+        if (phone.isActive) {
+            Timber.e("initPhone: failed, phone is already active!")
+            return
+        }
+        Timber.e("initPhone: initialising")
+
+
+        // OLD
         phone.setNetworkEventListener { connected, _ ->
             if (connected) accountRepository.fetchStatus(AccountStatus.LOADING)
             else accountRepository.fetchStatus(AccountStatus.NO_CONNECTION)
         }
 
-        //Switching| Registration Listener|REG
+        // NEW
+//        phone.setNetworkEventListener { connected, networkType ->
+//            Timber.e("setNetworkEventListener: network state changed, connected=$connected, networkType=$networkType")
+//            if (connected) {
+//                accountRepository.fetchStatus(AccountStatus.LOADING)
+//            } else {
+//                accountRepository.fetchStatus(AccountStatus.NO_CONNECTION)
+//            }
+//        }
+
+        // OLD
         Timber.d("Set Registration Listener")
         phone.setRegistrationStateListener(object : OnRegistrationListener {
             override fun onRegistered(accId: Long) {
@@ -243,7 +304,51 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
             }
         })
 
+        // NEW
+//        phone.setRegistrationStateListener(object : OnRegistrationListener {
+//            override fun onRegistered(accId: Long) {
+//                Timber.e("onRegistered: account registered, accId=$accId")
+//                accountRepository.phoneStatus.value = AccountStatus.REGISTERED
+//            }
+//
+//            override fun onUnRegistered(accId: Long) {
+//                Timber.e("onUnRegistered: account unregistered, accId=$accId")
+//                accountRepository.phoneStatus.value = AccountStatus.UNREGISTERED
+//            }
+//
+//            override fun onRegistrationFailed(accId: Long, statusCode: Int, statusText: String?) {
+//                Timber.e("onRegistrationFailed: account registration failed, accId=$accId, statusCode=$statusCode")
+//
+//                when(statusCode) {
+//                    405 -> { accountRepository.phoneStatus.value = AccountStatus.NO_CONNECTION }
+//                    408, 502 -> {  }
+//                    else -> { accountRepository.phoneStatus.value = AccountStatus.REGISTRATION_FAILED }
+//                }
+//
+//                accountRepository.fetchStatus(
+//                    AccountStatus.REGISTRATION_FAILED, "Ошибка $statusCode: $statusText"
+//                )
+//
+//                if (accountRepository.hasActiveAccount) // 408 Request Timeout, 502 Bad Gateway
+//                    if (statusCode == 408 || statusCode == 502) {
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            delay(2000)
+//                            accountRepository.fetchStatus(
+//                                AccountStatus.CHANGING, "Переподключение, ошибка $statusCode"
+//                            )
+//                            delay(15000)
+//                            accountRepository.retryRegistration()
+//                        }
+//                    }
+//            }
+//        })
+
+        phone.setNotifyEventListener {
+            Timber.e("setNotifyEventListener: $it")
+        }
+
         phone.setInitializeListener { state, message ->
+            Timber.e("setInitializeListener: state=$state, message=$message")
             when (state) {
                 InitializeState.START, InitializeState.INFO, InitializeState.WARNING -> {}
                 InitializeState.FAIL -> AlertDialog.Builder(this@MasterActivity).setTitle("Error")
@@ -253,8 +358,6 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
                 else -> {}
             }
         }
-
-        if (phone.isActive) return
 
         val config = phone.config
         for (c in Codec.values()) config.setCodecPriority(c, 0.toShort())
@@ -268,6 +371,7 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         config.isUseSRTP = false
         config.userAgent = phone.version()
         config.hangupTimeout = 5000
+        config.registerTimeout = 3000
         config.enableSipsSchemeUse = false
         config.isSTUNEnabled = false
         AbtoPhoneCfg.setLogLevel(7, true)
@@ -343,10 +447,12 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
 
     @Composable
     private fun MasterNavCtl() {
-        val lVM: LoggerViewModel = get()
-        lVM.log.collectAsState(initial = LogMessage(LogType.VERBOSE, ""))
         val navController = rememberAnimatedNavController()
-        AnimatedNavHost(navController = navController, startDestination = MasterScreens.HomeScreen.route) {
+        val isInit = initRequirement == InitRequirement.INIT_REQUIRED
+        AnimatedNavHost(
+            navController = navController,
+            startDestination = MasterScreens.HomeScreen.route
+        ) {
             composable(
                 route = MasterScreens.HomeScreen.route
             ) {
@@ -360,14 +466,22 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
                 }
             }
             composable(
-                route = MasterScreens.AccountManagerScreen.route
+                route = MasterScreens.LoginScreen.route
             ) {
-
+                LoginScreen(
+                    skipInit = { navController.navigate(route = MasterScreens.HomeScreen.route)  },
+                    isInit = isInit
+                )
             }
             composable(
                 route = MasterScreens.SettingsScreen.route
             ) {
                 SettingsScreen(navController)
+            }
+            composable(
+                route = MasterScreens.SwitchScreen.route
+            ) {
+                SwitchScreen(goBack = { navController.popBackStack() })
             }
         }
     }

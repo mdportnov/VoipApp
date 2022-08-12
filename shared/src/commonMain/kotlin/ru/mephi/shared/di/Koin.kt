@@ -16,7 +16,7 @@ import ru.mephi.shared.data.database.dto.UnitMKodeIn
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.repo.CallsRepository
 import ru.mephi.shared.data.repo.VoIPServiceRepository
-import ru.mephi.shared.getApplicationFilesDirectoryPath
+import ru.mephi.shared.utils.getApplicationFilesDirectoryPath
 import ru.mephi.shared.vm.*
 
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) =
@@ -37,7 +37,8 @@ val dispatcherModule = module {
 
 val repositoryModule = module {
 
-    fun provideCatalogDB() = DB.open(getApplicationFilesDirectoryPath(),
+    fun provideCatalogDB() = DB.open(
+        getApplicationFilesDirectoryPath(),
         KotlinxSerializer {
             +UnitMKodeIn.serializer()
             +AppointmentKodeIn.serializer()
@@ -50,10 +51,11 @@ val repositoryModule = module {
     single { CallsDB(get()) }
     single { provideCatalogDB() }
     single { UserNotifierViewModel() }
-    single { CatalogViewModel(get(), get(), get(), get()) }
-    single { CatalogDao(get(), get()) }
+    single { CatalogViewModel() }
+    single { CatalogDao() }
     single { CallsRepository(get()) }
     single { LoggerViewModel() }
     single { VoIPServiceRepository() }
-    single { DetailedInfoViewModel(get(), get(), get()) }
+    single { DetailedInfoViewModel() }
+    single { SavedAccountsViewModel() }
 }

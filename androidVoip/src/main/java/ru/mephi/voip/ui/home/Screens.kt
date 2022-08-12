@@ -27,15 +27,16 @@ sealed class Screens(
         selectedIcon = Icons.Default.Call
     )
 
+    // TODO: Даже Outlined.MenuBook выглядит как Default.MenuBook, то есть необходимо создать локальную копию Outlined.MenuBook, с незакрашенной левой стороной
     object Catalog : Screens(
         route = "catalog",
         title = R.string.catalog,
-        icon = Icons.Outlined.Home,
-        selectedIcon = Icons.Default.Home,
+        icon = Icons.Outlined.MenuBook,
+        selectedIcon = Icons.Default.MenuBook,
     )
 
-    object Profile : Screens(
-        route = "profile",
+    object Settings : Screens(
+        route = "settings",
         title = R.string.profile,
         icon = Icons.Outlined.Person,
         selectedIcon = Icons.Default.Person,

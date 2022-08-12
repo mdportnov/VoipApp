@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.home.screens.catalog.items
+package ru.mephi.voip.ui.home.screens.catalog.screens.common.items
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -18,20 +18,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import ru.mephi.shared.vm.SearchType
 
 @Composable
 internal fun SearchHistoryItem(
     searchStr: String,
-    applyStr: (searchStr: String) -> Unit,
-    runSearch: (searchStr: String) -> Unit
+    searchType: SearchType,
+    applySearchStr: (String) -> Unit,
+    runSearch: (String, SearchType) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clickable { runSearch(searchStr) }
+            .padding(horizontal = 12.dp)
+            .clickable { runSearch(searchStr, searchType) }
     ) {
-        IconButton(onClick = { runSearch(searchStr) }) {
+        IconButton(onClick = { runSearch(searchStr, searchType) }) {
             Icon(imageVector = Icons.Default.History, contentDescription = null)
         }
         Text(
@@ -43,7 +45,7 @@ internal fun SearchHistoryItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        IconButton(onClick = { applyStr(searchStr) }) {
+        IconButton(onClick = { applySearchStr(searchStr) }) {
             Icon(imageVector = Icons.Default.Edit, contentDescription = null)
         }
     }

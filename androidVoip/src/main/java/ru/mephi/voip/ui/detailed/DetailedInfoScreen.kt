@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.*
@@ -20,10 +21,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import ru.mephi.voip.ui.common.CommonColor
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import ru.mephi.voip.ui.common.NoRippleTheme
 import ru.mephi.voip.ui.detailed.screens.HistoryScreen
 import ru.mephi.voip.ui.detailed.screens.InfoScreen
@@ -33,7 +32,6 @@ import ru.mephi.voip.ui.detailed.screens.InfoScreen
 internal fun DetailedInfoScreen(
     onGoBack: () -> Unit
 ) {
-    DetailedInfoSetupSysBars()
     val navController = rememberAnimatedNavController()
     Scaffold(
         topBar = { DetailedInfoTopBar(onGoBack) },
@@ -43,13 +41,6 @@ internal fun DetailedInfoScreen(
             DetailedInfoNavCtl(navController)
         }
     }
-//    BackHandler(enabled = true) { onGoBack() }
-}
-
-@Composable
-internal fun DetailedInfoSetupSysBars() {
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setSystemBarsColor(CommonColor())
 }
 
 @Composable
@@ -65,10 +56,12 @@ private fun DetailedInfoTopBar(
         },
         actions = {
             IconButton(onClick = { /*TODO*/ }) {
+                Icon(imageVector = Icons.Default.Share, contentDescription = null)
+            }
+            IconButton(onClick = { /*TODO*/ }) {
                 Icon(imageVector = Icons.Default.Star, contentDescription = null)
             }
-        },
-        colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = CommonColor())
+        }
     )
 }
 

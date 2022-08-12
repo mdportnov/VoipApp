@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package ru.mephi.voip.ui.home.screens.catalog.items
+package ru.mephi.voip.ui.home.screens.catalog.screens.common.items
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -24,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import org.koin.androidx.compose.inject
@@ -33,8 +36,10 @@ import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.call.CallActivity
-import ru.mephi.voip.ui.home.screens.catalog.CatalogViewModel
+import ru.mephi.voip.data.CatalogViewModel
+import ru.mephi.voip.ui.common.CommonColor
 import ru.mephi.voip.utils.getImageUrl
+import kotlin.math.ln
 
 
 @Composable
@@ -59,7 +64,9 @@ internal fun UserCatalogItem(
             .wrapContentHeight()
             .padding(top = 0.5.dp, bottom = 0.5.dp)
             .clip(cardShape)
-            .clickable { openDetailedInfo(appointment) }
+            .clickable { openDetailedInfo(appointment) },
+        elevation = CardDefaults.elevatedCardElevation(),
+        colors = CardDefaults.elevatedCardColors()
     ) {
         Row(
             modifier = Modifier
@@ -136,7 +143,7 @@ private fun UserActionButton(
         Box( modifier = Modifier
             .size(36.dp)
             .background(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                color = MaterialTheme.colorScheme.secondaryContainer,
                 shape = CircleShape
             )) { }
         IconButton(
@@ -146,7 +153,7 @@ private fun UserActionButton(
             Icon(
                 imageVector = imageVector,
                 modifier = Modifier.size(26.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
                 contentDescription = null
             )
         }

@@ -8,8 +8,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.mephi.shared.appContext
-import ru.mephi.voip.R
 import ru.mephi.voip.ui.home.Screens
 
 class PreferenceRepository(val context: Context) {
@@ -22,18 +20,6 @@ class PreferenceRepository(val context: Context) {
                 )
             )
         })
-
-    object PreferenceKeys {
-        val IS_SIP_ENABLED =
-            booleanPreferencesKey(appContext.getString(R.string.setting_sip_enabled))
-        val IS_BACKGROUND_MODE_ENABLED =
-            booleanPreferencesKey(appContext.getString(R.string.setting_background_mode_enabled))
-        val IS_CALL_SCREEN_ALWAYS_ENABLED =
-            booleanPreferencesKey(appContext.getString(R.string.setting_call_screen_enabled))
-        val START_SCREEN =
-            stringPreferencesKey(appContext.getString(R.string.setting_start_destination))
-        val DEVICE_THEME = stringPreferencesKey(appContext.getString(R.string.setting_device_theme))
-    }
 
     val isSipEnabled: Flow<Boolean> =
         context.dataStore.data.map { prefs -> prefs[PreferenceKeys.IS_SIP_ENABLED] ?: false }
@@ -49,15 +35,15 @@ class PreferenceRepository(val context: Context) {
         }
 
     val deviceTheme: Flow<DeviceTheme> = context.dataStore.data.map { prefs ->
-        prefs[PreferenceKeys.DEVICE_THEME]?.let { DeviceTheme.valueOf(it) } ?: DeviceTheme.SYSTEM
+        prefs[PreferenceKeys.SELECTED_DEVICE_THEME]?.let { DeviceTheme.valueOf(it) } ?: DeviceTheme.SYSTEM
     }
 
     val startScreen: Flow<Screens> = context.dataStore.data.map { prefs ->
-        prefs[PreferenceKeys.START_SCREEN]?.let {
+        prefs[PreferenceKeys.SELECTED_START_SCREEN]?.let {
             when (it) {
                 Screens.Dialer.route-> Screens.Dialer
                 Screens.Catalog.route -> Screens.Catalog
-                Screens.Profile.route -> Screens.Profile
+                Screens.Settings.route -> Screens.Settings
                 else -> Screens.Catalog
             }
         } ?: Screens.Catalog
@@ -65,13 +51,13 @@ class PreferenceRepository(val context: Context) {
 
     suspend fun setDeviceTheme(deviceTheme: DeviceTheme) {
         context.dataStore.edit { prefs ->
-            prefs[PreferenceKeys.DEVICE_THEME] = deviceTheme.name
+            prefs[PreferenceKeys.SELECTED_DEVICE_THEME] = deviceTheme.name
         }
     }
 
     suspend fun setStartScreen(startScreen: Screens) {
         context.dataStore.edit { prefs ->
-            prefs[PreferenceKeys.START_SCREEN] = startScreen.route
+            prefs[PreferenceKeys.SELECTED_START_SCREEN] = startScreen.route
         }
     }
 
@@ -98,4 +84,12 @@ class PreferenceRepository(val context: Context) {
             prefs[PreferenceKeys.IS_CALL_SCREEN_ALWAYS_ENABLED] = enable
         }
     }
+}
+
+private object PreferenceKeys {
+    val IS_SIP_ENABLED = booleanPreferencesKey("is_sip_enabled")
+    val IS_BACKGROUND_MODE_ENABLED = booleanPreferencesKey("is_background_mode_enabled")
+    val IS_CALL_SCREEN_ALWAYS_ENABLED = booleanPreferencesKey("is_call_screen_always_enabled")
+    val SELECTED_START_SCREEN = stringPreferencesKey("selected_start_screen")
+    val SELECTED_DEVICE_THEME = stringPreferencesKey("selected_device_theme")
 }

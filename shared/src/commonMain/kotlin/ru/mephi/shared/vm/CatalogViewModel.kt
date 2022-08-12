@@ -3,6 +3,8 @@ package ru.mephi.shared.vm
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.database.CatalogDao
 import ru.mephi.shared.data.database.SearchDB
@@ -12,18 +14,18 @@ import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repo.VoIPServiceRepository
 
 
-class CatalogViewModel(
-    private val lVM: LoggerViewModel,
-    private val vsRepo: VoIPServiceRepository,
-    private val cDao: CatalogDao,
-    private val searchDB: SearchDB
-) : MainIoExecutor() {
+class CatalogViewModel : MainIoExecutor(), KoinComponent {
+
+    private val lVM: LoggerViewModel by inject()
+    private val vsRepo: VoIPServiceRepository by inject()
+    private val cDao: CatalogDao by inject()
+    private val searchDB: SearchDB by inject()
 
     val navigateUnitMap: MutableMap<String, MutableStateFlow<UnitM>> = mutableMapOf()
     val selectedSearchHistory = MutableStateFlow(emptyList<String>())
 
-    var currentSearchStr = MutableStateFlow("")
-    var currentSearchType = MutableStateFlow(SearchType.SEARCH_USER)
+    val isRunning = MutableStateFlow(false)
+    val isSearchOk = MutableStateFlow(true)
 
     private var totalSearchHistory = mutableListOf<SearchRecord>()
 
@@ -34,36 +36,29 @@ class CatalogViewModel(
             navigateUnitMap[CatalogUtils.INIT_CODE_STR] = it
             searchUnitByCodeStr(CatalogUtils.INIT_CODE_STR, it)
         }
-        launch(ioDispatcher) {
-            totalSearchHistory.addAll(searchDB.getAll().reversed())
-            currentSearchStr.combine(currentSearchType) { str, type ->
-                totalSearchHistory.filter { s ->
-                    s.searchType == type && s.searchStr.contains(str)
-                }.map { s -> s.searchStr }
-            }.collect { s -> selectedSearchHistory.value = s }
+//        launch(ioDispatcher) {
+//            totalSearchHistory.addAll(searchDB.getAll().reversed())
+//        }
+    }
+
+    private fun acquire() {
+        launch {
+            isRunning.value = true
+            job.join()
+            isRunning.value = false
         }
     }
 
-    fun navigateNext(
-        codeStr: String,
-        shortname: String
-    ) {
-        navigateUnitMap[codeStr]?.let {
+    fun navigateNext(unitM: UnitM) {
+        navigateUnitMap[unitM.code_str]?.let {
             if (!(it.value.appointment_num == "" && it.value.child_num == "")) {
                 return
             }
         }
-        MutableStateFlow(UnitM(
-            shortname = shortname,
-            code_str = codeStr
-        )).let {
-            navigateUnitMap[codeStr] = it
-            searchUnitByCodeStr(codeStr, it)
+        MutableStateFlow(unitM).let {
+            navigateUnitMap[unitM.code_str] = it
+            searchUnitByCodeStr(unitM.code_str, it)
         }
-    }
-
-    fun navigateBack() {
-        job.cancel()
     }
 
     private fun searchUnitByCodeStr(
@@ -81,6 +76,7 @@ class CatalogViewModel(
                     is Resource.Loading -> { lVM.e("Loading") }
                     is Resource.Success -> {
                         resource.data?.let { unit ->
+                            cDao.addUnit(unit)
                             stackItem.value = unit
                         }
                     }
@@ -92,6 +88,7 @@ class CatalogViewModel(
                 }
             }.launchIn(this)
         }
+        acquire()
     }
 
     fun runSearch(
@@ -101,17 +98,16 @@ class CatalogViewModel(
         job.cancel()
 
         if (searchStr.length <= 3) {
-            lVM.e("searchStr is too short!")
+            lVM.e("CatalogViewModel: searchStr is too short!")
             return
         }
 
         addSearchRecord(searchStr, searchType)
-        val codeStr = CatalogUtils.getCodeStrBySearch(searchStr, searchType)
         MutableStateFlow(UnitM(
             shortname = searchStr,
-            code_str = codeStr
+            code_str = "Search"
         )).let {
-            navigateUnitMap[codeStr] = it
+            navigateUnitMap["Search"] = it
             when(searchType) {
                 SearchType.SEARCH_UNIT -> searchUnit(searchStr, it)
                 SearchType.SEARCH_USER -> {
@@ -159,7 +155,7 @@ class CatalogViewModel(
         searchName: String,
         stackItem: MutableStateFlow<UnitM>
     ) {
-        lVM.e(stackItem.value.toString())
+        lVM.d("CatalogViewModel: searchUserByName() called! Args: searchName=$searchName")
         job = launch(ioDispatcher) {
             vsRepo.getUsersByName(searchName).onEach { resource ->
                 when (resource) {
@@ -183,6 +179,7 @@ class CatalogViewModel(
         searchStr: String,
         stackItem: MutableStateFlow<UnitM>
     ) {
+        lVM.d("CatalogViewModel: searchUnit() called! Args: searchStr=$searchStr")
         job = launch(ioDispatcher) {
             vsRepo.getUnitsByName(searchStr).onEach { resource ->
                 when (resource) {
@@ -238,13 +235,6 @@ class CatalogViewModel(
 object CatalogUtils {
     const val INIT_CODE_STR = "01 000 00"
     val ONLY_DIGITS_REGEX = Regex("[0-9]+")
-
-    fun getCodeStrBySearch(
-        searchStr: String,
-        searchType: SearchType,
-    ): String {
-        return "$searchStr|${searchType.name}"
-    }
 }
 
 enum class SearchType{

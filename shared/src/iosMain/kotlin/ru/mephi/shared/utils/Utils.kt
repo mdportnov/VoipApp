@@ -1,4 +1,4 @@
-package ru.mephi.shared
+package ru.mephi.shared.utils
 
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains

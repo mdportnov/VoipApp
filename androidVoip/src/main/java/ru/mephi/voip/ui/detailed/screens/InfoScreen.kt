@@ -15,10 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.PositionInfo
@@ -33,7 +36,6 @@ internal fun InfoScreen(
     diVM: DetailedInfoViewModel = get()
 ) {
     val detailedInfo = diVM.detailedInfo.collectAsState(Appointment())
-    Timber.e(detailedInfo.value.toString())
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,7 +77,11 @@ private fun BasicInfo(
                 .size(124.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop,
-            model = getImageUrl(SIP),
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(getImageUrl(SIP))
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .build(),
             error = painterResource(id = R.drawable.ic_dummy_avatar),
             placeholder = painterResource(id = R.drawable.ic_dummy_avatar),
             contentDescription = null

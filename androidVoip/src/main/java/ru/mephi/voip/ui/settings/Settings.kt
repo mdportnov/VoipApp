@@ -103,14 +103,14 @@ internal fun Settings(
             onDeviceThemeChange(DeviceTheme.values()[index])
         }
 
-        val startScreenOptions = listOf(Screens.Dialer, Screens.Catalog, Screens.Profile)
+        val startScreenOptions = listOf(Screens.Dialer, Screens.Catalog, Screens.Settings)
 
         DropdownMenuPreference(
             icon = when (uiState.startScreen) {
                 Screens.Dialer -> Icons.Default.Call
                 Screens.Catalog -> Icons.Default.Home
                 Screens.History -> Icons.Default.History
-                Screens.Profile -> Icons.Default.Person
+                Screens.Settings -> Icons.Default.Person
             },
             title = stringResource(id = R.string.start_screen),
             subtitle = stringResource(id = uiState.startScreen.title),

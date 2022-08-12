@@ -1,24 +1,23 @@
 package ru.mephi.voip.data
 
 import android.app.Application
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import org.abtollc.sdk.AbtoPhone
 import org.greenrobot.eventbus.EventBus
 import org.koin.core.component.KoinComponent
-import ru.mephi.shared.appContext
+import org.koin.core.component.inject
+import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.vm.SavedAccountsViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.abto.AbtoApp
 import ru.mephi.voip.abto.decryptAccountJson
@@ -36,6 +35,8 @@ class AccountStatusRepository(
 ) : KoinComponent {
     private var phone: AbtoPhone = (app as AbtoApp).abtoPhone
 
+    private val saVM: SavedAccountsViewModel by inject()
+
     private var _displayName = MutableStateFlow<NameItem?>(null)
     val displayName: StateFlow<NameItem?> = _displayName
 
@@ -47,14 +48,20 @@ class AccountStatusRepository(
 
     val isBackgroundWork = settings.isBackgroundModeEnabled
 
-    private val _accountsList: MutableStateFlow<List<Account>> = MutableStateFlow(listOf())
+    private val _accountsList: MutableStateFlow<List<Account>> = MutableStateFlow(emptyList())
     val accountList: StateFlow<List<Account>> = _accountsList
 
     private var _accountsCount = MutableStateFlow(0)
     val accountsCount: StateFlow<Int> = _accountsCount
 
+    // OLD
     private var _activeAccount = MutableStateFlow<Account?>(null)
     val activeAccount: StateFlow<Account?> = _activeAccount
+
+    private var accId = -1L
+    val currentAccount = MutableStateFlow(AccountUtils.dummyAccount)
+    val accountsList = MutableStateFlow(emptyList<Account>())
+    val phoneStatus = MutableStateFlow(AccountStatus.UNREGISTERED)
 
     val hasActiveAccount
         get() = activeAccount.value != null
@@ -62,13 +69,27 @@ class AccountStatusRepository(
     private val scope = CoroutineScope(Dispatchers.IO)
 
     init {
+        // NEW
+//        getAccountsList().let { lst ->
+//            accountsList.value = lst
+//            saVM.sipList.value = lst.map { v -> v.login }
+//            lst.firstOrNull { it.isActive }.let {
+//                if (it != null) {
+//                    setActiveAccount(it)
+//                } else {
+//                    Timber.e("No active accounts found!")
+//                    phoneStatus.value = AccountStatus.UNREGISTERED
+//                }
+//            }
+//        }
+
+        // OLD
         updateAccountsList()
         _activeAccount.value = accountList.value.firstOrNull { it.isActive }
-        scope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             settings.isSipEnabled.collect { enabled ->
                 _isSipEnabled.value = enabled
                 fetchStatus(_status.value)
-
                 when (enabled) {
                     true -> {
                         enableAccount()
@@ -81,6 +102,8 @@ class AccountStatusRepository(
         }
     }
 
+
+    // OLD
     private fun updateAccountsList() {
         val jsonDecrypted = decryptAccountJson()
         Timber.d("AccountsListJSON: \n${jsonDecrypted ?: "empty"}")
@@ -130,6 +153,9 @@ class AccountStatusRepository(
 
     fun getUserNumber() = when {
         phone.config.accountsCount == 0 -> null
+        // NEW
+//        phone.config.getAccount(accId).active -> phone.config.getAccount(phone.currentAccountId)?.sipUserName
+        // OLD
         phone.config.getAccount(phone.currentAccountId).active -> phone.config.getAccount(phone.currentAccountId)?.sipUserName
         else -> null
     }
@@ -155,6 +181,35 @@ class AccountStatusRepository(
                 }
             }
         }
+    }
+
+    // OLD
+    fun updateActiveAccount(account: Account): String {
+        _activeAccount.value = accountList.value.firstOrNull { it.isActive }
+        val list = accountList.value
+        fetchStatus(AccountStatus.CHANGING)
+
+        list.forEach { it.isActive = false }
+        list.forEach {
+            if (account.login == it.login) it.isActive = true
+        }
+
+        updateAccounts(list)
+
+        val username = activeAccount.value?.login
+        val password = activeAccount.value?.password
+
+        phone.config.addAccount(
+            appContext.getString(R.string.sip_domain), "", username, password, null, "", 300, true
+        )
+
+        phone.config.registerTimeout = 3000
+        phone.restartSip()
+
+        _accountsList.value = list
+        _accountsCount.value = list.size
+
+        return activeAccount.value!!.login
     }
 
     private fun updateAccounts(list: List<Account>) {
@@ -188,34 +243,6 @@ class AccountStatusRepository(
         updateAccounts(list)
     }
 
-    fun updateActiveAccount(account: Account): String {
-        _activeAccount.value = accountList.value.firstOrNull { it.isActive }
-        val list = accountList.value
-        fetchStatus(AccountStatus.CHANGING)
-
-        list.forEach { it.isActive = false }
-        list.forEach {
-            if (account.login == it.login) it.isActive = true
-        }
-
-        updateAccounts(list)
-
-        val username = activeAccount.value?.login
-        val password = activeAccount.value?.password
-
-        phone.config.addAccount(
-            appContext.getString(R.string.sip_domain), "", username, password, null, "", 300, true
-        )
-
-        phone.config.registerTimeout = 3000
-        phone.restartSip()
-
-        _accountsList.value = list
-        _accountsCount.value = list.size
-
-        return activeAccount.value!!.login
-    }
-
     fun retryRegistration() {
         if (!hasActiveAccount) {
             fetchStatus(AccountStatus.UNREGISTERED)
@@ -240,4 +267,89 @@ class AccountStatusRepository(
         EventBus.getDefault().post(Event.DisableAccount())
         fetchStatus(AccountStatus.UNREGISTERED)
     }
+
+    fun setActiveAccount(account: Account) {
+        Timber.e("setActiveAccount: called!")
+        phoneStatus.value = AccountStatus.LOADING
+
+        var isAdded = true
+        if (accountsList.value.firstOrNull { v -> v.login == account.login } == null) {
+            Timber.e("setActiveAccount: account doesn't exists in list, assuming it's first login")
+            isAdded = false
+        }
+        if (accId != -1L) {
+            Timber.e("setActiveAccount: unregistering previous account, accId=$accId")
+            phone.unregister(accId)
+        }
+
+        val list = accountsList.value.toMutableList()
+        list.forEach { v -> v.isActive = false }
+
+        if (!phone.isActive) {
+            Timber.e("setActiveAccount: phone is not active, enabling!")
+            EventBus.getDefault().post(Event.EnableAccount())
+        }
+        accId = phone.config.addAccount(
+            appContext.getString(R.string.sip_domain),
+            "",
+            account.login,
+            account.password,
+            null,
+            "",
+            300,
+            true
+        )
+        phone.register()
+        Timber.e("setActiveAccount: added new account, accId=$accId")
+
+        list.forEach { v -> if (v.login == account.login) v.isActive = true; currentAccount.value = v }
+        Timber.e("setActiveAccount: old list = ${accountsList.value}, new list = $list")
+        if (isAdded) {
+            setAccountsList(list)
+        }
+    }
+
+    fun addAccount(account: Account) {
+        currentAccount.value = account.copy(isActive = false)
+        val list = accountsList.value.toMutableList()
+        list.add(account)
+        setAccountsList(list)
+        setActiveAccount(account)
+    }
+
+    // NEW
+//    fun removeAccount(account: Account) {
+//        if (account.isActive) {
+//            if (accId != -1L) {
+//                phone.unregister(accId)
+//            }
+//            currentAccount.value = AccountUtils.dummyAccount
+//        }
+//        val list = accountsList.value.toMutableList()
+//        list.removeAll { v -> v.login == account.login}
+//        setAccountsList(list)
+//    }
+
+    private fun setAccountsList(accounts: List<Account>) {
+        accountsList.value = accounts.toMutableList()
+        encryptAccountJson(Json.encodeToJsonElement(accounts).toString())
+    }
+
+    private fun getAccountsList() : List<Account> {
+        decryptAccountJson().let {
+            return if (it.isNullOrEmpty()) {
+                emptyList()
+            } else {
+                Json.decodeFromString(it)
+            }
+        }
+    }
+}
+
+private object AccountUtils {
+    val dummyAccount = Account(
+        login = "",
+        password = "",
+        isActive = false
+    )
 }

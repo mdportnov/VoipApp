@@ -4,6 +4,8 @@ import org.kodein.db.DB
 import org.kodein.db.deleteAll
 import org.kodein.db.find
 import org.kodein.db.useModels
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mephi.shared.data.database.dto.AppointmentKodeIn
 import ru.mephi.shared.data.database.dto.UnitMKodeIn
 import ru.mephi.shared.data.database.dto.fromKodein
@@ -12,10 +14,10 @@ import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.vm.LoggerViewModel
 
-class CatalogDao(
-    private val lVM: LoggerViewModel,
-    private val kodeinDB: DB
-) {
+class CatalogDao : KoinComponent {
+
+    private val lVM: LoggerViewModel by inject()
+    private val kodeinDB: DB by inject()
 
     fun addUnit(unitM: UnitM) {
         unitM.toKodeIn.let {

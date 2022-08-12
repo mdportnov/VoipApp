@@ -1,186 +1,141 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalAnimationApi::class)
 
 package ru.mephi.voip.ui.home.screens.catalog
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import org.koin.androidx.compose.get
-import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.vm.CatalogUtils
 import ru.mephi.shared.vm.CatalogViewModel
-import ru.mephi.shared.vm.SearchType
-import ru.mephi.voip.ui.common.CommonColor
-import ru.mephi.voip.ui.common.GroupTitle
-import ru.mephi.voip.ui.home.screens.catalog.items.UnitCatalogItem
-import ru.mephi.voip.ui.home.screens.catalog.items.UserCatalogItem
-
+import ru.mephi.shared.vm.DetailedInfoViewModel
+import ru.mephi.voip.ui.home.screens.catalog.screens.CatalogHomeScreen
+import ru.mephi.voip.ui.home.screens.catalog.screens.CatalogNextScreen
+import ru.mephi.voip.ui.home.screens.catalog.screens.SearchScreen
+import timber.log.Timber
 
 @Composable
 fun CatalogScreen(
-    codeStr: String,
-    goNext: (nextCodeStr: String, shortname: String) -> Unit,
-    goBack: () -> Unit,
-    openDetailedInfo: (appointment: Appointment) -> Unit,
-    runSearch: (searchStr: String, searchType: SearchType) -> Unit,
-    cVM: CatalogViewModel = get()
+    openDetailedInfo: () -> Unit,
+    cVM: CatalogViewModel = get(),
 ) {
-    val unitM = cVM.navigateUnitMap[codeStr]?.collectAsState() ?: remember { mutableStateOf(UnitM()) }
-    var isSearchVisible by remember { mutableStateOf(false) }
-    val switchSearchVisibility = { isEnter: Boolean ->
-        if (isEnter) {
-            cVM.currentSearchStr.value = ""
-            cVM.currentSearchType.value = SearchType.SEARCH_USER
+    val navController = rememberAnimatedNavController()
+    Box {
+        CatalogNavCtl(navController, openDetailedInfo)
+        val showProgress = cVM.isRunning.collectAsState()
+        if (showProgress.value) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
-        isSearchVisible = !isSearchVisible
-    }
-    Scaffold(
-        topBar = {
-            if (codeStr == CatalogUtils.INIT_CODE_STR) {
-                CatalogTopBarInit(
-                    isSearchVisible = isSearchVisible,
-                    runSearch = runSearch,
-                    switchSearchVisibility = switchSearchVisibility
-                )
-            } else {
-                CatalogTopBarDefault(
-                    title = unitM.value.shortname,
-                    goBack = goBack,
-                    isSearchVisible = isSearchVisible,
-                    runSearch = runSearch,
-                    switchSearchVisibility = switchSearchVisibility
-                )
-            }
-        }
-    ) {
-        Box(modifier = Modifier.padding(it)) {
-            if (!isSearchVisible) {
-                CatalogList(unitM.value, goNext, openDetailedInfo)
-            } else {
-                SearchHistory(runSearch = runSearch)
-            }
-        }
-    }
-    BackHandler(enabled = true) {
-        goBack()
     }
 }
 
 @Composable
-private fun CatalogTopBarInit(
-    isSearchVisible: Boolean,
-    runSearch: (searchStr: String, searchType: SearchType) -> Unit,
-    switchSearchVisibility: (isEnter: Boolean) -> Unit
+private fun CatalogNavCtl(
+    navController: NavHostController,
+    openDetailedInfo: () -> Unit,
+    cVM: CatalogViewModel = get(),
+    diVM: DetailedInfoViewModel = get()
 ) {
-    if (!isSearchVisible) {
-        Row(
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
-                .background(color = CommonColor(), shape = RoundedCornerShape(48.dp))
-                .clip(RoundedCornerShape(48.dp))
-                .height(48.dp)
-                .fillMaxWidth()
-                .clickable { switchSearchVisibility(true) }
-                .padding(start = 4.dp)
+    AnimatedNavHost(
+        navController = navController,
+        startDestination = Screens.CatalogHomeScreen.route
+    ) {
+        composable(
+            route = Screens.CatalogHomeScreen.route
         ) {
-            IconButton(onClick = { switchSearchVisibility(true) }) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null
-                )
-            }
-            Text(
-                text = "Поиск",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .wrapContentHeight(),
-                style = MaterialTheme.typography.bodyLarge.let {
-                    it.copy(color = it.color.copy(alpha = 0.75f))
+            CatalogHomeScreen(
+                openSearch = {
+                    navController.navigate(route = Screens.SearchScreen.route) {
+                        launchSingleTop = true
+                    }
+                },
+                openDetailedInfo = { app ->
+                    diVM.loadDetailedInfo(appointment = app)
+                    openDetailedInfo()
+                },
+                goNext = { unitM ->
+                    cVM.navigateNext(unitM)
+                    goNext(unitM, navController)
                 }
             )
         }
-    } else {
-        SearchTopBar(switchSearchVisibility, runSearch)
+        composable(
+            route = Screens.CatalogNextScreen.route,
+            arguments = listOf(navArgument("codeStr") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val codeStr = backStackEntry.arguments?.getString("codeStr") ?: CatalogUtils.INIT_CODE_STR
+            CatalogNextScreen(
+                codeStr = codeStr,
+                openDetailedInfo = { app ->
+                    diVM.loadDetailedInfo(appointment = app)
+                    openDetailedInfo()
+                },
+                goNext = { unitM ->
+                    cVM.navigateNext(unitM)
+                    goNext(unitM, navController)
+                },
+                openSearch = {
+                    navController.navigate(route = Screens.SearchScreen.route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable(
+            route = Screens.CatalogSearchScreen.route
+        ) {
+            CatalogNextScreen(
+                codeStr = "Search",
+                openDetailedInfo = { app ->
+                    diVM.loadDetailedInfo(appointment = app)
+                    openDetailedInfo()
+                },
+                goNext = { unitM ->
+                    cVM.navigateNext(unitM)
+                    goNext(unitM, navController)
+                },
+                openSearch = {
+                    navController.navigate(route = Screens.SearchScreen.route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable(
+            route = Screens.SearchScreen.route
+        ) {
+            SearchScreen(
+                runSearch = { str, type ->
+                    cVM.runSearch(str, type)
+                    navController.navigate(route = Screens.CatalogSearchScreen.route) {
+                        launchSingleTop = true
+                        popUpTo(route = Screens.CatalogHomeScreen.route)
+                    }
+                },
+                exitSearch = { navController.popBackStack() }
+            )
+        }
     }
 }
 
-@Composable
-private fun CatalogTopBarDefault(
-    title: String,
-    goBack: () -> Unit,
-    isSearchVisible: Boolean,
-    runSearch: (searchStr: String, searchType: SearchType) -> Unit,
-    switchSearchVisibility: (isEnter: Boolean) -> Unit
-) {
-    if (!isSearchVisible) {
-        CenterAlignedTopAppBar(
-            navigationIcon = {
-                IconButton(onClick = { goBack() }) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
-                }
-            },
-            title = { Text(text = title.replaceFirstChar(Char::titlecase)) },
-            actions = {
-                IconButton(onClick = { switchSearchVisibility(true) }) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = null)
-                }
-            }
-        )
-    } else {
-        SearchTopBar(switchSearchVisibility, runSearch)
-    }
-}
-
-@Composable
-private fun CatalogList(
+private fun goNext(
     unitM: UnitM,
-    goNext: (codeStr: String, shortname: String) -> Unit,
-    openDetailedInfo: (appointment: Appointment) -> Unit,
+    navController: NavHostController,
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp)
-    ) {
-        unitM.appointments.let {
-            if (it.isNotEmpty()) {
-                item { GroupTitle(title = "Абоненты") }
-            }
-            itemsIndexed(items = it) { i, appointment ->
-                UserCatalogItem(
-                    appointment = appointment,
-                    openDetailedInfo = openDetailedInfo,
-                    isStart = i == 0,
-                    isEnd = i + 1 == it.size
-                )
-            }
-        }
-        unitM.children.let {
-            if (it.isNotEmpty()) {
-                item { GroupTitle(title = "Подгруппы") }
-            }
-            itemsIndexed(items = it) { i, item ->
-                UnitCatalogItem(
-                    unit = item,
-                    goNext = goNext,
-                    isStart = i == 0,
-                    isEnd = i + 1 == it.size
-                )
-            }
-        }
-    }
+    navController.navigate(route = Screens.CatalogNextScreen.route.replace(
+        oldValue = "{codeStr}",
+        newValue = unitM.code_str
+    ))
 }

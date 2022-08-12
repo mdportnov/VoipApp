@@ -41,8 +41,6 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
-        dataBinding = true
         compose = true
     }
 
@@ -87,13 +85,13 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.1.1")
     implementation("androidx.compose.foundation:foundation:1.2.0-beta01")
     implementation("androidx.navigation:navigation-compose:2.4.2")
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.17.0")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     implementation("com.google.accompanist:accompanist-swiperefresh:0.23.1")
     implementation("com.google.accompanist:accompanist-permissions:0.23.1")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.23.1")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.23.1")
     implementation("com.google.android.material:material:1.6.1")
 
     implementation("com.github.judemanutd:autostarter:1.1.0")
@@ -130,6 +128,9 @@ dependencies {
 
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("com.github.leonardoxh:keystore-ultimate:1.3.0")
+
+    // Splash
+    implementation("androidx.core:core-splashscreen:1.0.0-beta01")
 
     implementation("androidx.compose.runtime:runtime-livedata:1.1.1")
 

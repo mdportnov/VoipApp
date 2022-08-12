@@ -1,7 +1,7 @@
 package ru.mephi.voip.ui.common
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,7 +13,7 @@ fun GroupTitle(
     title: String
 ) {
     Text(
-        modifier = Modifier.padding(top = 6.dp, bottom = 4.dp, start = 2.dp),
+        modifier = Modifier.padding(bottom = 2.dp, start = 2.dp),
         text = title,
         style = MaterialTheme.typography.titleMedium,
         maxLines = 1,

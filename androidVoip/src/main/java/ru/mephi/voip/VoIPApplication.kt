@@ -1,12 +1,15 @@
 package ru.mephi.voip
 
-import ru.mephi.shared.appContext
+import com.google.android.material.color.DynamicColors
+import ru.mephi.shared.utils.appContext
 import ru.mephi.voip.abto.AbtoApp
 import ru.mephi.voip.utils.PACKAGE_NAME
 import timber.log.Timber
 
 class VoIPApplication : AbtoApp() {
     override fun onCreate() {
+        DynamicColors.applyToActivitiesIfAvailable(this)
+
         super.onCreate()
         appContext = this
         PACKAGE_NAME = packageName

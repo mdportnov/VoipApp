@@ -1,10 +1,10 @@
 package ru.mephi.voip.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 
 private val LightColors = lightColorScheme(
@@ -70,17 +70,23 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun MasterTheme(
-  useDarkTheme: Boolean = isSystemInDarkTheme(),
-  content: @Composable() () -> Unit
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDynamicColor: Boolean = true,
+    content: @Composable () -> Unit
 ) {
-  val colors = if (!useDarkTheme) {
-    LightColors
-  } else {
-    DarkColors
-  }
+    val colorScheme = when {
+        isDynamicColor && isDarkTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            dynamicDarkColorScheme(LocalContext.current)
+        }
+        isDynamicColor && !isDarkTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            dynamicLightColorScheme(LocalContext.current)
+        }
+        isDarkTheme -> DarkColors
+        else -> LightColors
+    }
 
-  MaterialTheme(
-    colorScheme = LightColors,
-    content = content
-  )
+    MaterialTheme(
+        colorScheme = colorScheme,
+        content = content
+    )
 }

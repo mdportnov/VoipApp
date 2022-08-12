@@ -7,6 +7,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mephi.shared.di.initKoin
+import ru.mephi.voip.di.dataStores
 import ru.mephi.voip.di.koinModule
 import ru.mephi.voip.di.repositories
 import ru.mephi.voip.di.viewModels
@@ -20,7 +21,7 @@ open class AbtoApp : AbtoApplication(), KoinComponent {
 
         initKoin {
             androidContext(this@AbtoApp)
-            modules(koinModule, viewModels, repositories)
+            modules(koinModule, viewModels, repositories, dataStores)
         }
 
         registerReceiver(callEventsReceiver, IntentFilter(AbtoPhone.ACTION_ABTO_CALL_EVENT))

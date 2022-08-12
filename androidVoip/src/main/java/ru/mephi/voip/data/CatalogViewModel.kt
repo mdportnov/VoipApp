@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.home.screens.catalog
+package ru.mephi.voip.data
 
 import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.model.Appointment

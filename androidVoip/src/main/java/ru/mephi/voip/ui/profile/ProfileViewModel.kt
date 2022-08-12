@@ -47,6 +47,12 @@ class ProfileViewModel(
         get() = GET_PROFILE_PIC_URL_BY_SIP + accountRepository.getUserNumber()
 
     fun addNewAccount() {
+        // NEW
+//        accountRepository.addAccount(Account(
+//            login = newLogin.value,
+//            password = newPassword.value
+//        ))
+        // OLD
         accountRepository.addNewAccount(
             newLogin = newLogin.value,
             newPassword = newPassword.value
