@@ -3,7 +3,7 @@
 package ru.mephi.voip.ui.home.screens.catalog.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,6 +19,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -31,7 +33,6 @@ import ru.mephi.shared.vm.SearchType
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.common.CommonColor
 import ru.mephi.voip.ui.home.screens.catalog.screens.common.items.SearchHistoryItem
-import ru.mephi.voip.ui.theme.md_theme_light_background
 
 @Composable
 internal fun SearchScreen(
@@ -39,7 +40,9 @@ internal fun SearchScreen(
     exitSearch: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
     LaunchedEffect(true) {
+        focusRequester.requestFocus()
         keyboardController?.show()
     }
 
@@ -49,25 +52,42 @@ internal fun SearchScreen(
     val applySearchStr = { newStr: String -> searchStr = newStr }
     val applySearchType = { newType: SearchType -> searchType = newType }
 
+    val quitSearch = { focusRequester.freeFocus(); keyboardController?.hide() }
+
     Scaffold(
         topBar = {
             SearchTopBar(
-                runSearch = runSearch,
-                exitSearch = exitSearch,
+                runSearch = { str, type ->
+                    quitSearch()
+                    runSearch(str, type)
+                },
+                exitSearch = {
+                    quitSearch()
+                    exitSearch()
+                },
                 searchStr = searchStr,
                 applySearchStr = applySearchStr,
                 searchType = searchType,
-                applySearchType = applySearchType
+                applySearchType = applySearchType,
+                focusRequester = focusRequester
             )
         }
     ) {
         Box(modifier = Modifier.padding(it)) {
             SearchHistory(
-                runSearch = runSearch,
+                runSearch = { str, type ->
+                    quitSearch()
+                    runSearch(str, type)
+                },
                 applySearchStr = applySearchStr,
                 searchType = searchType
             )
         }
+    }
+
+    BackHandler(true) {
+        quitSearch()
+        exitSearch()
     }
 }
 
@@ -78,7 +98,8 @@ private fun SearchTopBar(
     searchStr: String,
     applySearchStr: (String) -> Unit,
     searchType: SearchType,
-    applySearchType: (SearchType) -> Unit
+    applySearchType: (SearchType) -> Unit,
+    focusRequester: FocusRequester,
 ) {
     val activity = LocalContext.current as MasterActivity
     CenterAlignedTopAppBar(
@@ -108,10 +129,12 @@ private fun SearchTopBar(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
-                        onSearch = { runSearch(searchStr, searchType) }
+                        onSearch = {
+                            runSearch(searchStr, searchType)
+                        }
                     ),
                     modifier = Modifier
-//                        .focusRequester(focusRequester)
+                        .focusRequester(focusRequester)
                         .fillMaxWidth(),
                     textStyle = MaterialTheme.typography.bodyLarge
                 )
