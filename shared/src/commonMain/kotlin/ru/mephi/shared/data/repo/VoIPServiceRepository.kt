@@ -23,8 +23,12 @@ class VoIPServiceRepository {
                 is Resource.Error.UndefinedError<*> -> {
                     emit(Resource.Error.UndefinedError(UndefinedException()))
                 }
-                is Resource.Error.NotFoundError -> emit(Resource.Error.NotFoundError())
-                is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
+                is Resource.Error.NotFoundError -> {
+                    emit(Resource.Error.NotFoundError(NotFoundException(SIP)))
+                }
+                is Resource.Error.ServerNotRespondError -> {
+                    emit(Resource.Error.ServerNotRespondError(ServerNotRespondException()))
+                }
                 is Resource.Loading -> emit(Resource.Loading())
                 is Resource.Success<*> -> {
                     resource.data?.let { unit ->
@@ -54,8 +58,12 @@ class VoIPServiceRepository {
                 is Resource.Error.UndefinedError<*> -> {
                     emit(Resource.Error.UndefinedError(UndefinedException()))
                 }
-                is Resource.Error.NotFoundError -> emit(Resource.Error.NotFoundError())
-                is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
+                is Resource.Error.NotFoundError -> {
+                    emit(Resource.Error.NotFoundError(NotFoundException(searchName)))
+                }
+                is Resource.Error.ServerNotRespondError -> {
+                    emit(Resource.Error.ServerNotRespondError(ServerNotRespondException()))
+                }
                 is Resource.Loading -> emit(Resource.Loading())
                 is Resource.Success<*> -> {
                     resource.data?.let { unit ->
@@ -112,7 +120,9 @@ class VoIPServiceRepository {
         emit(Resource.Loading())
         try {
             when (val resource = VoIPServiceApiImpl.getUnitByCodeStr(codeStr)) {
-                is Resource.Error.NetworkError<*> -> emit(Resource.Loading())
+                is Resource.Error.NetworkError<*> -> {
+                    emit(Resource.Error.NetworkError(NetworkException()))
+                }
                 is Resource.Error.EmptyError<*> -> {
                     emit(Resource.Error.EmptyError(EmptyUnitException()))
                 }

@@ -28,15 +28,10 @@ import ru.mephi.voip.ui.home.screens.catalog.screens.SearchScreen
 @Composable
 fun CatalogScreen(
     openDetailedInfo: () -> Unit,
-    cVM: CatalogViewModel = get(),
 ) {
     val navController = rememberAnimatedNavController()
     Box {
         CatalogNavCtl(navController, openDetailedInfo)
-        val showProgress = cVM.isRunning.collectAsState()
-        if (showProgress.value) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
     }
 }
 

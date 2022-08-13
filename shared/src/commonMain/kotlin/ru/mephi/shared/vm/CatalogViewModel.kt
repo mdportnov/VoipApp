@@ -21,92 +21,91 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
     private val cDao: CatalogDao by inject()
     private val searchDB: SearchDB by inject()
 
-    val navigateUnitMap: MutableMap<String, MutableStateFlow<UnitM>> = mutableMapOf()
+    val navigateUnitMap: MutableMap<String, ExtendedUnitM> = mutableMapOf()
     val selectedSearchHistory = MutableStateFlow(emptyList<String>())
-
-    val isRunning = MutableStateFlow(false)
-    val isSearchOk = MutableStateFlow(true)
 
     private var totalSearchHistory = mutableListOf<SearchRecord>()
 
     private var job: Job = launch(ioDispatcher) { }
 
     init {
-        MutableStateFlow(UnitM()).let {
+        ExtendedUnitM(MutableStateFlow(UnitM())).let {
             navigateUnitMap[CatalogUtils.INIT_CODE_STR] = it
             searchUnitByCodeStr(CatalogUtils.INIT_CODE_STR, it)
         }
+        // TODO: load search history
 //        launch(ioDispatcher) {
 //            totalSearchHistory.addAll(searchDB.getAll().reversed())
 //        }
     }
 
-    private fun acquire() {
-        launch {
-            isRunning.value = true
-            job.join()
-            isRunning.value = false
-        }
-    }
-
     fun navigateNext(unitM: UnitM) {
+        lVM.e("$unitM")
         navigateUnitMap[unitM.code_str]?.let {
-            if (!(it.value.appointment_num == "" && it.value.child_num == "")) {
-                return
+            if (it.unitM.value.children.isEmpty() && it.unitM.value.appointments.isEmpty()) {
+                searchUnitByCodeStr(unitM.code_str, it)
             }
-        }
-        MutableStateFlow(unitM).let {
-            navigateUnitMap[unitM.code_str] = it
-            searchUnitByCodeStr(unitM.code_str, it)
+        } ?: run {
+            ExtendedUnitM(
+                unitM = MutableStateFlow(unitM)
+            ).let {
+                navigateUnitMap[unitM.code_str] = it
+                searchUnitByCodeStr(unitM.code_str, it)
+            }
         }
     }
 
     private fun searchUnitByCodeStr(
         codeStr: String,
-        stackItem: MutableStateFlow<UnitM>
+        extendedUnitM: ExtendedUnitM
     ) {
+        lVM.e("searchUnitByCodeStr: called, codeStr=$codeStr")
         job.cancel()
         job = launch(ioDispatcher) {
             if (cDao.isUnitExistsByCodeStr(codeStr)) {
-                stackItem.value = cDao.getUnitByCodeStr(codeStr)
+                extendedUnitM.unitM.value = cDao.getUnitByCodeStr(codeStr)
                 return@launch
             }
             vsRepo.getUnitByCodeStr(codeStr).onEach { resource ->
                 when (resource) {
-                    is Resource.Loading -> { lVM.e("Loading") }
+                    is Resource.Loading -> { extendedUnitM.onLoading() }
                     is Resource.Success -> {
                         resource.data?.let { unit ->
+                            extendedUnitM.onOk()
                             cDao.addUnit(unit)
-                            stackItem.value = unit
-                        }
+                            extendedUnitM.unitM.value = unit
+                        } ?: run { extendedUnitM.onNotFound() }
                     }
-                    is Resource.Error.EmptyError -> { lVM.e("EmptyError") }
-                    is Resource.Error.NotFoundError -> { lVM.e("NotFoundError") }
-                    is Resource.Error.NetworkError -> { lVM.e("NetworkError") }
-                    is Resource.Error.ServerNotRespondError -> { lVM.e("ServerNotRespondError") }
-                    is Resource.Error.UndefinedError -> { lVM.e("UndefinedError") }
+                    is Resource.Error.EmptyError -> { extendedUnitM.onNotFound() }
+                    is Resource.Error.NotFoundError -> { extendedUnitM.onNotFound() }
+                    is Resource.Error.NetworkError -> { extendedUnitM.onNetworkFailure() }
+                    is Resource.Error.ServerNotRespondError -> { extendedUnitM.onNetworkFailure() }
+                    is Resource.Error.UndefinedError -> { extendedUnitM.onNetworkFailure() }
                 }
             }.launchIn(this)
         }
-        acquire()
     }
 
     fun runSearch(
         searchStr: String,
         searchType: SearchType
     ) {
+        lVM.e("runSearch: called, searchStr=$searchStr, searchType=$searchType")
         job.cancel()
 
         if (searchStr.length <= 3) {
-            lVM.e("CatalogViewModel: searchStr is too short!")
+            lVM.e("runSearch: searchStr is too short!")
             return
         }
 
         addSearchRecord(searchStr, searchType)
-        MutableStateFlow(UnitM(
-            shortname = searchStr,
-            code_str = "Search"
-        )).let {
+
+        ExtendedUnitM(
+            unitM = MutableStateFlow(UnitM(
+                shortname = searchStr,
+                code_str = "Search"
+            ))
+        ).let {
             navigateUnitMap["Search"] = it
             when(searchType) {
                 SearchType.SEARCH_UNIT -> searchUnit(searchStr, it)
@@ -123,29 +122,31 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
 
     private fun searchUserBySIP(
         SIP: String,
-        stackItem: MutableStateFlow<UnitM>
+        extendedUnitM: ExtendedUnitM
     ) {
+        lVM.e("searchUserBySIP: called, SIP=$SIP")
         job = launch(ioDispatcher) {
             vsRepo.getUserByPhone(SIP).onEach { resource ->
                 when (resource) {
-                    is Resource.Loading -> {}
+                    is Resource.Loading -> { extendedUnitM.onLoading() }
                     is Resource.Success -> {
                         resource.data?.let { app ->
-                            stackItem.value.let { unit ->
-                                stackItem.value = UnitM(
+                            extendedUnitM.onOk()
+                            extendedUnitM.unitM.value.let { unit ->
+                                extendedUnitM.unitM.value = UnitM(
                                     shortname = unit.shortname,
                                     code_str = unit.code_str,
                                     appointment_num = "1",
                                     appointments = listOf(app)
                                 )
                             }
-                        }
+                        } ?: run { extendedUnitM.onNotFound() }
                     }
-                    is Resource.Error.EmptyError -> {}
-                    is Resource.Error.NotFoundError -> {}
-                    is Resource.Error.NetworkError -> {}
-                    is Resource.Error.ServerNotRespondError -> {}
-                    is Resource.Error.UndefinedError -> {}
+                    is Resource.Error.EmptyError -> { extendedUnitM.onNotFound() }
+                    is Resource.Error.NotFoundError -> { extendedUnitM.onNotFound() }
+                    is Resource.Error.NetworkError -> { extendedUnitM.onNetworkFailure() }
+                    is Resource.Error.ServerNotRespondError -> { extendedUnitM.onNetworkFailure() }
+                    is Resource.Error.UndefinedError -> { extendedUnitM.onNetworkFailure() }
                 }
             }.launchIn(this)
         }
@@ -153,23 +154,24 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
 
     private fun searchUserByName(
         searchName: String,
-        stackItem: MutableStateFlow<UnitM>
+        extendedUnitM: ExtendedUnitM
     ) {
-        lVM.d("CatalogViewModel: searchUserByName() called! Args: searchName=$searchName")
+        lVM.e("searchUserByName: called, searchName=$searchName")
         job = launch(ioDispatcher) {
             vsRepo.getUsersByName(searchName).onEach { resource ->
                 when (resource) {
-                    is Resource.Loading -> { }
+                    is Resource.Loading -> { extendedUnitM.onLoading() }
                     is Resource.Success -> {
                         resource.data?.let { unit ->
-                            stackItem.value = unit
-                        }
+                            extendedUnitM.onOk()
+                            extendedUnitM.unitM.value = unit
+                        } ?: run { extendedUnitM.onNotFound() }
                     }
-                    is Resource.Error.EmptyError -> { }
-                    is Resource.Error.NotFoundError -> { }
-                    is Resource.Error.NetworkError -> { }
-                    is Resource.Error.ServerNotRespondError -> { }
-                    is Resource.Error.UndefinedError -> { }
+                    is Resource.Error.EmptyError -> { extendedUnitM.onNotFound() }
+                    is Resource.Error.NotFoundError -> { extendedUnitM.onNotFound() }
+                    is Resource.Error.NetworkError -> { extendedUnitM.onNetworkFailure() }
+                    is Resource.Error.ServerNotRespondError -> { extendedUnitM.onNetworkFailure() }
+                    is Resource.Error.UndefinedError -> { extendedUnitM.onNetworkFailure() }
                 }
             }.launchIn(this)
         }
@@ -177,30 +179,31 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
 
     private fun searchUnit(
         searchStr: String,
-        stackItem: MutableStateFlow<UnitM>
+        extendedUnitM: ExtendedUnitM
     ) {
-        lVM.d("CatalogViewModel: searchUnit() called! Args: searchStr=$searchStr")
+        lVM.e("searchUnit: called! Args: searchStr=$searchStr")
         job = launch(ioDispatcher) {
             vsRepo.getUnitsByName(searchStr).onEach { resource ->
                 when (resource) {
-                    is Resource.Loading -> { }
+                    is Resource.Loading -> { extendedUnitM.onLoading() }
                     is Resource.Success -> {
                         resource.data?.let { units ->
-                            stackItem.value.let { unit ->
-                                stackItem.value = UnitM(
+                            extendedUnitM.onOk()
+                            extendedUnitM.unitM.value.let { unit ->
+                                extendedUnitM.unitM.value = UnitM(
                                     shortname = unit.shortname,
                                     code_str = unit.code_str,
                                     child_num = units.size.toString(),
                                     children = units
                                 )
                             }
-                        }
+                        } ?: run { extendedUnitM.onNotFound() }
                     }
-                    is Resource.Error.NotFoundError -> { }
-                    is Resource.Error.UndefinedError -> { }
-                    is Resource.Error.EmptyError -> { }
-                    is Resource.Error.NetworkError -> { }
-                    is Resource.Error.ServerNotRespondError -> { }
+                    is Resource.Error.NotFoundError -> { extendedUnitM.onNotFound() }
+                    is Resource.Error.EmptyError -> { extendedUnitM.onNotFound() }
+                    is Resource.Error.NetworkError -> { extendedUnitM.onNetworkFailure() }
+                    is Resource.Error.ServerNotRespondError -> { extendedUnitM.onNetworkFailure() }
+                    is Resource.Error.UndefinedError -> { extendedUnitM.onNetworkFailure() }
                 }
             }.launchIn(this)
         }
@@ -229,12 +232,28 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
             }
         }
     }
-
 }
 
 object CatalogUtils {
     const val INIT_CODE_STR = "01 000 00"
     val ONLY_DIGITS_REGEX = Regex("[0-9]+")
+}
+
+class ExtendedUnitM(
+    var unitM: MutableStateFlow<UnitM>,
+    val status: MutableStateFlow<CatalogStatus> = MutableStateFlow(CatalogStatus.OK)
+) {
+    fun onOk() { status.value = CatalogStatus.OK }
+
+    fun onLoading() { status.value = CatalogStatus.LOADING }
+
+    fun onNotFound() { status.value = CatalogStatus.NOT_FOUND }
+
+    fun onNetworkFailure() { status.value = CatalogStatus.NETWORK_FAILURE }
+}
+
+enum class CatalogStatus {
+    OK, LOADING, NOT_FOUND, NETWORK_FAILURE
 }
 
 enum class SearchType{

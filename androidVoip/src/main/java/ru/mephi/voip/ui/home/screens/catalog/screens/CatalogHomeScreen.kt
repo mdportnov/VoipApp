@@ -15,13 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.UnitM
+import ru.mephi.shared.vm.CatalogStatus
 import ru.mephi.shared.vm.CatalogUtils
 import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.voip.ui.common.CommonColor
 import ru.mephi.voip.ui.home.screens.catalog.screens.common.CatalogList
+import ru.mephi.voip.ui.home.screens.catalog.screens.common.CatalogView
 
 @Composable
 internal fun CatalogHomeScreen(
@@ -30,16 +34,36 @@ internal fun CatalogHomeScreen(
     goNext: (UnitM) -> Unit,
     cVM: CatalogViewModel = get()
 ) {
-    val unitM = cVM.navigateUnitMap[CatalogUtils.INIT_CODE_STR]?.collectAsState()
-    Scaffold(
-        topBar = { CatalogHomeTopBar(openSearch) }
+    val unitM = cVM.navigateUnitMap[CatalogUtils.INIT_CODE_STR]?.unitM?.collectAsState()
+    val status = cVM.navigateUnitMap[CatalogUtils.INIT_CODE_STR]?.status?.collectAsState()
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(false),
+        onRefresh = {
+            if (unitM != null) {
+                cVM.navigateNext(unitM.value)
+            }
+        },
+        modifier = Modifier.fillMaxSize()
     ) {
-        Box(modifier = Modifier.padding(it)) {
-            CatalogList(
-                unitM = unitM?.value ?: UnitM(code_str = CatalogUtils.INIT_CODE_STR),
-                openDetailedInfo = openDetailedInfo,
-                goNext = goNext
-            )
+        Scaffold(
+            topBar = { CatalogHomeTopBar(openSearch) },
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(it)
+                    .fillMaxSize()
+            ) {
+                CatalogView(
+                    codeStr = CatalogUtils.INIT_CODE_STR,
+                    status = status?.value ?: CatalogStatus.OK
+                ) {
+                    CatalogList(
+                        unitM = unitM?.value ?: UnitM(code_str = CatalogUtils.INIT_CODE_STR),
+                        openDetailedInfo = openDetailedInfo,
+                        goNext = goNext
+                    )
+                }
+            }
         }
     }
 }
