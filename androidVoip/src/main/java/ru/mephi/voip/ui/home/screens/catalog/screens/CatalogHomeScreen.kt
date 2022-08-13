@@ -74,7 +74,7 @@ private fun CatalogHomeTopBar(
 ) {
     Row(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 5.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .background(color = CommonColor(), shape = RoundedCornerShape(48.dp))
             .clip(RoundedCornerShape(48.dp))
             .height(48.dp)

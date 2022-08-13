@@ -5,6 +5,7 @@ package ru.mephi.voip.ui.home.screens.catalog.screens.common.items
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -88,7 +89,7 @@ internal fun UserCatalogItem(
             Column(
                 modifier = Modifier
                     .width(
-                        (LocalConfiguration.current.screenWidthDp - 158).dp
+                        (LocalConfiguration.current.screenWidthDp - 162).dp
                     )
                     .wrapContentHeight(),
                 horizontalAlignment = Alignment.Start,
@@ -138,22 +139,22 @@ private fun UserActionButton(
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.padding(2.dp)
+        modifier = Modifier.padding(3.dp)
     ) {
-        Box( modifier = Modifier
-            .size(36.dp)
-            .background(
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = CircleShape
-            )) { }
+        Surface(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape),
+            tonalElevation = 6.dp
+        ) { }
         IconButton(
             onClick = onClick,
             modifier = Modifier.then(Modifier.size(26.dp))
         ) {
             Icon(
                 imageVector = imageVector,
-                modifier = Modifier.size(26.dp),
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.size(30.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
                 contentDescription = null
             )
         }
