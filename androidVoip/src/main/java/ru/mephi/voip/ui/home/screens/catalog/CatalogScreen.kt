@@ -24,7 +24,6 @@ import ru.mephi.shared.vm.DetailedInfoViewModel
 import ru.mephi.voip.ui.home.screens.catalog.screens.CatalogHomeScreen
 import ru.mephi.voip.ui.home.screens.catalog.screens.CatalogNextScreen
 import ru.mephi.voip.ui.home.screens.catalog.screens.SearchScreen
-import timber.log.Timber
 
 @Composable
 fun CatalogScreen(
@@ -86,6 +85,7 @@ private fun CatalogNavCtl(
                     cVM.navigateNext(unitM)
                     goNext(unitM, navController)
                 },
+                goBack = { navController.popBackStack() },
                 openSearch = {
                     navController.navigate(route = Screens.SearchScreen.route) {
                         launchSingleTop = true
@@ -106,6 +106,7 @@ private fun CatalogNavCtl(
                     cVM.navigateNext(unitM)
                     goNext(unitM, navController)
                 },
+                goBack = { navController.popBackStack() },
                 openSearch = {
                     navController.navigate(route = Screens.SearchScreen.route) {
                         launchSingleTop = true
