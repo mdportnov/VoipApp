@@ -136,37 +136,14 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
 
         requiredPermission.filter { p -> !isPermissionGranted(p) }.let { if (it.isEmpty()) isPermissionsGranted = true }
 
-        val splashWasDisplayed = savedInstanceState != null
-        if (!splashWasDisplayed) {
-            installSplashScreen().apply {
-                setKeepOnScreenCondition {
-                    initRequirement == InitRequirement.NOT_READY
-                }
-                setOnExitAnimationListener { view ->
-                    view.iconView
-                        .animate()
-                        .setDuration(300L)
-                        .alpha(0f)
-                        .withEndAction {
-                            view.remove()
-                            setContent {
-                                scaffoldState = rememberScaffoldState()
-                                MasterTheme {
-                                    MasterNavCtl()
-                                }
-                            }
-                        }.start()
-                }
-            }
-        } else {
-            setContent {
-                scaffoldState = rememberScaffoldState()
-                MasterTheme {
-                    MasterNavCtl()
-                }
+        installSplashScreen()
+
+        setContent {
+            scaffoldState = rememberScaffoldState()
+            MasterTheme {
+                MasterNavCtl()
             }
         }
-
 
         lifecycleScope.launch {
             accountRepository.isSipEnabled.collect {
