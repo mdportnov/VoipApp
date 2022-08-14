@@ -20,6 +20,8 @@ class DetailedInfoViewModel : MainIoExecutor(), KoinComponent {
     private val cDao: CatalogDao by inject()
 
     val detailedInfo = MutableStateFlow(Appointment())
+    private var fixDetailedInfo = Appointment()
+    val status = MutableStateFlow(DetailedInfoStatus.LOADING)
 
     private var job: Job = launch(ioDispatcher) { }
 
@@ -28,7 +30,8 @@ class DetailedInfoViewModel : MainIoExecutor(), KoinComponent {
         appointment: Appointment = Appointment()
     ) {
         job.cancel()
-        detailedInfo.value = appointment
+        status.value = DetailedInfoStatus.LOADING
+        fixDetailedInfo = appointment
         val realSip = when {
             sip.isNotEmpty() -> sip.trim()
             appointment.line.isNotEmpty() -> appointment.line.trim()
@@ -37,6 +40,7 @@ class DetailedInfoViewModel : MainIoExecutor(), KoinComponent {
         }
 
         if (realSip.isEmpty()) {
+            status.value = DetailedInfoStatus.BAD_RESULT
             lVM.e("SIP is empty, aborting to load detailed info!")
             return
         }
@@ -48,21 +52,33 @@ class DetailedInfoViewModel : MainIoExecutor(), KoinComponent {
             }
             vsRepo.getUserByPhone(realSip).onEach { resource ->
                 when (resource) {
-                    is Resource.Loading -> { }
+                    is Resource.Loading -> {
+                        status.value = DetailedInfoStatus.LOADING
+                    }
                     is Resource.Success -> {
                         resource.data?.let {
+                            if (fixDetailedInfo.email.isNotEmpty()) {
+                                it.email = fixDetailedInfo.email
+                            }
                             cDao.addUser(it)
                             detailedInfo.value = it
+                            status.value = DetailedInfoStatus.OK
+                        } ?: run {
+                            detailedInfo.value = fixDetailedInfo
                         }
                     }
-                    is Resource.Error.EmptyError -> { }
-                    is Resource.Error.NotFoundError -> { }
-                    is Resource.Error.NetworkError -> { }
-                    is Resource.Error.ServerNotRespondError -> { }
-                    is Resource.Error.UndefinedError -> { }
+                    is Resource.Error.EmptyError -> { status.value = DetailedInfoStatus.BAD_RESULT }
+                    is Resource.Error.NotFoundError -> { status.value = DetailedInfoStatus.BAD_RESULT }
+                    is Resource.Error.NetworkError -> { status.value = DetailedInfoStatus.NETWORK_FAILURE }
+                    is Resource.Error.ServerNotRespondError -> { status.value = DetailedInfoStatus.NETWORK_FAILURE }
+                    is Resource.Error.UndefinedError -> { status.value = DetailedInfoStatus.NETWORK_FAILURE }
                 }
             }.launchIn(this)
         }
     }
 
+}
+
+enum class DetailedInfoStatus {
+    OK, LOADING, BAD_RESULT, NETWORK_FAILURE
 }

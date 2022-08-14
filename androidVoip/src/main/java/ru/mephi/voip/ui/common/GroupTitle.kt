@@ -13,7 +13,7 @@ fun GroupTitle(
     title: String
 ) {
     Text(
-        modifier = Modifier.padding(bottom = 2.dp, start = 2.dp),
+        modifier = Modifier.padding(bottom = 2.dp, start = 6.dp),
         text = title,
         style = MaterialTheme.typography.titleMedium,
         maxLines = 1,

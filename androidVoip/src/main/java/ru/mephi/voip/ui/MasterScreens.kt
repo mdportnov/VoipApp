@@ -5,7 +5,6 @@ sealed class MasterScreens(
 ) {
     object HomeScreen : MasterScreens("home_screen")
     object SettingsScreen : MasterScreens("settings_screen")
-    object DetailedInfoScreen : MasterScreens("detailed_info_screen")
     object LoginScreen : MasterScreens("login_screen")
     object SwitchScreen : MasterScreens("switch_screen")
 }

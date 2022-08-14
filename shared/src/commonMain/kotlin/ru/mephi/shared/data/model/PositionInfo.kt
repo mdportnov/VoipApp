@@ -15,4 +15,6 @@ data class PositionInfo(
     val unitFullName: String,
     @SerialName("unit_shortname")
     val unitShortname: String,
+    @SerialName("room")
+    val room: String = ""
 )

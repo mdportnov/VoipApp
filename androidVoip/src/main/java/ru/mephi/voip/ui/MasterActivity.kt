@@ -4,9 +4,11 @@ package ru.mephi.voip.ui
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
+import android.net.*
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
@@ -45,6 +47,7 @@ import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.utils.appContext
+import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.shared.vm.LogType
 import ru.mephi.shared.vm.LoggerViewModel
 import ru.mephi.shared.vm.UserNotifierViewModel
@@ -55,7 +58,6 @@ import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.data.InitDataStore
 import ru.mephi.voip.data.InitRequirement
 import ru.mephi.voip.eventbus.Event
-import ru.mephi.voip.ui.detailed.DetailedInfoScreen
 import ru.mephi.voip.ui.home.HomeScreen
 import ru.mephi.voip.ui.login.LoginScreen
 import ru.mephi.voip.ui.settings.SettingsScreen
@@ -423,7 +425,7 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
     private fun showPermissionsRequestDialog(
         permissions: List<String>
     ) {
-        MaterialAlertDialogBuilder(this).also {
+        MaterialAlertDialogBuilder(applicationContext).also {
             it.setTitle("Необходимые разрешения")
             if (permissions.contains(Manifest.permission.USE_SIP) && permissions.contains(Manifest.permission.RECORD_AUDIO)) {
                 it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения на совершения звонков и использования микрофона")
@@ -457,13 +459,6 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
                 route = MasterScreens.HomeScreen.route
             ) {
                 HomeScreen(masterNavController = navController)
-            }
-            composable(
-                route = MasterScreens.DetailedInfoScreen.route
-            ) {
-                DetailedInfoScreen {
-                    navController.popBackStack()
-                }
             }
             composable(
                 route = MasterScreens.LoginScreen.route

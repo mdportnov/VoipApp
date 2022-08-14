@@ -3,9 +3,7 @@
 package ru.mephi.voip.ui.home.screens.catalog.screens.common.items
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,12 +11,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -27,20 +23,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.Appointment
+import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountStatusRepository
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.data.CatalogViewModel
-import ru.mephi.voip.ui.common.CommonColor
+import ru.mephi.voip.ui.home.screens.catalog.screens.common.DetailedInfoDialog
 import ru.mephi.voip.utils.getImageUrl
-import kotlin.math.ln
 
 
 @Composable
@@ -48,9 +45,11 @@ internal fun UserCatalogItem(
     appointment: Appointment,
     openDetailedInfo: (appointment: Appointment) -> Unit,
     isStart: Boolean = false,
-    isEnd: Boolean = false
+    isEnd: Boolean = false,
+    goNext: (UnitM) -> Unit,
 ) {
     val activity = LocalContext.current as MasterActivity
+    val scope = rememberCoroutineScope()
     val viewModel: CatalogViewModel by inject()
     val accountStatusRepository: AccountStatusRepository by inject()
     val cardShape = RoundedCornerShape(
@@ -59,13 +58,36 @@ internal fun UserCatalogItem(
         bottomStart = (if (isEnd) 8 else 0).dp,
         bottomEnd = (if (isEnd) 8 else 0).dp
     )
+    val onCallClick = { sip: String ->
+        if (accountStatusRepository.status.value == AccountStatus.REGISTERED && sip.isNotEmpty()) {
+            CallActivity.create(activity, sip, false)
+        } else {
+            Toast.makeText(activity, R.string.no_active_account_call, Toast.LENGTH_SHORT).show()
+        }
+    }
+    var showDetailedInfo by remember { mutableStateOf(false) }
+    if (showDetailedInfo) {
+        DetailedInfoDialog(
+            onDismiss = { showDetailedInfo = false },
+            onCallClick = onCallClick
+        ) { unitM: UnitM ->
+            scope.launch {
+                showDetailedInfo = false
+                delay(250)
+                goNext(unitM)
+            }
+        }
+    }
     Card(
         shape = cardShape,
         modifier = Modifier
             .wrapContentHeight()
             .padding(top = 0.5.dp, bottom = 0.5.dp)
             .clip(cardShape)
-            .clickable { openDetailedInfo(appointment) },
+            .clickable {
+                openDetailedInfo(appointment)
+                showDetailedInfo = true
+            },
         elevation = CardDefaults.elevatedCardElevation(),
         colors = CardDefaults.elevatedCardColors()
     ) {
@@ -120,13 +142,7 @@ internal fun UserCatalogItem(
                 UserActionButton(Icons.Default.Star) {
                     Toast.makeText(activity, viewModel.addToFavourites(appointment).text, Toast.LENGTH_SHORT).show()
                 }
-                UserActionButton(Icons.Default.Call) {
-                    if (accountStatusRepository.status.value == AccountStatus.REGISTERED && appointment.line.isNotEmpty()) {
-                        CallActivity.create(activity, appointment.line, false)
-                    } else {
-                        Toast.makeText(activity, R.string.no_active_account_call, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                UserActionButton(Icons.Default.Call) { onCallClick(appointment.line) }
             }
         }
     }

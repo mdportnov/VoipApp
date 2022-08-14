@@ -43,12 +43,11 @@ internal fun CatalogView(
         CatalogStatus.NETWORK_FAILURE -> {
             OnNetworkFailure()
         }
-        else -> {  }
     }
 }
 
 @Composable
-private fun OnLoading() {
+internal fun OnLoading() {
     Box(modifier = Modifier.fillMaxSize()) {
         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
     }
@@ -87,7 +86,7 @@ private fun OnNotFound() {
 }
 
 @Composable
-private fun OnNetworkFailure() {
+internal fun OnNetworkFailure() {
     Box(
         modifier = Modifier
             .fillMaxSize()

@@ -34,6 +34,7 @@ internal fun CatalogList(
                 UserCatalogItem(
                     appointment = appointment,
                     openDetailedInfo = openDetailedInfo,
+                    goNext = goNext,
                     isStart = i == 0,
                     isEnd = i + 1 == it.size
                 )

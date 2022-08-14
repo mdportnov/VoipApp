@@ -26,19 +26,16 @@ import ru.mephi.voip.ui.home.screens.catalog.screens.CatalogNextScreen
 import ru.mephi.voip.ui.home.screens.catalog.screens.SearchScreen
 
 @Composable
-fun CatalogScreen(
-    openDetailedInfo: () -> Unit,
-) {
+fun CatalogScreen() {
     val navController = rememberAnimatedNavController()
     Box {
-        CatalogNavCtl(navController, openDetailedInfo)
+        CatalogNavCtl(navController)
     }
 }
 
 @Composable
 private fun CatalogNavCtl(
     navController: NavHostController,
-    openDetailedInfo: () -> Unit,
     cVM: CatalogViewModel = get(),
     diVM: DetailedInfoViewModel = get()
 ) {
@@ -57,7 +54,6 @@ private fun CatalogNavCtl(
                 },
                 openDetailedInfo = { app ->
                     diVM.loadDetailedInfo(appointment = app)
-                    openDetailedInfo()
                 },
                 goNext = { unitM ->
                     cVM.navigateNext(unitM)
@@ -74,7 +70,6 @@ private fun CatalogNavCtl(
                 codeStr = codeStr,
                 openDetailedInfo = { app ->
                     diVM.loadDetailedInfo(appointment = app)
-                    openDetailedInfo()
                 },
                 goNext = { unitM ->
                     cVM.navigateNext(unitM)
@@ -95,7 +90,6 @@ private fun CatalogNavCtl(
                 codeStr = "Search",
                 openDetailedInfo = { app ->
                     diVM.loadDetailedInfo(appointment = app)
-                    openDetailedInfo()
                 },
                 goNext = { unitM ->
                     cVM.navigateNext(unitM)

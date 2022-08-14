@@ -20,7 +20,7 @@ data class Appointment(
     val line: String = "",
     @SerialName("line_shown")
     val lineShown: String = "",
-    val email: String = "",
+    var email: String = "",
     val room: String = "",
     @SerialName("appointments")
     val positions: List<PositionInfo> = emptyList()

@@ -34,6 +34,7 @@ import ru.mephi.voip.ui.home.screens.settings.SettingsScreen
 import ru.mephi.voip.ui.profile.ProfileScreen
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.NavAnimationUtils
+import timber.log.Timber
 
 @Composable
 internal fun HomeScreen(
@@ -52,6 +53,7 @@ internal fun HomeScreen(
             HomeScreenNavBar(navController = navController)
         }
     ) {
+        Timber.e("$it")
         Box(modifier = Modifier.padding(it)) {
             HomeScreenNavCtl(
                 navController = navController,
@@ -159,9 +161,7 @@ private fun HomeScreenNavCtl(
                 }
             }
         ) {
-            CatalogScreen(
-                openDetailedInfo = { masterNavController.navigate(route = MasterScreens.DetailedInfoScreen.route) }
-            )
+            CatalogScreen()
         }
         composable(
             route = Screens.Settings.route,
