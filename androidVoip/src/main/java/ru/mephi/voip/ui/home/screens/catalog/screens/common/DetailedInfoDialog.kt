@@ -297,7 +297,7 @@ private fun PositionCard(
                     }
                 })
             }
-            IconButton(onClick = { goNext(UnitM(code_str = pos.unitCodeStr)) }) {
+            IconButton(onClick = { goNext(UnitM(code_str = pos.unitCodeStr, shortname = pos.unitShortname)) }) {
                 Icon(imageVector = Icons.Default.Search, contentDescription = null)
             }
         }

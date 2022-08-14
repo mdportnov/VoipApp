@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +35,9 @@ internal fun CatalogHomeScreen(
     goNext: (UnitM) -> Unit,
     cVM: CatalogViewModel = get()
 ) {
+    LaunchedEffect(true) {
+        cVM.goHome()
+    }
     val unitM = cVM.navigateUnitMap[CatalogUtils.INIT_CODE_STR]?.unitM?.collectAsState()
     val status = cVM.navigateUnitMap[CatalogUtils.INIT_CODE_STR]?.status?.collectAsState()
     SwipeRefresh(

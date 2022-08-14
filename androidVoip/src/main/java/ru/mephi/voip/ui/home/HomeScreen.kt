@@ -89,6 +89,7 @@ private fun HomeScreenNavBar(
                         current = getCurrentRoute(navController)
                         navController.navigate(item.route) {
                             launchSingleTop = true
+                            restoreState = true
                         }
                     }
                 )

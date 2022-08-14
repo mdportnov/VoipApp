@@ -72,10 +72,17 @@ private fun CatalogNavCtl(
                     diVM.loadDetailedInfo(appointment = app)
                 },
                 goNext = { unitM ->
-                    cVM.navigateNext(unitM)
-                    goNext(unitM, navController)
+                    if (unitM.code_str != codeStr) {
+                        cVM.navigateNext(unitM)
+                        goNext(unitM, navController)
+                    }
                 },
-                goBack = { navController.popBackStack() },
+                goBack = {
+                    val ret = cVM.navigateBack(unitM = UnitM(code_str = it))
+                    for (i in 1..ret) {
+                        navController.popBackStack()
+                    }
+                },
                 openSearch = {
                     navController.navigate(route = Screens.SearchScreen.route) {
                         launchSingleTop = true

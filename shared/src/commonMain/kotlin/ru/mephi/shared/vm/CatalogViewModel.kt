@@ -12,6 +12,7 @@ import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repo.VoIPServiceRepository
+import ru.mephi.shared.utils.pop
 
 
 class CatalogViewModel : MainIoExecutor(), KoinComponent {
@@ -23,12 +24,14 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
 
     val navigateUnitMap: MutableMap<String, ExtendedUnitM> = mutableMapOf()
     val selectedSearchHistory = MutableStateFlow(emptyList<String>())
+    val stack = mutableListOf<StackUnitM>()
 
     private var totalSearchHistory = mutableListOf<SearchRecord>()
 
     private var job: Job = launch(ioDispatcher) { }
 
     init {
+        goHome()
         ExtendedUnitM(MutableStateFlow(UnitM())).let {
             navigateUnitMap[CatalogUtils.INIT_CODE_STR] = it
             searchUnitByCodeStr(CatalogUtils.INIT_CODE_STR, it)
@@ -39,8 +42,32 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
 //        }
     }
 
+    fun goHome() {
+        stack.clear()
+        stack.add(StackUnitM(codeStr = CatalogUtils.INIT_CODE_STR, shortname = "МИФИ"))
+    }
+
+    fun navigateBack(unitM: UnitM = UnitM()): Int {
+        var ret = 0
+        if (unitM.code_str.isNotEmpty()) {
+            while (stack.isNotEmpty()) {
+                if (stack.last().codeStr != unitM.code_str) {
+                    ret++
+                    stack.pop()
+                } else {
+                    return ret
+                }
+            }
+        } else {
+            ret++
+            stack.pop()
+        }
+        return ret
+    }
+
     fun navigateNext(unitM: UnitM) {
         lVM.e("$unitM")
+        stack.add(StackUnitM(unitM.code_str, unitM.shortname))
         navigateUnitMap[unitM.code_str]?.let {
             if (it.unitM.value.children.isEmpty() && it.unitM.value.appointments.isEmpty()) {
                 searchUnitByCodeStr(unitM.code_str, it)
@@ -98,6 +125,8 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
             return
         }
 
+        goHome()
+        stack.add(StackUnitM("Search", searchStr))
         addSearchRecord(searchStr, searchType)
 
         ExtendedUnitM(
@@ -251,6 +280,11 @@ class ExtendedUnitM(
 
     fun onNetworkFailure() { status.value = CatalogStatus.NETWORK_FAILURE }
 }
+
+data class StackUnitM(
+    val codeStr: String = "",
+    val shortname: String = ""
+)
 
 enum class CatalogStatus {
     OK, LOADING, NOT_FOUND, NETWORK_FAILURE

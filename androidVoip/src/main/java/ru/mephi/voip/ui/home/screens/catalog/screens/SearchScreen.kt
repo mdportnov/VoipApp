@@ -55,12 +55,19 @@ internal fun SearchScreen(
 
     val quitSearch = { focusRequester.freeFocus(); keyboardController?.hide() }
 
+    val context = LocalContext.current
+    val notify = { Toast.makeText(context, "Поисковвый запрос слишком короткий",  Toast.LENGTH_SHORT).show() }
+
     Scaffold(
         topBar = {
             SearchTopBar(
                 runSearch = { str, type ->
-                    quitSearch()
-                    runSearch(str, type)
+                    if (str.length <= 3) {
+                        notify()
+                    } else {
+                        quitSearch()
+                        runSearch(str, type)
+                    }
                 },
                 exitSearch = {
                     quitSearch()
@@ -77,8 +84,12 @@ internal fun SearchScreen(
         Box(modifier = Modifier.padding(it)) {
             SearchHistory(
                 runSearch = { str, type ->
-                    quitSearch()
-                    runSearch(str, type)
+                    if (str.length <= 3) {
+                        notify()
+                    } else {
+                        quitSearch()
+                        runSearch(str, type)
+                    }
                 },
                 applySearchStr = applySearchStr,
                 searchType = searchType
