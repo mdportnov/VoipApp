@@ -69,13 +69,20 @@ internal fun UserCatalogItem(
     if (showDetailedInfo) {
         DetailedInfoDialog(
             onDismiss = { showDetailedInfo = false },
-            onCallClick = onCallClick
-        ) { unitM: UnitM ->
-            scope.launch {
-                showDetailedInfo = false
-                delay(250)
-                goNext(unitM)
-            }
+            onCallClick = onCallClick,
+            goNext = { unitM ->
+                scope.launch {
+                    showDetailedInfo = false
+                    delay(250)
+                    goNext(unitM)
+                }
+            },
+        ) {
+            Toast.makeText(
+                activity,
+                viewModel.addToFavourites(appointment).text,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
     Card(

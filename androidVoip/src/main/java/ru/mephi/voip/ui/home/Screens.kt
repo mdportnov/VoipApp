@@ -13,12 +13,14 @@ sealed class Screens(
     var icon: ImageVector,
     var selectedIcon: ImageVector,
 ) {
-    object History : Screens(
-        route = "history",
-        title = R.string.history,
-        icon = Icons.Outlined.History,
-        selectedIcon = Icons.Default.History
-    )
+
+    // TODO: Всё таки надо сделать
+//    object History : Screens(
+//        route = "history",
+//        title = R.string.history,
+//        icon = Icons.Outlined.History,
+//        selectedIcon = Icons.Default.History
+//    )
 
     object Dialer : Screens(
         route = "caller?caller_number={caller_number}&caller_name={caller_name}",

@@ -76,12 +76,13 @@ fun MasterTheme(
 ) {
     val colorScheme = when {
         isDynamicColor && isDarkTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            dynamicDarkColorScheme(LocalContext.current)
+            dynamicLightColorScheme(LocalContext.current)
+//            dynamicDarkColorScheme(LocalContext.current)
         }
         isDynamicColor && !isDarkTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             dynamicLightColorScheme(LocalContext.current)
         }
-        isDarkTheme -> DarkColors
+//        isDarkTheme -> DarkColors
         else -> LightColors
     }
 

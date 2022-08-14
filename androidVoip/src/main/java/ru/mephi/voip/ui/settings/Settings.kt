@@ -109,7 +109,7 @@ internal fun Settings(
             icon = when (uiState.startScreen) {
                 Screens.Dialer -> Icons.Default.Call
                 Screens.Catalog -> Icons.Default.Home
-                Screens.History -> Icons.Default.History
+//                Screens.History -> Icons.Default.History
                 Screens.Settings -> Icons.Default.Person
             },
             title = stringResource(id = R.string.start_screen),

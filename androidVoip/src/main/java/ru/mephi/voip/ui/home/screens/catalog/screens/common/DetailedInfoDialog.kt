@@ -6,8 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -47,7 +49,8 @@ internal fun DetailedInfoDialog(
     onDismiss: () -> Unit,
     diVM: DetailedInfoViewModel = get(),
     onCallClick: (String) -> Unit,
-    goNext: (UnitM) -> Unit
+    goNext: (UnitM) -> Unit,
+    onStar: () -> Unit
 ) {
     Dialog(
         onDismissRequest = { onDismiss() },
@@ -78,7 +81,7 @@ internal fun DetailedInfoDialog(
                         },
                         actions = {
                             if (appointment.value.line.isNotEmpty()) {
-                                IconButton(onClick = { /*TODO*/ }) {
+                                IconButton(onClick = { onStar() }) {
                                     Icon(
                                         imageVector = Icons.Default.Star,
                                         contentDescription = null
@@ -87,20 +90,6 @@ internal fun DetailedInfoDialog(
                             }
                         }
                     )
-                },
-                floatingActionButton = {
-                    if (appointment.value.line.isNotEmpty()) {
-                        ExtendedFloatingActionButton(
-                            text = { Text(text = "Позвонить") },
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.Phone,
-                                    contentDescription = null
-                                )
-                            },
-                            onClick = { onCallClick(appointment.value.line) }
-                        )
-                    }
                 }
             ) {
                 Surface(
@@ -110,7 +99,8 @@ internal fun DetailedInfoDialog(
                     DetailedInfoView(status.value) {
                         DetailedInfoContent(
                             appointment = appointment.value,
-                            goNext = goNext
+                            goNext = goNext,
+                            onCallClick = onCallClick
                         )
                     }
                 }
@@ -143,12 +133,14 @@ private fun DetailedInfoView(
 @Composable
 private fun DetailedInfoContent(
     appointment: Appointment,
-    goNext: (UnitM) -> Unit
+    goNext: (UnitM) -> Unit,
+    onCallClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
+            .wrapContentHeight()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
@@ -175,6 +167,10 @@ private fun DetailedInfoContent(
         Column(
             horizontalAlignment = Alignment.Start
         ) {
+            if (appointment.line.isNotEmpty()) {
+                DetailedInfoDivider()
+                PhoneCard(phone = appointment.line, onCallClick = onCallClick)
+            }
             if (appointment.email.isNotEmpty()) {
                 DetailedInfoDivider()
                 MailCard(email = appointment.email)
@@ -185,6 +181,44 @@ private fun DetailedInfoContent(
                 appointment.positions.forEach { pos ->
                     PositionCard(pos, goNext)
                 }
+            }
+            DetailedInfoDivider()
+        }
+    }
+}
+
+@Composable
+private fun PhoneCard(
+    phone: String,
+    onCallClick: (String) -> Unit
+) {
+    val width = LocalConfiguration.current.screenWidthDp
+    val shape = RoundedCornerShape(8.dp)
+    GroupTitle(title = "Телефон")
+    Card(
+        shape = shape,
+        modifier = Modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp)
+            .clip(shape)
+            .clickable { onCallClick(phone) },
+        elevation = CardDefaults.elevatedCardElevation(),
+        colors = CardDefaults.elevatedCardColors()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        ) {
+            Text(
+                text = "Номер: $phone",
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.width((width - 76).dp)
+            )
+            IconButton(onClick = { onCallClick(phone) }) {
+                Icon(imageVector = Icons.Default.Phone, contentDescription = null)
             }
         }
     }
