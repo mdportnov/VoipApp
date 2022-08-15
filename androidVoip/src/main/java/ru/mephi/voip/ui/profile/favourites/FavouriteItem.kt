@@ -102,7 +102,7 @@ fun FavouriteItem(
                             viewModel.deleteFromFavourite(favouriteRecord)
                         }
                         FavouriteContextMenu.CALL -> {
-                            if (accountStatusRepository.status.value == AccountStatus.REGISTERED && favouriteRecord.sipNumber.isNotEmpty()) {
+                            if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED && favouriteRecord.sipNumber.isNotEmpty()) {
                                 CallActivity.create(context, favouriteRecord.sipNumber, false)
                             } else {
                                 Toast.makeText(

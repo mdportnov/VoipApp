@@ -55,10 +55,6 @@ class AccountStatusRepository(
     private var _accountsCount = MutableStateFlow(0)
     val accountsCount: StateFlow<Int> = _accountsCount
 
-    // OLD
-    private var _activeAccount = MutableStateFlow<Account?>(null)
-    val activeAccount: StateFlow<Account?> = _activeAccount
-
     private var accId = -1L
     val currentAccount = MutableStateFlow(AccountUtils.dummyAccount)
     val accountsList = MutableStateFlow(emptyList<Account>())
@@ -178,8 +174,7 @@ class AccountStatusRepository(
         config.isSTUNEnabled = false
         AbtoPhoneCfg.setLogLevel(7, true)
 
-        val notification =
-            notificationHandler.updateNotificationStatus(status.value)
+        val notification = notificationHandler.updateNotificationStatus(phoneStatus.value)
 
         phone.initialize(false) // start service in 'sticky' mode - when app removed from recent service will be restarted automatically
         phone.initializeForeground(notification) //start service in foreground mode

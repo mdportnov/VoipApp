@@ -4,12 +4,17 @@ package ru.mephi.voip.ui.login
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
@@ -56,6 +61,7 @@ internal fun LoginScreen(
                         readOnly = isLocked,
                         modifier = Modifier.width(if (width * 0.7 > 256) 256.dp else (width * 0.7).dp)
                     )
+                    var passwordVisible by rememberSaveable { mutableStateOf(false) }
                     OutlinedTextField(
                         value = passwordInput,
                         onValueChange = { s -> passwordInput = s; isError = false },
@@ -63,7 +69,13 @@ internal fun LoginScreen(
                         singleLine = true,
                         isError = isError,
                         readOnly = isLocked,
-                        modifier = Modifier.width(if (width * 0.7 > 256) 256.dp else (width * 0.7).dp)
+                        modifier = Modifier.width(if (width * 0.7 > 256) 256.dp else (width * 0.7).dp),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, contentDescription = null)
+                            }
+                        },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
                     )
                     Box(
                         modifier = Modifier.defaultMinSize(minHeight = 28.dp)

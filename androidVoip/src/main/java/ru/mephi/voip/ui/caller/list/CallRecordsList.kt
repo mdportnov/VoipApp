@@ -61,7 +61,7 @@ fun CallRecordsList(
     }
 
     val onSwipeToCall: (CallRecord) -> Unit = { record ->
-        if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+        if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED) {
             CallActivity.create(context, record.sipNumber, false)
         } else {
             Toast.makeText(

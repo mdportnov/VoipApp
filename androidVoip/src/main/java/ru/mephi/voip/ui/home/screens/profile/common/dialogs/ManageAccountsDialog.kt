@@ -169,7 +169,8 @@ private fun SavedAccountItem(
             .padding(top = 4.dp, start = 4.dp, end = 4.dp)
             .wrapContentHeight()
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp)),
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { accountRepo.setActiveAccount(accountRepo.accountsList.value.first { it.login == account.value.lineShown }); onDismiss() },
         elevation = CardDefaults.elevatedCardElevation(),
         colors = CardDefaults.elevatedCardColors()
     ) {

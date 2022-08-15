@@ -32,7 +32,7 @@ fun AccountStatusWidget(
     accountStatusRepository: AccountStatusRepository,
     scaffoldState: ScaffoldState
 ) {
-    val accountStatus by accountStatusRepository.status.collectAsState()
+    val accountStatus by accountStatusRepository.phoneStatus.collectAsState()
     val isSipEnabled by accountStatusRepository.isSipEnabled.collectAsState(initial = false)
     val scope = rememberCoroutineScope()
     val hapticFeedback = LocalHapticFeedback.current
