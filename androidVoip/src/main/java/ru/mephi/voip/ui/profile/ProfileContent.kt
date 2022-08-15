@@ -58,7 +58,7 @@ fun ProfileContent(modifier: Modifier) {
     )
 
     val accountsCount by accountRepository.accountsCount.collectAsState()
-    val activeAccount by accountRepository.activeAccount.collectAsState()
+    val activeAccount by accountRepository.currentAccount.collectAsState()
     val accountStatus by accountRepository.status.collectAsState()
     val isSipEnabled by accountRepository.isSipEnabled.collectAsState(initial = false)
     val name by accountRepository.displayName.collectAsState(NameItem())
@@ -210,7 +210,7 @@ fun ProfileContent(modifier: Modifier) {
 
 
 @Composable
-private fun getAnnotatedText() = buildAnnotatedString {
+fun getAnnotatedText() = buildAnnotatedString {
     withStyle(
         style = SpanStyle(
             color = Color.Black,

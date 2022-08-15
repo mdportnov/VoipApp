@@ -4,25 +4,26 @@ import android.app.Application
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import org.abtollc.sdk.AbtoPhone
-import org.greenrobot.eventbus.EventBus
+import org.abtollc.sdk.AbtoPhoneCfg
+import org.abtollc.sdk.OnInitializeListener
+import org.abtollc.sdk.OnRegistrationListener
+import org.abtollc.utils.codec.Codec
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
-import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.vm.SavedAccountsViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.abto.AbtoApp
 import ru.mephi.voip.abto.decryptAccountJson
 import ru.mephi.voip.abto.encryptAccountJson
-import ru.mephi.voip.eventbus.Event
+import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
@@ -63,209 +64,155 @@ class AccountStatusRepository(
     val accountsList = MutableStateFlow(emptyList<Account>())
     val phoneStatus = MutableStateFlow(AccountStatus.UNREGISTERED)
 
-    val hasActiveAccount
-        get() = activeAccount.value != null
-
     private val scope = CoroutineScope(Dispatchers.IO)
 
     init {
-        // NEW
-//        getAccountsList().let { lst ->
-//            accountsList.value = lst
-//            saVM.sipList.value = lst.map { v -> v.login }
-//            lst.firstOrNull { it.isActive }.let {
-//                if (it != null) {
-//                    setActiveAccount(it)
-//                } else {
-//                    Timber.e("No active accounts found!")
-//                    phoneStatus.value = AccountStatus.UNREGISTERED
-//                }
-//            }
-//        }
-
-        // OLD
-        updateAccountsList()
-        _activeAccount.value = accountList.value.firstOrNull { it.isActive }
+        Timber.e("AccountStatusRepository: init")
+        getAccountsList().let { lst ->
+            accountsList.value = lst
+            saVM.sipList.value = lst.map { v -> v.login }
+            lst.firstOrNull { it.isActive }.let {
+                if (it != null) {
+                    currentAccount.value = it
+                    saVM.setCurrentAccount(it.login)
+                } else {
+                    Timber.e("No active accounts found!")
+                    phoneStatus.value = AccountStatus.UNREGISTERED
+                }
+            }
+        }
         CoroutineScope(Dispatchers.IO).launch {
             settings.isSipEnabled.collect { enabled ->
                 _isSipEnabled.value = enabled
-                fetchStatus(_status.value)
                 when (enabled) {
                     true -> {
-                        enableAccount()
+                        initPhone()
                     }
                     false -> {
-                        disableAccount()
+                        exitPhone()
                     }
                 }
             }
         }
     }
 
+    fun initPhone(
+        setActive: Boolean = true
+    ) {
+        if (MasterActivity.phone.isActive) {
+            Timber.e("initPhone: failed, phone is already active!")
+            return
+        }
+        Timber.e("initPhone: initialising")
 
-    // OLD
-    private fun updateAccountsList() {
-        val jsonDecrypted = decryptAccountJson()
-        Timber.d("AccountsListJSON: \n${jsonDecrypted ?: "empty"}")
-        _accountsList.value = if (jsonDecrypted.isNullOrEmpty()) mutableListOf()
-        else Json.decodeFromString(jsonDecrypted)
-        _accountsCount.value = _accountsList.value.size
-    }
+        MasterActivity.phone.setNetworkEventListener { connected, networkType ->
+            Timber.e("setNetworkEventListener: network state changed, connected=$connected, networkType=$networkType")
+            if (connected) {
+                phoneStatus.value = AccountStatus.LOADING
+            } else {
+                phoneStatus.value = AccountStatus.NO_CONNECTION
+            }
+        }
 
-    fun fetchStatus(newStatus: AccountStatus? = null, statusCode: String = "") {
-        CoroutineScope(Dispatchers.Main).launch {
-            _status.replayCache.lastOrNull()?.let { lastStatus ->
-                Timber.d("Switching Status from: \"${lastStatus.status}\" to \"${newStatus?.status}\"")
+        MasterActivity.phone.setRegistrationStateListener(object : OnRegistrationListener {
+            override fun onRegistered(accId: Long) {
+                Timber.e("onRegistered: account registered, accId=$accId")
+                phoneStatus.value = AccountStatus.REGISTERED
             }
 
-            _status.emit(AccountStatus.LOADING)
-
-            updateAccountsList()
-
-            if (accountsCount.value == 0) {
-                _status.emit(AccountStatus.UNREGISTERED)
-                settings.enableSip(false)
-                notificationHandler.updateNotificationStatus(
-                    _status.value, statusCode, activeAccount.value?.login ?: ""
-                )
-                return@launch
+            override fun onUnRegistered(accId: Long) {
+                Timber.e("onUnRegistered: account unregistered, accId=$accId")
+                phoneStatus.value = AccountStatus.UNREGISTERED
             }
 
-            if (newStatus == null && phone.getSipProfileState(phone.currentAccountId)?.statusCode == 200) {
-                // На случай, если активность была удалена, а AbtoApp активен и
-                // statusCode аккаунт = 200 (зарегистрирован). Вызывается при отрисовке фрагмента
-                _status.value = AccountStatus.REGISTERED
-                fetchName()
-            } else if (newStatus != null) _status.value = newStatus
+            override fun onRegistrationFailed(accId: Long, statusCode: Int, statusText: String?) {
+                Timber.e("onRegistrationFailed: account registration failed, accId=$accId, statusCode=$statusCode")
 
-            if (newStatus == AccountStatus.REGISTERED) fetchName()
-            else if (newStatus == AccountStatus.UNREGISTERED || newStatus == AccountStatus.REGISTRATION_FAILED) _displayName.emit(
-                null
-            )
+                when(statusCode) {
+                    405 -> { phoneStatus.value = AccountStatus.NO_CONNECTION }
+                    408, 502 -> {
+                        if (currentAccount.value.login.isNotEmpty()) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(2000)
+                                phoneStatus.value = AccountStatus.CHANGING
+                                delay(15000)
+                                retryRegistration()
+                            }
+                        }
+                    }
+                    else -> { phoneStatus.value = AccountStatus.REGISTRATION_FAILED }
+                }
+            }
+        })
 
-            notificationHandler.updateNotificationStatus(
-                _status.value, statusCode, activeAccount.value?.login ?: ""
-            )
+        phone.setNotifyEventListener {
+            Timber.e("setNotifyEventListener: $it")
+        }
+
+        phone.setInitializeListener { state, message ->
+            Timber.e("setInitializeListener: state=$state, message=$message")
+            when (state) {
+                OnInitializeListener.InitializeState.START, OnInitializeListener.InitializeState.INFO, OnInitializeListener.InitializeState.WARNING -> {}
+//                OnInitializeListener.InitializeState.FAIL -> AlertDialog.Builder(this@MasterActivity).setTitle("Error")
+//                    .setMessage(message).setPositiveButton("Ok") { dlg, _ -> dlg.dismiss() }
+//                    .create().show()
+                OnInitializeListener.InitializeState.SUCCESS -> {}
+                else -> {}
+            }
+        }
+
+        val config = phone.config
+        for (c in Codec.values()) config.setCodecPriority(c, 0.toShort())
+//        config.setCodecPriority(Codec.G729, 78.toShort())
+        config.setCodecPriority(Codec.PCMA, 80.toShort())
+        config.setCodecPriority(Codec.PCMU, 79.toShort())
+        config.setCodecPriority(Codec.H264, 220.toShort())
+        config.setCodecPriority(Codec.H263_1998, 0.toShort())
+        config.setSignallingTransport(AbtoPhoneCfg.SignalingTransportType.UDP) //TCP);//TLS);
+        config.setKeepAliveInterval(AbtoPhoneCfg.SignalingTransportType.UDP, 15)
+        config.isUseSRTP = false
+        config.userAgent = phone.version()
+        config.hangupTimeout = 5000
+        config.registerTimeout = 3000
+        config.enableSipsSchemeUse = false
+        config.isSTUNEnabled = false
+        AbtoPhoneCfg.setLogLevel(7, true)
+
+        val notification =
+            notificationHandler.updateNotificationStatus(status.value)
+
+        phone.initialize(false) // start service in 'sticky' mode - when app removed from recent service will be restarted automatically
+        phone.initializeForeground(notification) //start service in foreground mode
+
+        if (setActive) {
+            setActiveAccount(currentAccount.value)
         }
     }
 
-    private var fetchNameJob: Job? = null
+    fun exitPhone() {
+        if (accId != -1L) {
+            phone.unregister()
+        }
+        phone.destroy()
+        phoneStatus.value = AccountStatus.UNREGISTERED
+    }
 
     fun getUserNumber() = when {
         phone.config.accountsCount == 0 -> null
-        // NEW
-//        phone.config.getAccount(accId).active -> phone.config.getAccount(phone.currentAccountId)?.sipUserName
-        // OLD
-        phone.config.getAccount(phone.currentAccountId).active -> phone.config.getAccount(phone.currentAccountId)?.sipUserName
+        phone.config.getAccount(accId).active -> phone.config.getAccount(phone.currentAccountId)?.sipUserName
         else -> null
     }
 
-    private fun fetchName() {
-        val number = getUserNumber()
-        if (!number.isNullOrEmpty()) {
-            fetchNameJob?.cancel()
-            fetchNameJob = CoroutineScope(Dispatchers.IO).launch {
-                repository.getInfoByPhone(number).onEach { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            result.data?.let {
-                                _displayName.emit(it[0])
-                            }
-                        }
-                        is Resource.Error -> {
-                            _displayName.emit(null)
-                        }
-                        is Resource.Loading -> {
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // OLD
-    fun updateActiveAccount(account: Account): String {
-        _activeAccount.value = accountList.value.firstOrNull { it.isActive }
-        val list = accountList.value
-        fetchStatus(AccountStatus.CHANGING)
-
-        list.forEach { it.isActive = false }
-        list.forEach {
-            if (account.login == it.login) it.isActive = true
-        }
-
-        updateAccounts(list)
-
-        val username = activeAccount.value?.login
-        val password = activeAccount.value?.password
-
-        phone.config.addAccount(
-            appContext.getString(R.string.sip_domain), "", username, password, null, "", 300, true
-        )
-
-        phone.config.registerTimeout = 3000
-        phone.restartSip()
-
-        _accountsList.value = list
-        _accountsCount.value = list.size
-
-        return activeAccount.value!!.login
-    }
-
-    private fun updateAccounts(list: List<Account>) {
-        _accountsList.value = list
-        _accountsCount.value = list.size
-        _activeAccount.value = accountList.value.firstOrNull { it.isActive }
-        val json = Json.encodeToJsonElement(list).toString()
-        encryptAccountJson(jsonForEncrypt = json)
-    }
-
-    fun addNewAccount(newLogin: String, newPassword: String) {
-        val list = accountList.value.toMutableList()
-        list.forEach { it.isActive = false }
-
-        list.add(Account(newLogin, newPassword, true))
-
-        updateAccounts(list)
-        retryRegistration()
-    }
-
-    fun removeAccount(account: Account) {
-        val list = accountList.value.toMutableList()
-        list.removeAll { it.login == account.login }
-
-        if (activeAccount.value == account) {// если активный аккаунт удаляется
-            phone.unregister()
-            _activeAccount.value = null
-            retryRegistration()
-        }
-
-        updateAccounts(list)
-    }
-
     fun retryRegistration() {
-        if (!hasActiveAccount) {
-            fetchStatus(AccountStatus.UNREGISTERED)
+        if (currentAccount.value.login.isEmpty()) {
+            phoneStatus.value = AccountStatus.UNREGISTERED
             scope.launch {
                 settings.enableSip(false)
             }
         } else {
-            fetchStatus(AccountStatus.CHANGING)
-            activeAccount.value?.let {
-                updateActiveAccount(it)
-            }
+            phoneStatus.value = AccountStatus.CHANGING
+            setActiveAccount(currentAccount.value)
         }
-    }
-
-    private fun enableAccount() {
-        phone.restartSip()
-        EventBus.getDefault().post(Event.EnableAccount())
-        fetchStatus()
-    }
-
-    private fun disableAccount() {
-        EventBus.getDefault().post(Event.DisableAccount())
-        fetchStatus(AccountStatus.UNREGISTERED)
     }
 
     fun setActiveAccount(account: Account) {
@@ -287,7 +234,7 @@ class AccountStatusRepository(
 
         if (!phone.isActive) {
             Timber.e("setActiveAccount: phone is not active, enabling!")
-            EventBus.getDefault().post(Event.EnableAccount())
+            initPhone(false)
         }
         accId = phone.config.addAccount(
             appContext.getString(R.string.sip_domain),
@@ -305,6 +252,7 @@ class AccountStatusRepository(
         list.forEach { v -> if (v.login == account.login) v.isActive = true; currentAccount.value = v }
         Timber.e("setActiveAccount: old list = ${accountsList.value}, new list = $list")
         if (isAdded) {
+            saVM.setCurrentAccount(account.login)
             setAccountsList(list)
         }
     }
@@ -317,20 +265,20 @@ class AccountStatusRepository(
         setActiveAccount(account)
     }
 
-    // NEW
-//    fun removeAccount(account: Account) {
-//        if (account.isActive) {
-//            if (accId != -1L) {
-//                phone.unregister(accId)
-//            }
-//            currentAccount.value = AccountUtils.dummyAccount
-//        }
-//        val list = accountsList.value.toMutableList()
-//        list.removeAll { v -> v.login == account.login}
-//        setAccountsList(list)
-//    }
+    fun removeAccount(account: Account) {
+        if (account.isActive) {
+            if (accId != -1L) {
+                phone.unregister(accId)
+            }
+            currentAccount.value = AccountUtils.dummyAccount
+        }
+        val list = accountsList.value.toMutableList()
+        list.removeAll { v -> v.login == account.login}
+        setAccountsList(list)
+    }
 
     private fun setAccountsList(accounts: List<Account>) {
+        saVM.sipList.value = accounts.map { it.login }
         accountsList.value = accounts.toMutableList()
         encryptAccountJson(Json.encodeToJsonElement(accounts).toString())
     }
@@ -348,7 +296,7 @@ class AccountStatusRepository(
 
 private object AccountUtils {
     val dummyAccount = Account(
-        login = "",
+        login = "Без Аккаунта",
         password = "",
         isActive = false
     )

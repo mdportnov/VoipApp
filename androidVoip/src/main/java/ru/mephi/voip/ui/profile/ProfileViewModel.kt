@@ -47,16 +47,10 @@ class ProfileViewModel(
         get() = GET_PROFILE_PIC_URL_BY_SIP + accountRepository.getUserNumber()
 
     fun addNewAccount() {
-        // NEW
-//        accountRepository.addAccount(Account(
-//            login = newLogin.value,
-//            password = newPassword.value
-//        ))
-        // OLD
-        accountRepository.addNewAccount(
-            newLogin = newLogin.value,
-            newPassword = newPassword.value
-        )
+        accountRepository.addAccount(Account(
+            login = newLogin.value,
+            password = newPassword.value
+        ))
     }
 
     fun removeAccount(account: Account) {
@@ -68,7 +62,8 @@ class ProfileViewModel(
     }
 
     fun updateActiveAccount(account: Account): String {
-        return accountRepository.updateActiveAccount(account)
+        accountRepository.setActiveAccount(account)
+        return ""
     }
 
     fun toggleSipStatus() {

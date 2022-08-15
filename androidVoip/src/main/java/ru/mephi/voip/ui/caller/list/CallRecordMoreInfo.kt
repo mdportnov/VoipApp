@@ -58,7 +58,7 @@ fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> U
                 )
             }
             IconButton(onClick = {
-                if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED) {
                     CallActivity.create(context, record.sipNumber, false)
                 } else {
                     Toast.makeText(

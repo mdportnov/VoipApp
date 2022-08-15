@@ -39,6 +39,7 @@ fun FavouriteContactsBoard(
             fontSize = with(LocalDensity.current) {
                 (dimensionResource(id = R.dimen.profile_text_size).value.sp / fontScale)
             },
+            modifier = Modifier.padding(start = 16.dp)
         )
 
     LazyVerticalGrid(

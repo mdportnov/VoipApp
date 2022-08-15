@@ -19,10 +19,12 @@ class SavedAccountsViewModel : MainIoExecutor() {
 
     val sipList = MutableStateFlow(emptyList<String>())
     val accountsMap: MutableMap<String, MutableStateFlow<Appointment>> = mutableMapOf()
+    val currentAccount = MutableStateFlow(Appointment())
 
     init {
         launch(ioDispatcher) {
             sipList.collect { lst ->
+                accountsMap.clear()
                 lst.forEach { v ->
                     MutableStateFlow(Appointment(
                         line = v,
@@ -34,6 +36,13 @@ class SavedAccountsViewModel : MainIoExecutor() {
                 }
             }
         }
+    }
+
+    fun setCurrentAccount(
+        SIP: String
+    ) {
+        currentAccount.value = Appointment(lineShown = SIP)
+        fetchAccountInfo(currentAccount)
     }
 
     private fun fetchAccountInfo(app: MutableStateFlow<Appointment>) {

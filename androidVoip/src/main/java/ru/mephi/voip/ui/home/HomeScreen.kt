@@ -30,8 +30,7 @@ import ru.mephi.voip.ui.MasterScreens
 import ru.mephi.voip.ui.caller.CallerScreen
 import ru.mephi.voip.ui.common.NoRippleTheme
 import ru.mephi.voip.ui.home.screens.catalog.CatalogScreen
-import ru.mephi.voip.ui.home.screens.settings.SettingsScreen
-import ru.mephi.voip.ui.profile.ProfileScreen
+import ru.mephi.voip.ui.home.screens.profile.ProfileScreen
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.NavAnimationUtils
 import timber.log.Timber
@@ -185,13 +184,17 @@ private fun HomeScreenNavCtl(
                 }
             }
         ) {
-//            SettingsScreen(
-//                addAccount = { masterNavController.navigate(route = MasterScreens.LoginScreen.route) },
-//                switchAccount = { masterNavController.navigate(route = MasterScreens.SwitchScreen.route) }
-//            )
-            ProfileScreen {
-                masterNavController.navigate(route = MasterScreens.SettingsScreen.route)
-            }
+            ProfileScreen(
+                openSettings = {
+                    masterNavController.navigate(route = MasterScreens.SettingsScreen.route)
+                },
+                openLogin = {
+                    masterNavController.navigate(route = MasterScreens.LoginScreen.route)
+                }
+            )
+//            ProfileScreen {
+//                masterNavController.navigate(route = MasterScreens.SettingsScreen.route)
+//            }
         }
     }
 }

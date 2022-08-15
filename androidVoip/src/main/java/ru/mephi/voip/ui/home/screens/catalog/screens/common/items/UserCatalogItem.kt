@@ -59,7 +59,7 @@ internal fun UserCatalogItem(
         bottomEnd = (if (isEnd) 8 else 0).dp
     )
     val onCallClick = { sip: String ->
-        if (accountStatusRepository.status.value == AccountStatus.REGISTERED && sip.isNotEmpty()) {
+        if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED && sip.isNotEmpty()) {
             CallActivity.create(activity, sip, false)
         } else {
             Toast.makeText(activity, R.string.no_active_account_call, Toast.LENGTH_SHORT).show()

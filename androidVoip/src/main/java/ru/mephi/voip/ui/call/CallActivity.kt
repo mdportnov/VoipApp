@@ -24,6 +24,7 @@ import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.abto.parseRemoteContact
+import ru.mephi.voip.ui.theme.MasterTheme
 import ru.mephi.voip.utils.toast
 
 class CallActivity : AppCompatActivity(), LifecycleOwner,
@@ -75,14 +76,16 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
             callViewModel.changeButtonState(CallButtonsState.CALL_PROCESS)
 
         setContent {
-            CallScreen(
-                callViewModel,
-                ::pickUp,
-                ::holdCall,
-                ::hangUp,
-                ::stopActivity,
-                ::transferCall
-            )
+            MasterTheme {
+                CallScreen(
+                    callViewModel,
+                    ::pickUp,
+                    ::holdCall,
+                    ::hangUp,
+                    ::stopActivity,
+                    ::transferCall
+                )
+            }
         }
 
         callViewModel.retrieveInfoAboutCall(callViewModel.number)

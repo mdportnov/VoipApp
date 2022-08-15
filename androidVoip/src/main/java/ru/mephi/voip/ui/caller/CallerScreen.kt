@@ -194,7 +194,7 @@ fun CallerScreen(
                                 }
                                 return@FloatingActionButton
                             }
-                            if (accountStatusRepository.status.value == AccountStatus.REGISTERED) {
+                            if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED) {
                                 CallActivity.create(
                                     context, inputState, false
                                 )
