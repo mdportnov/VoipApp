@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -123,13 +122,15 @@ private fun SearchTopBar(
         title = {
             Box(
                 modifier = Modifier
-                    .width((LocalConfiguration.current.screenWidthDp - 98).dp)
                     .padding(start = 12.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 if (searchStr.isEmpty()) {
                     Text(
-                        text = getSearchHint(searchType),
+                        text = when (searchType) {
+                            SearchType.SEARCH_USER -> "Поиск пользователей"
+                            SearchType.SEARCH_UNIT -> "Поиск подразделений"
+                        },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.outline)
@@ -155,6 +156,10 @@ private fun SearchTopBar(
         },
         actions = {
             IconButton(onClick = {
+                val msgHelper = when(searchType) {
+                    SearchType.SEARCH_USER -> "Поиск подразделений"
+                    SearchType.SEARCH_UNIT -> "Поиск пользователей"
+                }
                 applySearchType(
                     when (searchType) {
                         SearchType.SEARCH_UNIT -> SearchType.SEARCH_USER
@@ -162,7 +167,7 @@ private fun SearchTopBar(
                     }
                 )
                 if (searchStr.isNotEmpty()) {
-                    Toast.makeText(activity, getSearchHint(searchType), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, msgHelper, Toast.LENGTH_SHORT).show()
                 }
             }) {
                 Icon(
@@ -205,12 +210,5 @@ private fun SearchHistory(
                 }
             }
         }
-    }
-}
-
-private fun getSearchHint(searchType: SearchType): String {
-    return when (searchType) {
-        SearchType.SEARCH_USER -> "Поиск пользователей"
-        SearchType.SEARCH_UNIT -> "Поиск подразделений"
     }
 }
