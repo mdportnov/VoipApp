@@ -118,8 +118,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:29.0.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
 
-    implementation("org.greenrobot:eventbus:3.3.1")
-
     // Preferences
     implementation("com.github.JamalMulla:ComposePrefs:1.0.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
