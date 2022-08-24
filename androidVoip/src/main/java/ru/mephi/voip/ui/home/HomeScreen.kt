@@ -1,20 +1,16 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
-    ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class
-)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 
 package ru.mephi.voip.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,7 +29,6 @@ import ru.mephi.voip.ui.home.screens.catalog.CatalogScreen
 import ru.mephi.voip.ui.home.screens.profile.ProfileScreen
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.NavAnimationUtils
-import timber.log.Timber
 
 @Composable
 internal fun HomeScreen(
@@ -52,7 +47,6 @@ internal fun HomeScreen(
             HomeScreenNavBar(navController = navController)
         }
     ) {
-        Timber.e("$it")
         Box(modifier = Modifier.padding(it)) {
             HomeScreenNavCtl(
                 navController = navController,
@@ -87,6 +81,11 @@ private fun HomeScreenNavBar(
                     onClick = {
                         current = getCurrentRoute(navController)
                         navController.navigate(item.route) {
+                            navController.graph.startDestinationRoute?.let { route ->
+                                popUpTo(route) {
+                                    saveState = true
+                                }
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }
