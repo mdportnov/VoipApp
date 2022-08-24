@@ -34,6 +34,7 @@ import ru.mephi.shared.vm.SearchType
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.common.CommonColor
 import ru.mephi.voip.ui.home.screens.catalog.screens.common.items.SearchHistoryItem
+import timber.log.Timber
 
 @Composable
 internal fun SearchScreen(
@@ -209,6 +210,7 @@ private fun SearchHistory(
 }
 
 private fun getSearchHint(searchType: SearchType): String {
+    Timber.e(searchType.toString())
     return when (searchType) {
         SearchType.SEARCH_USER -> "Поиск пользователей"
         SearchType.SEARCH_UNIT -> "Поиск подразделений"

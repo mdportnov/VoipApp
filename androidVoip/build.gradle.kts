@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    compileSdk = 31
+    compileSdk = 32
 
     defaultConfig {
         applicationId = "ru.mephi.voip"
@@ -82,7 +82,7 @@ dependencies {
     implementation("androidx.compose.compiler:compiler:1.2.0-beta01")
     implementation("androidx.compose.material:material:1.1.1")
     implementation("androidx.compose.material3:material3:1.0.0-alpha11")
-    implementation("androidx.compose.material:material-icons-extended:1.1.1")
+    implementation("androidx.compose.material:material-icons-extended:1.2.1")
     implementation("androidx.compose.foundation:foundation:1.2.0-beta01")
     implementation("androidx.navigation:navigation-compose:2.4.2")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
@@ -118,8 +118,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:29.0.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
 
-    implementation("org.greenrobot:eventbus:3.3.1")
-
     // Preferences
     implementation("com.github.JamalMulla:ComposePrefs:1.0.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
@@ -131,8 +129,6 @@ dependencies {
 
     // Splash
     implementation("androidx.core:core-splashscreen:1.0.0-beta01")
-
-    implementation("androidx.compose.runtime:runtime-livedata:1.1.1")
 
     implementation(project(":shared"))
     implementation(files("aars/abto_android_voip_sdk.aar"))

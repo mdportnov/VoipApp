@@ -1,20 +1,16 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
-    ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class
-)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 
 package ru.mephi.voip.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,18 +22,16 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.koin.androidx.compose.inject
-import ru.mephi.voip.ui.MasterScreens
 import ru.mephi.voip.ui.caller.CallerScreen
 import ru.mephi.voip.ui.common.NoRippleTheme
 import ru.mephi.voip.ui.home.screens.catalog.CatalogScreen
-import ru.mephi.voip.ui.home.screens.profile.ProfileScreen
+import ru.mephi.voip.ui.home.screens.settings.SettingsScreen
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.NavAnimationUtils
-import timber.log.Timber
 
 @Composable
 internal fun HomeScreen(
-    masterNavController: NavHostController
+    openLogin: () -> Unit
 ) {
     rememberSystemUiController().let {
         it.setStatusBarColor(MaterialTheme.colorScheme.background)
@@ -52,11 +46,10 @@ internal fun HomeScreen(
             HomeScreenNavBar(navController = navController)
         }
     ) {
-        Timber.e("$it")
         Box(modifier = Modifier.padding(it)) {
             HomeScreenNavCtl(
                 navController = navController,
-                masterNavController = masterNavController
+                openLogin = openLogin
             )
         }
     }
@@ -100,7 +93,7 @@ private fun HomeScreenNavBar(
 @Composable
 private fun HomeScreenNavCtl(
     navController: NavHostController,
-    masterNavController: NavHostController
+    openLogin: () -> Unit
 ) {
     val preferenceRepository: PreferenceRepository by inject()
     val startScreen by preferenceRepository.startScreen.collectAsState(initial = Screens.Catalog)
@@ -184,17 +177,8 @@ private fun HomeScreenNavCtl(
                 }
             }
         ) {
-            ProfileScreen(
-                openSettings = {
-                    masterNavController.navigate(route = MasterScreens.SettingsScreen.route)
-                },
-                openLogin = {
-                    masterNavController.navigate(route = MasterScreens.LoginScreen.route)
-                }
-            )
-//            ProfileScreen {
-//                masterNavController.navigate(route = MasterScreens.SettingsScreen.route)
-//            }
+            SettingsScreen(openLogin = openLogin)
+
         }
     }
 }

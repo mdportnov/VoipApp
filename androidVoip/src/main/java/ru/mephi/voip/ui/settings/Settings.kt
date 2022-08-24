@@ -74,7 +74,7 @@ internal fun Settings(
             subtitle = stringResource(R.string.enable_incoming_activity_subtitle),
             checked = uiState.isCallScreenAlwaysEnabled,
             onCheckedChange = {
-//                if (!Settings.canDrawOverlays(context)) {
+                if (!Settings.canDrawOverlays(context)) {
                 val intent = Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:$PACKAGE_NAME")
@@ -82,7 +82,7 @@ internal fun Settings(
                 (context as Activity).startActivityForResult(
                     intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
                 )
-//                }
+                }
                 onCallScreenAlwaysEnableChange(Settings.canDrawOverlays(context))
             },
         )

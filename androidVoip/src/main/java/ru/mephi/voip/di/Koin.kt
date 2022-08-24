@@ -22,7 +22,7 @@ val koinModule = module {
 
 val repositories = module {
     single { PreferenceRepository(androidApplication()) }
-    single { AccountStatusRepository(androidApplication(), get(), get(), get()) }
+    single { AccountStatusRepository(androidApplication(), get(), get()) }
     single { CatalogRepository() }
 }
 

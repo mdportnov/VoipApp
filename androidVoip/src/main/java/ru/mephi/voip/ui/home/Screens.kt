@@ -34,14 +34,14 @@ sealed class Screens(
         route = "catalog",
         title = R.string.catalog,
         icon = Icons.Outlined.MenuBook,
-        selectedIcon = Icons.Default.MenuBook,
+        selectedIcon = Icons.Default.MenuBook
     )
 
     object Settings : Screens(
         route = "settings",
-        title = R.string.profile,
-        icon = Icons.Outlined.Person,
-        selectedIcon = Icons.Default.Person,
+        title = R.string.settings,
+        icon = Icons.Outlined.Settings,
+        selectedIcon = Icons.Default.Settings
     )
 }
 

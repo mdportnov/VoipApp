@@ -10,6 +10,7 @@ import ru.mephi.shared.base.MainIoExecutor
 import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.home.Screens
+import timber.log.Timber
 
 class SettingsViewModel constructor(
     application: Application,

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 
-package ru.mephi.voip.ui.home.screens.profile.common.dialogs
+package ru.mephi.voip.ui.home.screens.settings.screens.common.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

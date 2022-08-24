@@ -56,7 +56,6 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val accountRepository: AccountStatusRepository by inject()
-    private val notificationHandler: NotificationHandler by inject()
 
     private var isBackgroundWork: Boolean = false
     private var isSipEnabled = false
@@ -69,9 +68,9 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         super.onResume()
         phone = (application as AbtoApplication).abtoPhone
         if (!isBackgroundWork) {
-            if (isSipEnabled) {
-                accountRepository.initPhone()
-            }
+//            if (isSipEnabled) {
+//                accountRepository.initPhone()
+//            }
         }
     }
 
@@ -216,17 +215,12 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
             composable(
                 route = MasterScreens.HomeScreen.route
             ) {
-                HomeScreen(masterNavController = navController)
+                HomeScreen(openLogin = { navController.navigate(route = MasterScreens.LoginScreen.route) })
             }
             composable(
                 route = MasterScreens.LoginScreen.route
             ) {
                 LoginScreen(goBack = { navController.popBackStack() })
-            }
-            composable(
-                route = MasterScreens.SettingsScreen.route
-            ) {
-                SettingsScreen(navController)
             }
         }
     }
