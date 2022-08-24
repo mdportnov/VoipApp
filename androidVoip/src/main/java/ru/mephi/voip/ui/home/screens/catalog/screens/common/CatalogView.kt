@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.vm.CatalogStatus
 import ru.mephi.shared.vm.CatalogUtils
 

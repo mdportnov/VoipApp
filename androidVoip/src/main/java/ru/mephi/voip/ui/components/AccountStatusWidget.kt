@@ -59,13 +59,13 @@ fun AccountStatusWidget(
         Icon(
             when (accountStatus) {
                 AccountStatus.REGISTERED, AccountStatus.NO_CONNECTION -> Icons.Filled.CheckCircle
-                AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED, AccountStatus.CHANGING, AccountStatus.LOADING -> Icons.Filled.Refresh
+                AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED, AccountStatus.RECONNECTING, AccountStatus.LOADING -> Icons.Filled.Refresh
             },
             "Статус",
             tint = when (accountStatus) {
                 AccountStatus.REGISTERED -> ColorGreen
                 AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED -> ColorAccent
-                AccountStatus.NO_CONNECTION, AccountStatus.CHANGING, AccountStatus.LOADING -> ColorGray
+                AccountStatus.NO_CONNECTION, AccountStatus.RECONNECTING, AccountStatus.LOADING -> ColorGray
             },
         )
     }

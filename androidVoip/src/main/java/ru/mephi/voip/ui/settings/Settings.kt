@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.get
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.components.settings.*
 import ru.mephi.voip.ui.home.Screens
@@ -37,6 +38,7 @@ internal fun Settings(
     deleteAllCatalogCache: () -> Unit,
     deleteAllSearchRecords: () -> Unit,
     deleteAllFavouritesRecords: () -> Unit,
+    sVM: SettingsViewModel = get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -64,7 +66,7 @@ internal fun Settings(
             title = stringResource(id = R.string.enable_background_mode),
             checked = uiState.isBackgroundModeEnabled,
             onCheckedChange = {
-                onBackgroundModeEnableChange(it)
+                sVM.enableBackgroundMode(it)
             },
         )
 

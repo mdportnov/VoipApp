@@ -21,7 +21,6 @@ import ru.mephi.shared.vm.CatalogStatus
 import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.voip.ui.home.screens.catalog.screens.common.CatalogList
 import ru.mephi.voip.ui.home.screens.catalog.screens.common.CatalogView
-import timber.log.Timber
 
 @Composable
 internal fun CatalogNextScreen(

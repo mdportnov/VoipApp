@@ -6,5 +6,5 @@ enum class AccountStatus(val status: String) {
     UNREGISTERED("Не зарегистрирован"),
     REGISTRATION_FAILED("Ошибка регистрации"),
     REGISTERED("Аккаунт активен"),
-    CHANGING("Обновление..."),
+    RECONNECTING("Переподключение..."),
 }
