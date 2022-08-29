@@ -61,7 +61,6 @@ class AccountStatusRepository(
     val phoneStatus = MutableStateFlow(AccountStatus.UNREGISTERED)
 
     private val scope = CoroutineScope(Dispatchers.IO)
-    private var mTimer = 0
 
     init {
         scope.launch {
@@ -102,6 +101,7 @@ class AccountStatusRepository(
             Timber.e("initPhone: failed, phone is already active!")
             return
         }
+        phoneStatus.value = AccountStatus.SWITCHING
         Timber.e("initPhone: initialising")
 
         MasterActivity.phone.setNetworkEventListener { connected, networkType ->
@@ -138,6 +138,8 @@ class AccountStatusRepository(
                                 }
                                 retryRegistration()
                             }
+                        } else {
+                            phoneStatus.value = AccountStatus.REGISTRATION_FAILED
                         }
                     }
                     else -> { phoneStatus.value = AccountStatus.REGISTRATION_FAILED }
@@ -193,6 +195,7 @@ class AccountStatusRepository(
     }
 
     fun exitPhone() {
+        phoneStatus.value = AccountStatus.SWITCHING
         backgroundListener?.cancel()
         if (accId != -1L) {
             phone.unregister()
@@ -277,7 +280,6 @@ class AccountStatusRepository(
         list.forEach { v -> if (v.login == account.login) v.isActive = true; currentAccount.value = v }
         Timber.e("setActiveAccount: old list = ${accountsList.value}, new list = $list")
         if (isAdded) {
-            saVM.setCurrentAccount(account.login)
             setAccountsList(list)
         }
     }
@@ -286,8 +288,8 @@ class AccountStatusRepository(
         currentAccount.value = account.copy(isActive = false)
         val list = accountsList.value.toMutableList()
         list.add(account)
+        saVM.setCurrentAccount(account.login)
         setAccountsList(list)
-        setActiveAccount(account)
     }
 
     fun removeAccount(account: Account) {

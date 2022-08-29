@@ -47,27 +47,10 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
         stack.add(StackUnitM(codeStr = CatalogUtils.INIT_CODE_STR, shortname = "МИФИ"))
     }
 
-    fun navigateBack(unitM: UnitM = UnitM()): Int {
-        var ret = 0
-        if (unitM.code_str.isNotEmpty()) {
-            while (stack.isNotEmpty()) {
-                if (stack.last().codeStr != unitM.code_str) {
-                    ret++
-                    stack.pop()
-                } else {
-                    return ret
-                }
-            }
-        } else {
-            ret++
-            stack.pop()
-        }
-        return ret
-    }
-
     fun navigateNext(unitM: UnitM) {
-        lVM.e("$unitM")
-        stack.add(StackUnitM(unitM.code_str, unitM.shortname))
+        if (stack.last().codeStr != unitM.code_str) {
+            stack.add(StackUnitM(unitM.code_str, unitM.shortname))
+        }
         navigateUnitMap[unitM.code_str]?.let {
             if (it.unitM.value.children.isEmpty() && it.unitM.value.appointments.isEmpty()) {
                 searchUnitByCodeStr(unitM.code_str, it)

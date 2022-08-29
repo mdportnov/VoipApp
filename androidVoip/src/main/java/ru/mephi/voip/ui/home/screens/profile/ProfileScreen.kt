@@ -121,7 +121,8 @@ private fun IconStatus(
             modifier = Modifier.size(34.dp),
             imageVector = when (status) {
                 AccountStatus.UNREGISTERED -> Icons.Outlined.PhoneDisabled
-                AccountStatus.LOADING -> Icons.Outlined.Sync
+                AccountStatus.LOADING,
+                AccountStatus.SWITCHING -> Icons.Outlined.Sync
                 AccountStatus.NO_CONNECTION -> Icons.Outlined.WifiOff
                 AccountStatus.REGISTRATION_FAILED,
                 AccountStatus.RECONNECTING -> Icons.Outlined.ErrorOutline
@@ -132,7 +133,8 @@ private fun IconStatus(
                 AccountStatus.RECONNECTING,
                 AccountStatus.NO_CONNECTION -> MaterialTheme.colorScheme.error
                 AccountStatus.LOADING,
-                AccountStatus.UNREGISTERED-> Color(0xFFDE7411)
+                AccountStatus.UNREGISTERED,
+                AccountStatus.SWITCHING -> Color(0xFFDE7411)
                 AccountStatus.REGISTERED -> Color(0xFF58B95D)
             },
             contentDescription = null
@@ -173,14 +175,14 @@ private fun PhoneButton(
     accountRepository: AccountStatusRepository = get()
 ) {
     val sipStatus = accountRepository.isSipEnabled.collectAsState()
-    val currentAccount = accountRepository.currentAccount.collectAsState()
+    val phoneStatus = accountRepository.phoneStatus.collectAsState()
     Button(
         onClick = { viewModel.toggleSipStatus() },
         modifier = Modifier
             .padding(top = 4.dp, start = 12.dp, end = 12.dp, bottom = 8.dp)
             .wrapContentHeight()
             .fillMaxWidth(),
-        enabled = currentAccount.value.login.isNotEmpty()
+        enabled = phoneStatus.value != AccountStatus.SWITCHING
     ) {
         Text(if (!sipStatus.value) "Включить SIP" else "Выключить SIP")
     }

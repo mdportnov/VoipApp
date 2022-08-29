@@ -3,13 +3,13 @@
 package ru.mephi.voip.ui.home.screens.catalog
 
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -18,6 +18,7 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.model.UnitM
+import ru.mephi.shared.utils.pop
 import ru.mephi.shared.vm.CatalogUtils
 import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.shared.vm.DetailedInfoViewModel
@@ -28,14 +29,16 @@ import ru.mephi.voip.ui.home.screens.catalog.screens.SearchScreen
 @Composable
 fun CatalogScreen() {
     val navController = rememberAnimatedNavController()
+    val breadCrumbsState = rememberLazyListState()
     Box {
-        CatalogNavCtl(navController)
+        CatalogNavCtl(navController, breadCrumbsState)
     }
 }
 
 @Composable
 private fun CatalogNavCtl(
     navController: NavHostController,
+    breadCrumbsState: LazyListState,
     cVM: CatalogViewModel = get(),
     diVM: DetailedInfoViewModel = get()
 ) {
@@ -44,7 +47,9 @@ private fun CatalogNavCtl(
         startDestination = Screens.CatalogHomeScreen.route
     ) {
         composable(
-            route = Screens.CatalogHomeScreen.route
+            route = Screens.CatalogHomeScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             CatalogHomeScreen(
                 openSearch = {
@@ -63,7 +68,9 @@ private fun CatalogNavCtl(
         }
         composable(
             route = Screens.CatalogNextScreen.route,
-            arguments = listOf(navArgument("codeStr") { type = NavType.StringType })
+            arguments = listOf(navArgument("codeStr") { type = NavType.StringType }),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) { backStackEntry ->
             val codeStr = backStackEntry.arguments?.getString("codeStr") ?: CatalogUtils.INIT_CODE_STR
             CatalogNextScreen(
@@ -78,8 +85,8 @@ private fun CatalogNavCtl(
                     }
                 },
                 goBack = {
-                    val ret = cVM.navigateBack(unitM = UnitM(code_str = it))
-                    for (i in 1..ret) {
+                    for (i in 1..it) {
+                        cVM.stack.pop()
                         navController.popBackStack()
                     }
                 },
@@ -87,11 +94,14 @@ private fun CatalogNavCtl(
                     navController.navigate(route = Screens.SearchScreen.route) {
                         launchSingleTop = true
                     }
-                }
+                },
+                breadCrumbsState = breadCrumbsState
             )
         }
         composable(
-            route = Screens.CatalogSearchScreen.route
+            route = Screens.CatalogSearchScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             CatalogNextScreen(
                 codeStr = "Search",
@@ -107,11 +117,14 @@ private fun CatalogNavCtl(
                     navController.navigate(route = Screens.SearchScreen.route) {
                         launchSingleTop = true
                     }
-                }
+                },
+                breadCrumbsState = breadCrumbsState
             )
         }
         composable(
-            route = Screens.SearchScreen.route
+            route = Screens.SearchScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             SearchScreen(
                 runSearch = { str, type ->
