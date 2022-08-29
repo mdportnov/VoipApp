@@ -1,31 +1,32 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
+    ExperimentalFoundationApi::class
+)
 
 package ru.mephi.voip.ui.home.screens.catalog.screens.common
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -39,7 +40,6 @@ import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.vm.DetailedInfoStatus
 import ru.mephi.shared.vm.DetailedInfoViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.common.GroupTitle
 import ru.mephi.voip.ui.common.OnBadResult
 import ru.mephi.voip.utils.getImageUrl
 import ru.mephi.voip.utils.launchMailClientIntent
@@ -136,150 +136,123 @@ private fun DetailedInfoContent(
     goNext: (UnitM) -> Unit,
     onCallClick: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+    val context = LocalContext.current
+    CompositionLocalProvider(
+        LocalOverScrollConfiguration provides null
     ) {
-        AsyncImage(
-            modifier = Modifier
-                .size(124.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop,
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(getImageUrl(appointment.lineShown))
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .diskCachePolicy(CachePolicy.ENABLED)
-                .build(),
-            error = painterResource(id = R.drawable.ic_dummy_avatar),
-            placeholder = painterResource(id = R.drawable.ic_dummy_avatar),
-            contentDescription = null
-        )
-        Text(
-            text = getRealUsername(appointment),
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(4.dp),
-            maxLines = 1,
-            overflow  = TextOverflow.Ellipsis
-        )
         Column(
-            horizontalAlignment = Alignment.Start
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (appointment.line.isNotEmpty()) {
-                DetailedInfoDivider()
-                PhoneCard(phone = appointment.line, onCallClick = onCallClick)
-            }
-            if (appointment.email.isNotEmpty()) {
-                DetailedInfoDivider()
-                MailCard(email = appointment.email)
-            }
-            if (appointment.positions.isNotEmpty()) {
-                DetailedInfoDivider()
-                GroupTitle(title = "Места работы")
-                appointment.positions.forEach { pos ->
-                    PositionCard(pos, goNext)
+            AsyncImage(
+                modifier = Modifier
+                    .size(124.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(getImageUrl(appointment.line))
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .build(),
+                error = painterResource(id = R.drawable.ic_dummy_avatar),
+                placeholder = painterResource(id = R.drawable.ic_dummy_avatar),
+                contentDescription = null
+            )
+            Text(
+                text = getRealUsername(appointment),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(4.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.padding(top = 4.dp, start = 6.dp, end = 6.dp)
+            ) {
+                if (appointment.line.isNotEmpty()) {
+                    DetailedInfoDivider()
+                    DetailedInfoTitle(title = "Телефон")
+                    DetailedInfoCard(
+                        text = "Номер: ${appointment.line}",
+                        icon = Icons.Default.Phone,
+                        onClick = { onCallClick(appointment.line) }
+                    )
+                }
+                if (appointment.email.isNotEmpty()) {
+                    DetailedInfoDivider()
+                    DetailedInfoTitle(title = "Почта")
+                    DetailedInfoCard(
+                        text = "Email: ${appointment.email}",
+                        icon = Icons.Default.Mail,
+                        onClick = { context.launchMailClientIntent(appointment.email) }
+                    )
+                }
+                if (appointment.positions.isNotEmpty()) {
+                    DetailedInfoDivider()
+                    DetailedInfoTitle(title = "Места работы")
+                    appointment.positions.let {
+                        it.forEachIndexed { i, pos ->
+                            DetailedInfoCard(
+                                text = getPositionString(pos),
+                                icon = Icons.Default.Search,
+                                onClick = {
+                                    goNext(
+                                        UnitM(
+                                            code_str = pos.unitCodeStr,
+                                            shortname = pos.unitShortname
+                                        )
+                                    )
+                                },
+                                isStart = i == 0,
+                                isEnd = i == it.size - 1
+                            )
+                        }
+                    }
                 }
             }
-            DetailedInfoDivider()
         }
     }
 }
 
 @Composable
-private fun PhoneCard(
-    phone: String,
-    onCallClick: (String) -> Unit
+private fun DetailedInfoTitle(
+    title: String
 ) {
-    val width = LocalConfiguration.current.screenWidthDp
-    val shape = RoundedCornerShape(8.dp)
-    GroupTitle(title = "Телефон")
-    Card(
-        shape = shape,
-        modifier = Modifier
-            .wrapContentHeight()
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp)
-            .clip(shape)
-            .clickable { onCallClick(phone) },
-        elevation = CardDefaults.elevatedCardElevation(),
-        colors = CardDefaults.elevatedCardColors()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        ) {
-            Text(
-                text = "Номер: $phone",
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.width((width - 76).dp)
-            )
-            IconButton(onClick = { onCallClick(phone) }) {
-                Icon(imageVector = Icons.Default.Phone, contentDescription = null)
-            }
-        }
-    }
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.padding(start = 4.dp)
+    )
 }
 
 @Composable
-private fun MailCard(
-    email: String
+private fun DetailedInfoCard(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    isStart: Boolean = true,
+    isEnd: Boolean = true
 ) {
-    val context = LocalContext.current
-    val width = LocalConfiguration.current.screenWidthDp
-    val shape = RoundedCornerShape(8.dp)
-    GroupTitle(title = "Email")
+    val cardShape = RoundedCornerShape(
+        topStart = (if (isStart) 8 else 0).dp,
+        topEnd = (if (isStart) 8 else 0).dp,
+        bottomStart = (if (isEnd) 8 else 0).dp,
+        bottomEnd = (if (isEnd) 8 else 0).dp
+    )
     Card(
-        shape = shape,
+        shape = cardShape,
         modifier = Modifier
             .wrapContentHeight()
             .fillMaxWidth()
-            .padding(horizontal = 4.dp)
-            .clip(shape)
-            .clickable {
-                context.launchMailClientIntent(email)
-            },
-        elevation = CardDefaults.elevatedCardElevation(),
-        colors = CardDefaults.elevatedCardColors()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        ) {
-            Text(
-                text = email,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.width((width - 76).dp)
-            )
-            IconButton(onClick = { context.launchMailClientIntent(email) }) {
-                Icon(imageVector = Icons.Default.Mail, contentDescription = null)
-            }
-        }
-    }
-}
-
-@Composable
-private fun PositionCard(
-    pos: PositionInfo,
-    goNext: (UnitM) -> Unit
-) {
-    val shape = RoundedCornerShape(8.dp)
-    val width = LocalConfiguration.current.screenWidthDp
-    Card(
-        shape = shape,
-        modifier = Modifier
-            .wrapContentHeight()
-            .fillMaxWidth()
-            .padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
-            .clip(shape)
-            .clickable {
-                goNext(UnitM(code_str = pos.unitCodeStr))
-            },
+            .padding(bottom = 4.dp)
+            .clip(cardShape)
+            .clickable { onClick() },
         elevation = CardDefaults.elevatedCardElevation(),
         colors = CardDefaults.elevatedCardColors()
     ) {
@@ -287,18 +260,15 @@ private fun PositionCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(2.dp)
         ) {
-            Column(modifier = Modifier.width((width - 76).dp)) {
-                Text(text = buildAnnotatedString {
-                    withStyle(MaterialTheme.typography.titleMedium.toSpanStyle()) {
-                        append("Место: ${pos.unitName}\nДолжность: ${pos.appointmentName}")
-                        if (pos.room.isNotEmpty()) {
-                            append("\nПомещение: ${pos.room}")
-                        }
-                    }
-                })
-            }
-            IconButton(onClick = { goNext(UnitM(code_str = pos.unitCodeStr, shortname = pos.unitShortname)) }) {
-                Icon(imageVector = Icons.Default.Search, contentDescription = null)
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+            )
+            IconButton(onClick = { onClick() }) {
+                Icon(imageVector = icon, contentDescription = null)
             }
         }
     }
@@ -310,7 +280,7 @@ private fun DetailedInfoDivider() {
         color = Color.Transparent,
         modifier = Modifier
             .fillMaxWidth()
-            .height(12.dp)
+            .height(6.dp)
     )
 }
 
@@ -321,6 +291,15 @@ private fun getRealUsername(i: Appointment): String {
         i.fio.isNotEmpty() -> i.fio
         else -> i.line
     }
+}
+
+private fun getPositionString(pos: PositionInfo): String {
+    var ret = ""
+    if (pos.unitName.isNotEmpty()) ret += "Место: ${pos.unitName}\n"
+    if (pos.appointmentName.isNotEmpty()) ret += "Должность: ${pos.appointmentName}\n"
+    if (pos.room.isNotEmpty()) ret += "Помещение: ${pos.room}"
+    if (ret.endsWith("\n")) ret.dropLast(1)
+    return ret
 }
 
 
