@@ -298,8 +298,7 @@ private fun getPositionString(pos: PositionInfo): String {
     if (pos.unitName.isNotEmpty()) ret += "Место: ${pos.unitName}\n"
     if (pos.appointmentName.isNotEmpty()) ret += "Должность: ${pos.appointmentName}\n"
     if (pos.room.isNotEmpty()) ret += "Помещение: ${pos.room}"
-    if (ret.endsWith("\n")) ret.dropLast(1)
-    return ret
+    return ret.trim()
 }
 
 
