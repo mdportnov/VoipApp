@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.get
@@ -37,20 +38,26 @@ import ru.mephi.voip.ui.home.screens.catalog.screens.common.items.SearchHistoryI
 @Composable
 internal fun SearchScreen(
     runSearch: (String, SearchType) -> Unit,
-    exitSearch: () -> Unit
+    exitSearch: () -> Unit,
+    cVM: CatalogViewModel = get()
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(true) {
+        cVM.updateSearchParams("", SearchType.SEARCH_USER)
         focusRequester.requestFocus()
         keyboardController?.show()
     }
 
-    var searchStr by remember { mutableStateOf("") }
+    var searchStr by remember { mutableStateOf(TextFieldValue("")) }
     var searchType by remember { mutableStateOf(SearchType.SEARCH_USER) }
 
-    val applySearchStr = { newStr: String -> searchStr = newStr }
-    val applySearchType = { newType: SearchType -> searchType = newType }
+    val applySearchStr = { newStr: TextFieldValue ->
+        searchStr = newStr; cVM.updateSearchParams(newStr.text, searchType)
+    }
+    val applySearchType = { newType: SearchType ->
+        searchType = newType; cVM.updateSearchParams(searchStr.text, newType)
+    }
 
     val quitSearch = { focusRequester.freeFocus(); keyboardController?.hide() }
 
@@ -106,8 +113,8 @@ internal fun SearchScreen(
 private fun SearchTopBar(
     runSearch: (String, SearchType) -> Unit,
     exitSearch: () -> Unit,
-    searchStr: String,
-    applySearchStr: (String) -> Unit,
+    searchStr: TextFieldValue,
+    applySearchStr: (TextFieldValue) -> Unit,
     searchType: SearchType,
     applySearchType: (SearchType) -> Unit,
     focusRequester: FocusRequester,
@@ -121,11 +128,10 @@ private fun SearchTopBar(
         },
         title = {
             Box(
-                modifier = Modifier
-                    .padding(start = 12.dp),
+                modifier = Modifier.padding(start = 12.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
-                if (searchStr.isEmpty()) {
+                if (searchStr.text.isEmpty()) {
                     Text(
                         text = when (searchType) {
                             SearchType.SEARCH_USER -> "Поиск пользователей"
@@ -143,7 +149,7 @@ private fun SearchTopBar(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
                         onSearch = {
-                            runSearch(searchStr, searchType)
+                            runSearch(searchStr.text, searchType)
                         }
                     ),
                     modifier = Modifier
@@ -166,7 +172,7 @@ private fun SearchTopBar(
                         SearchType.SEARCH_USER -> SearchType.SEARCH_UNIT
                     }
                 )
-                if (searchStr.isNotEmpty()) {
+                if (searchStr.text.isNotEmpty()) {
                     Toast.makeText(activity, msgHelper, Toast.LENGTH_SHORT).show()
                 }
             }) {
@@ -185,7 +191,7 @@ private fun SearchTopBar(
 @Composable
 private fun SearchHistory(
     runSearch: (String, SearchType) -> Unit,
-    applySearchStr: (String) -> Unit,
+    applySearchStr: (TextFieldValue) -> Unit,
     searchType: SearchType,
     cVM: CatalogViewModel = get()
 ) {

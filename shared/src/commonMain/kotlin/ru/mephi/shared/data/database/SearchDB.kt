@@ -20,6 +20,10 @@ class SearchDB : KoinComponent {
         dbQuery.insertAllSearches(record.id, record.searchStr, record.searchType.name)
     }
 
+    fun delete(record: SearchRecord) {
+        dbQuery.deleteSearchById(record.id)
+    }
+
     fun deleteAll() {
         dbQuery.deleteAllSearches()
     }

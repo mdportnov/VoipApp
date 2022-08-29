@@ -12,8 +12,6 @@ import ru.mephi.shared.data.model.SearchRecord
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repo.VoIPServiceRepository
-import ru.mephi.shared.utils.pop
-
 
 class CatalogViewModel : MainIoExecutor(), KoinComponent {
 
@@ -33,13 +31,21 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
     init {
         goHome()
         ExtendedUnitM(MutableStateFlow(UnitM())).let {
-            navigateUnitMap[CatalogUtils.INIT_CODE_STR] = it
             searchUnitByCodeStr(CatalogUtils.INIT_CODE_STR, it)
+            navigateUnitMap[CatalogUtils.INIT_CODE_STR] = it
         }
-        // TODO: load search history
-//        launch(ioDispatcher) {
-//            totalSearchHistory.addAll(searchDB.getAll().reversed())
-//        }
+        launch(ioDispatcher) {
+            totalSearchHistory.addAll(searchDB.getAll().reversed())
+        }
+    }
+
+    fun updateSearchParams(
+        searchStr: String,
+        searchType: SearchType
+    ) {
+        selectedSearchHistory.value = totalSearchHistory.filter { sr ->
+            sr.searchType == searchType && sr.searchStr.startsWith(searchStr)
+        }.map { sr -> sr.searchStr }
     }
 
     fun goHome() {
@@ -225,22 +231,22 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
         searchStr: String,
         searchType: SearchType
     ) {
+        lVM.e("addSearchRecord: called, searchStr=$searchStr, searchType=$searchType")
         launch(ioDispatcher) {
-            if (!searchDB.isExists(searchStr, searchType)) {
-                lVM.d("writing new search record!")
-                SearchRecord(
-                    searchStr = searchStr,
-                    searchType = searchType
-                ).let {
-                    searchDB.insert(it)
-                    totalSearchHistory.add(0, it)
+            if (searchDB.isExists(searchStr, searchType)) {
+                totalSearchHistory.filter { sr ->
+                    sr.searchType == searchType && sr.searchStr.startsWith(searchStr)
+                }.firstOrNull()?.let {
+                    searchDB.delete(it)
+                    totalSearchHistory.remove(it)
                 }
-                searchDB.insert(
-                    SearchRecord(
-                        searchStr = searchStr,
-                        searchType = searchType
-                    )
-                )
+            }
+            SearchRecord(
+                searchStr = searchStr,
+                searchType = searchType
+            ).let {
+                searchDB.insert(it)
+                totalSearchHistory.add(0, it)
             }
         }
     }
