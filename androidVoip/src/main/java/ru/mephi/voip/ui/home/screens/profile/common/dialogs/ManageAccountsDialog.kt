@@ -170,7 +170,7 @@ private fun SavedAccountItem(
             .wrapContentHeight()
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .clickable { accountRepo.setActiveAccount(accountRepo.accountsList.value.first { it.login == account.value.lineShown }); onDismiss() },
+            .clickable { accountRepo.setActiveAccount(accountRepo.accountsList.value.first { it.login == account.value.line }); onDismiss() },
         elevation = CardDefaults.elevatedCardElevation(),
         colors = CardDefaults.elevatedCardColors()
     ) {
@@ -180,7 +180,7 @@ private fun SavedAccountItem(
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(getImageUrl(account.value.lineShown))
+                    .data(getImageUrl(account.value.line))
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .build(),
@@ -212,7 +212,7 @@ private fun SavedAccountItem(
                             append("Номер: ")
                         }
                         withStyle(style = MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                            append(account.value.lineShown)
+                            append(account.value.line)
                         }
                     },
                     maxLines = 1,
@@ -220,7 +220,7 @@ private fun SavedAccountItem(
                 )
                 val current = accountRepo.currentAccount.collectAsState()
                 Text(
-                    text = if (current.value.login == account.value.lineShown) "Вход выполнен" else "Без входа",
+                    text = if (current.value.login == account.value.line) "Вход выполнен" else "Без входа",
                     style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.secondary),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -228,7 +228,7 @@ private fun SavedAccountItem(
             }
 
             IconButton(
-                onClick = { onDismiss(); accountRepo.removeAccount(Account(login = account.value.lineShown, password = "")) }
+                onClick = { onDismiss(); accountRepo.removeAccount(Account(login = account.value.line, password = "")) }
             ) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
             }

@@ -108,7 +108,7 @@ internal fun UserCatalogItem(
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(getImageUrl(appointment.lineShown))
+                    .data(getImageUrl(appointment.line))
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .build(),
@@ -134,8 +134,8 @@ internal fun UserCatalogItem(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = if (appointment.lineShown.isNotEmpty()) {
-                            "Номер: ${appointment.lineShown}"
+                        text = if (appointment.line.isNotEmpty()) {
+                            "Номер: ${appointment.line}"
                         } else {
                             "Номер отсуствует"
                         },
