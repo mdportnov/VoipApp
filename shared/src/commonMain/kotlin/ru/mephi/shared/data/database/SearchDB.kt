@@ -21,7 +21,7 @@ class SearchDB : KoinComponent {
     }
 
     fun delete(record: SearchRecord) {
-        dbQuery.deleteSearchById(record.id)
+        dbQuery.deleteSearch(record.searchStr, record.searchType.name)
     }
 
     fun deleteAll() {

@@ -28,9 +28,9 @@ insertAllSearches:
     INSERT INTO search_history(id, name, type)
     VALUES (?,?,?);
 
-deleteSearchById:
+deleteSearch:
     DELETE FROM search_history
-    WHERE id = ?;
+    WHERE name = ? AND type = ?;
 
 deleteAllSearches:
     DELETE FROM search_history;

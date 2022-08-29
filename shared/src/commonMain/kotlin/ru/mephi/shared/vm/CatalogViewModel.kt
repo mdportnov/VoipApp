@@ -234,9 +234,9 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
         lVM.e("addSearchRecord: called, searchStr=$searchStr, searchType=$searchType")
         launch(ioDispatcher) {
             if (searchDB.isExists(searchStr, searchType)) {
-                totalSearchHistory.filter { sr ->
-                    sr.searchType == searchType && sr.searchStr.startsWith(searchStr)
-                }.firstOrNull()?.let {
+                totalSearchHistory.firstOrNull { sr ->
+                    sr.searchType == searchType && sr.searchStr == searchStr
+                }?.let {
                     searchDB.delete(it)
                     totalSearchHistory.remove(it)
                 }
@@ -248,6 +248,7 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
                 searchDB.insert(it)
                 totalSearchHistory.add(0, it)
             }
+            lVM.e("addSearchRecord: ${searchDB.getAll()}")
         }
     }
 }
