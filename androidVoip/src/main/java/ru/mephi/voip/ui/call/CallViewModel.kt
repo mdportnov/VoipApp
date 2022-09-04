@@ -10,18 +10,24 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.abtollc.sdk.AbtoPhone
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mephi.shared.base.MainIoExecutor
+import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repo.CallsRepository
+import ru.mephi.shared.data.repo.VoIPServiceRepository
 import ru.mephi.voip.data.CatalogRepository
 
 @Suppress("DEPRECATION")
 class CallViewModel(
     private val catalogRepository: CatalogRepository,
     private val callsRepository: CallsRepository,
-) : MainIoExecutor() {
+) : MainIoExecutor(), KoinComponent {
+    private val vsRepo: VoIPServiceRepository by inject()
+
     var activeCallId = AbtoPhone.INVALID_CALL_ID
     var number: String = ""
     private var _isNumPadVisible = mutableStateOf(false)
@@ -88,6 +94,24 @@ class CallViewModel(
     var mTotalTime: Long = 0
     private val mHandler = Handler()
 
+    // TODO: Use only this!
+    var comradeAppointment = MutableStateFlow(Appointment())
+    var dialPadText = MutableStateFlow("")
+
+    fun appendDialPadText(text: String) {
+        if (text.toInt() in 0..9) {
+            dialPadText.value = dialPadText.value + text
+        }
+    }
+
+    fun backspaceDialPadText() {
+        dialPadText.value = dialPadText.value.dropLast(1)
+    }
+
+    fun clearDialPadText() {
+        dialPadText.value = ""
+    }
+
     private val mUpdateTimeTask: Runnable = object : Runnable {
         override fun run() {
             mTotalTime += System.currentTimeMillis() - mPointTime
@@ -143,21 +167,13 @@ class CallViewModel(
         fetchNameJob?.cancel()
 
         launch(ioDispatcher) {
-            fetchNameJob = catalogRepository.getInfoByPhone(sipNumber)
-                .onEach { result ->
+            fetchNameJob = vsRepo.getUserByPhone(sipNumber).onEach { result ->
                     when (result) {
                         is Resource.Success -> {
                             result.data?.let {
-                                val nameItem = it[0]
-                                _callerUnit.value = nameItem.name
-
-                                nameItem.appointment?.let { appointment ->
-                                    _callerAppointment.value = appointment
-                                }
-
-                                nameItem.display_name.also { name ->
-                                    _callerName.value = name
-                                }
+                                comradeAppointment.value = it
+                                _callerAppointment.value = it.appointment
+                                _callerName.value = it.fio
                             }
                         }
                         is Resource.Error -> {

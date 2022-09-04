@@ -12,14 +12,14 @@ import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.FavouriteRecord
 import ru.mephi.shared.data.network.GET_PROFILE_PIC_URL_BY_SIP
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.call.AbtoViewModel
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.getCurrentUserNumber
 
 class ProfileViewModel(
     app: Application,
-    private val accountRepository: AccountStatusRepository,
+    private val accountRepository: PhoneManager,
     private val settingsRepository: PreferenceRepository,
     private val favoritesDB: FavouritesDB
 ) : AbtoViewModel(app), KoinComponent {
@@ -62,7 +62,7 @@ class ProfileViewModel(
     }
 
     fun updateActiveAccount(account: Account): String {
-        accountRepository.setActiveAccount(account)
+//        accountRepository.setActiveAccount(account)
         return ""
     }
 

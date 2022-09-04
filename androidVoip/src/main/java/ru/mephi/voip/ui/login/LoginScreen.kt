@@ -27,12 +27,13 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.sip.AccountStatus
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.LoginStatus
+import ru.mephi.voip.data.PhoneManager
 
 @Composable
 internal fun LoginScreen(
     goBack: () -> Unit,
-    accountRepo: AccountStatusRepository = get(),
+    accountRepo: PhoneManager = get(),
 ) {
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
@@ -53,7 +54,7 @@ internal fun LoginScreen(
                 },
                 setLockState = { b -> isLocked = b },
                 account = account,
-                accountRepo = accountRepo
+                phoneManager = accountRepo
             )
         }
     }
@@ -157,7 +158,7 @@ private suspend fun runCredentialsCheck(
     setErrorMsg: (String) -> Unit,
     setLockState: (Boolean) -> Unit,
     account: Account,
-    accountRepo: AccountStatusRepository
+    phoneManager: PhoneManager
 ) {
     setErrorMsg("")
     setLockState(true)
@@ -171,21 +172,25 @@ private suspend fun runCredentialsCheck(
         setLockState(false)
         return
     }
-    if (accountRepo.accountsList.value.map { it.login }.contains(account.login)) {
+    if (phoneManager.accountsList.value.map { it.login }.contains(account.login)) {
         setErrorMsg("В этот аккаунт уже выполнен вход!")
         setLockState(false)
         return
     }
-    val exitPhoneOnError = accountRepo.isSipEnabled.value
-    accountRepo.setActiveAccount(account)
-    accountRepo.phoneStatus.collect { status ->
+    phoneManager.startNewAccountLogin(account)
+    phoneManager.loginStatus.collect { status ->
         when (status) {
-            AccountStatus.LOADING, AccountStatus.SWITCHING -> { }
-            AccountStatus.REGISTERED -> {
-                accountRepo.addAccount(account); setLockState(false); goBack(); return@collect
+            LoginStatus.LOGIN_FAILURE -> {
+                setErrorMsg("Не удалось войти в акакунт"); setLockState(false); return@collect
             }
-            else -> {
-                setErrorMsg("Не удалось войти в акакунт"); if (exitPhoneOnError) accountRepo.exitPhone(); setLockState(false); return@collect
+            LoginStatus.LOGIN_IN_PROGRESS -> {
+                setLockState(true); setErrorMsg("")
+            }
+            LoginStatus.LOGIN_SUCCESSFUL -> {
+                setLockState(false); goBack(); return@collect
+            }
+            LoginStatus.DATA_FETCH_FAILURE -> {
+                setErrorMsg("Не удалось получить данные о пользователе"); setLockState(false); return@collect
             }
         }
     }

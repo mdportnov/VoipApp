@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.profile.ProfileViewModel
 
 
@@ -27,7 +27,7 @@ import ru.mephi.voip.ui.profile.ProfileViewModel
 fun FavouriteContactsBoard(
     modifier: Modifier,
     profileViewModel: ProfileViewModel,
-    accountStatusRepository: AccountStatusRepository
+    phoneManager: PhoneManager
 ) {
     val items by profileViewModel.recordsFlow.collectAsState(initial = emptyList())
     val itemIdUp by profileViewModel.expandedMenuId.collectAsState()
@@ -60,7 +60,7 @@ fun FavouriteContactsBoard(
                         profileViewModel.onFavouriteClicked(-1)
                 },
                 viewModel = profileViewModel,
-                accountStatusRepository = accountStatusRepository
+                phoneManager = phoneManager
             )
         }
     }

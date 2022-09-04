@@ -3,6 +3,7 @@ package ru.mephi.shared.data.repo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.mephi.shared.data.model.Appointment
+import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.network.VoIPServiceApiImpl
@@ -140,6 +141,39 @@ class VoIPServiceRepository {
                             emit(Resource.Error.EmptyError(EmptyUnitException()))
                         } else {
                             emit(Resource.Success(unit))
+                        }
+                    } ?: run {
+                        emit(Resource.Error.EmptyError(EmptyUnitException()))
+                    }
+                }
+            }
+        } catch (exception: Exception) { }
+    }
+
+    suspend fun getInfoByPhone(SIP: String): Flow<Resource<List<NameItem>>> = flow {
+        emit(Resource.Loading())
+        try {
+            when (val resource = VoIPServiceApiImpl.getInfoByPhone(SIP)) {
+                is Resource.Error.NetworkError<*> -> {
+                    emit(Resource.Error.NetworkError(NetworkException()))
+                }
+                is Resource.Error.EmptyError<*> -> {
+                    emit(Resource.Error.EmptyError(EmptyUnitException()))
+                }
+                is Resource.Error.UndefinedError<*> -> {
+                    emit(Resource.Error.UndefinedError(UndefinedException()))
+                }
+                is Resource.Error.NotFoundError -> {
+                    emit(Resource.Error.NotFoundError())
+                }
+                is Resource.Error.ServerNotRespondError -> emit(Resource.Error.ServerNotRespondError())
+                is Resource.Loading -> emit(Resource.Loading())
+                is Resource.Success<*> -> {
+                    resource.data?.let { lst ->
+                        if (lst.isEmpty()) {
+                            emit(Resource.Error.EmptyError(EmptyUnitException()))
+                        } else {
+                            emit(Resource.Success(lst))
                         }
                     } ?: run {
                         emit(Resource.Error.EmptyError(EmptyUnitException()))

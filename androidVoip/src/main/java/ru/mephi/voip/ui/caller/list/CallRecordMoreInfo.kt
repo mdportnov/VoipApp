@@ -22,13 +22,13 @@ import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.utils.durationStringFromMillis
 
 @Composable
 fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> Unit) {
-    val accountStatusRepository: AccountStatusRepository by inject()
+    val phoneManager: PhoneManager by inject()
     val context = LocalContext.current
 
     Column(modifier = Modifier.padding(horizontal = 8.dp)) {
@@ -58,7 +58,7 @@ fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> U
                 )
             }
             IconButton(onClick = {
-                if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED) {
+                if (phoneManager.phoneStatus.value == AccountStatus.REGISTERED) {
                     CallActivity.create(context, record.sipNumber, false)
                 } else {
                     Toast.makeText(

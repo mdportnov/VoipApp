@@ -57,5 +57,4 @@ val repositoryModule = module {
     single { LoggerViewModel() }
     single { VoIPServiceRepository() }
     single { DetailedInfoViewModel() }
-    single { SavedAccountsViewModel() }
 }

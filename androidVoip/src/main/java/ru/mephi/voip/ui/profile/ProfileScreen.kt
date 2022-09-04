@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.data.CatalogViewModel
 import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetScreen
 import ru.mephi.voip.ui.profile.bottomsheet.BottomSheetShape
@@ -38,7 +38,7 @@ fun ProfileScreen(openSettings: () -> Unit) {
     val catalogViewModel: CatalogViewModel by inject()
     val profileViewModel: ProfileViewModel by inject()
 
-    val accountRepository: AccountStatusRepository by inject()
+    val accountRepository: PhoneManager by inject()
     val accountsCount by accountRepository.accountsCount.collectAsState()
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -85,7 +85,7 @@ fun ProfileScreen(openSettings: () -> Unit) {
                 FavouriteContactsBoard(
                     modifier = fillMaxWidthModifier,
                     profileViewModel = profileViewModel,
-                    accountStatusRepository = accountRepository
+                    phoneManager = accountRepository
                 )
                 Column(modifier = fillMaxWidthModifier, verticalArrangement = Arrangement.Bottom) {
                     if (accountsCount > 0) ExtendedFloatingActionButton(icon = {

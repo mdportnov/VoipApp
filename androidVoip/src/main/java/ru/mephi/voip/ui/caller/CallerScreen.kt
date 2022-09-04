@@ -27,7 +27,7 @@ import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.caller.list.CallRecordsList
@@ -42,8 +42,9 @@ fun CallerScreen(
     navController: NavController,
     callerNumberArg: String? = null,
     callerNameArg: String? = null,
+    openDialPad: () -> Unit
 ) {
-    val accountStatusRepository: AccountStatusRepository by inject()
+    val phoneManager: PhoneManager by inject()
     val viewModel: CallerViewModel by inject()
 
     var isNumPadStateUp by remember { mutableStateOf(false) }
@@ -105,7 +106,7 @@ fun CallerScreen(
                 )
 
                 AccountStatusWidget(
-                    accountStatusRepository = accountStatusRepository, scaffoldState = scaffoldState
+                    phoneManager = phoneManager, scaffoldState = scaffoldState
                 )
             }
         }
@@ -194,7 +195,7 @@ fun CallerScreen(
                                 }
                                 return@FloatingActionButton
                             }
-                            if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED) {
+                            if (phoneManager.phoneStatus.value == AccountStatus.REGISTERED) {
                                 CallActivity.create(
                                     context, inputState, false
                                 )

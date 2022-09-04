@@ -23,9 +23,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.sip.AccountStatus
-import ru.mephi.shared.vm.SavedAccountsViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.home.screens.profile.common.dialogs.ManageAccountsDialog
 import ru.mephi.voip.ui.home.screens.profile.common.items.AccountCard
 import ru.mephi.voip.ui.profile.ProfileViewModel
@@ -38,12 +37,11 @@ import ru.mephi.voip.utils.launchMailClientIntent
 internal fun ProfileScreen(
     openSettings: () -> Unit,
     openLogin: () -> Unit,
-    accountRepository: AccountStatusRepository = get(),
-    saVM: SavedAccountsViewModel = get(),
+    phone: PhoneManager = get()
 ) {
     val scope = rememberCoroutineScope()
     var openManager by remember { mutableStateOf(false) }
-    val list = accountRepository.accountsList.collectAsState()
+    val list = phone.accountsList.collectAsState()
     Scaffold(
         topBar = { ProfileTopBar(openSettings) },
         floatingActionButton = {
@@ -55,25 +53,24 @@ internal fun ProfileScreen(
     ) {
         Column(modifier = Modifier.padding(it)) {
             if (list.value.isNotEmpty()) {
-                val account = saVM.currentAccount.collectAsState()
-                val currentAccount = accountRepository.currentAccount.collectAsState()
-                val accountStatus = accountRepository.phoneStatus.collectAsState()
+                val currentAccount = phone.currentAccount.collectAsState()
+                val phoneStatus = phone.phoneStatus.collectAsState()
                 Box(modifier = Modifier
                     .wrapContentSize()
                     .padding(horizontal = 8.dp)) {
                     AccountCard(
-                        displayedName = "${account.value.firstname} ${account.value.lastname}",
+                        displayedName = currentAccount.value.displayedName,
                         sip = "Ваш номер: ${currentAccount.value.login}",
-                        status = "Статус: ${accountStatus.value.status}",
+                        status = "Статус: ${phoneStatus.value.status}",
                         onClick = null,
-                        trailingIcon = { IconStatus(accountStatus.value) }
+                        trailingIcon = { IconStatus(phoneStatus.value) }
                     )
                 }
                 PhoneButton()
                 FavouriteContactsBoard(
                     modifier = Modifier.fillMaxWidth(),
                     profileViewModel = get(),
-                    accountStatusRepository = get()
+                    phoneManager = get()
                 )
             } else {
                 val annotatedText = getAnnotatedText()
@@ -121,8 +118,9 @@ private fun IconStatus(
             modifier = Modifier.size(34.dp),
             imageVector = when (status) {
                 AccountStatus.UNREGISTERED -> Icons.Outlined.PhoneDisabled
-                AccountStatus.LOADING,
-                AccountStatus.SWITCHING -> Icons.Outlined.Sync
+                AccountStatus.CONNECTING,
+                AccountStatus.STARTING_UP,
+                AccountStatus.SHUTTING_DOWN-> Icons.Outlined.Sync
                 AccountStatus.NO_CONNECTION -> Icons.Outlined.WifiOff
                 AccountStatus.REGISTRATION_FAILED,
                 AccountStatus.RECONNECTING -> Icons.Outlined.ErrorOutline
@@ -132,9 +130,10 @@ private fun IconStatus(
                 AccountStatus.REGISTRATION_FAILED,
                 AccountStatus.RECONNECTING,
                 AccountStatus.NO_CONNECTION -> MaterialTheme.colorScheme.error
-                AccountStatus.LOADING,
+                AccountStatus.CONNECTING,
                 AccountStatus.UNREGISTERED,
-                AccountStatus.SWITCHING -> Color(0xFFDE7411)
+                AccountStatus.STARTING_UP,
+                AccountStatus.SHUTTING_DOWN -> Color(0xFFDE7411)
                 AccountStatus.REGISTERED -> Color(0xFF58B95D)
             },
             contentDescription = null
@@ -172,7 +171,7 @@ private fun ProfileTopBar(
 @Composable
 private fun PhoneButton(
     viewModel: ProfileViewModel = get(),
-    accountRepository: AccountStatusRepository = get()
+    accountRepository: PhoneManager = get()
 ) {
     val sipStatus = accountRepository.isSipEnabled.collectAsState()
     val phoneStatus = accountRepository.phoneStatus.collectAsState()
@@ -181,8 +180,7 @@ private fun PhoneButton(
         modifier = Modifier
             .padding(top = 4.dp, start = 12.dp, end = 12.dp, bottom = 8.dp)
             .wrapContentHeight()
-            .fillMaxWidth(),
-        enabled = phoneStatus.value != AccountStatus.SWITCHING
+            .fillMaxWidth()
     ) {
         Text(if (!sipStatus.value) "Включить SIP" else "Выключить SIP")
     }

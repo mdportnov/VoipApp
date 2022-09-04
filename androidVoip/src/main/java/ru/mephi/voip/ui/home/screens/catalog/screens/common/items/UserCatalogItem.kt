@@ -19,9 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
@@ -33,7 +31,7 @@ import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.data.CatalogViewModel
@@ -52,7 +50,7 @@ internal fun UserCatalogItem(
     val activity = LocalContext.current as MasterActivity
     val scope = rememberCoroutineScope()
     val viewModel: CatalogViewModel by inject()
-    val accountStatusRepository: AccountStatusRepository by inject()
+    val phoneManager: PhoneManager by inject()
     val cardShape = RoundedCornerShape(
         topStart = (if (isStart) 8 else 0).dp,
         topEnd = (if (isStart) 8 else 0).dp,
@@ -60,7 +58,7 @@ internal fun UserCatalogItem(
         bottomEnd = (if (isEnd) 8 else 0).dp
     )
     val onCallClick = { sip: String ->
-        if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED && sip.isNotEmpty()) {
+        if (phoneManager.phoneStatus.value == AccountStatus.REGISTERED && sip.isNotEmpty()) {
             CallActivity.create(activity, sip, false)
         } else {
             Toast.makeText(activity, R.string.no_active_account_call, Toast.LENGTH_SHORT).show()

@@ -20,12 +20,17 @@ import org.abtollc.sdk.OnCallHeldListener.HoldState
 import org.abtollc.sdk.OnCallHeldListener.HoldState.*
 import org.abtollc.sdk.OnInitializeListener.InitializeState
 import org.koin.android.ext.android.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.data.model.CallStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.abto.parseRemoteContact
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.theme.MasterTheme
 import ru.mephi.voip.utils.toast
+import timber.log.Timber
 
 class CallActivity : AppCompatActivity(), LifecycleOwner,
     OnCallConnectedListener, OnInitializeListener,
@@ -70,6 +75,10 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         if (!isCallStillGoingOn) {
             callViewModel.changeButtonState(CallButtonsState.INCOMING_CALL)
             callViewModel.changeCallStatus(CallStatus.NONE)
+            parseRemoteContact(intent.getStringExtra(AbtoPhone.REMOTE_CONTACT)!!).second.let {
+                callViewModel.number = it
+                callViewModel.comradeAppointment.value = Appointment(line = it, lineShown = it)
+            }
             callViewModel.number =
                 parseRemoteContact(intent.getStringExtra(AbtoPhone.REMOTE_CONTACT)!!).second
         } else
@@ -77,13 +86,22 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 
         setContent {
             MasterTheme {
-                CallScreen(
-                    callViewModel,
-                    ::pickUp,
-                    ::holdCall,
-                    ::hangUp,
-                    ::stopActivity,
-                    ::transferCall
+//                CallScreen(
+//                    callViewModel,
+//                    ::pickUp,
+//                    ::holdCall,
+//                    ::hangUp,
+//                    ::stopActivity,
+//                    ::transferCall
+//                )
+                CallScreenNew(
+                    pickUp = ::pickUp,
+                    holdCall = {
+                        phone.holdRetriveCall(callViewModel.activeCallId)
+                    },
+                    hangUp = ::hangUp,
+                    stopActivity = ::stopActivity,
+                    transferCall = ::transferCall
                 )
             }
         }
@@ -95,7 +113,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         initPhoneListeners()
         initPhoneStates()
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD)
@@ -191,7 +209,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 
     private fun transferCall() {
         toast("Call transferring")
-        phone.callXfer(callViewModel.activeCallId, callViewModel.inputState.value)
+        phone.callXfer(callViewModel.activeCallId, callViewModel.dialPadText.value)
     }
 
     private fun stopActivity() {
@@ -258,6 +276,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
     }
 
     private fun startOutgoingCallByIntent() {
+        val phoneManager: PhoneManager by inject()
         val sipNumber = intent.getStringExtra(AbtoPhone.REMOTE_CONTACT)!!
         callViewModel.changeCallStatus(CallStatus.OUTCOMING)
         callViewModel.changeCallState(CallState.CALL_OUTGOING)
@@ -265,7 +284,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 
         try {
             callViewModel.activeCallId =
-                phone.startCall(sipNumber, phone.currentAccountId)
+                phone.startCall(sipNumber, phoneManager.accId)
         } catch (e: RemoteException) {
             callViewModel.activeCallId = -1
             e.printStackTrace()

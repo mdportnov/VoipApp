@@ -1,16 +1,21 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalMaterialApi::class
+)
 
 package ru.mephi.voip.ui.home
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.*
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,6 +26,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.voip.ui.MasterScreens
 import ru.mephi.voip.ui.caller.CallerScreen
@@ -82,9 +88,7 @@ private fun HomeScreenNavBar(
                         current = getCurrentRoute(navController)
                         navController.navigate(item.route) {
                             navController.graph.startDestinationRoute?.let { route ->
-                                popUpTo(route) {
-                                    saveState = true
-                                }
+                                popUpTo(route)
                             }
                             launchSingleTop = true
                             restoreState = true
@@ -104,27 +108,13 @@ private fun HomeScreenNavCtl(
     val preferenceRepository: PreferenceRepository by inject()
     val startScreen by preferenceRepository.startScreen.collectAsState(initial = Screens.Catalog)
 
+    val scope = rememberCoroutineScope()
+    val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     AnimatedNavHost(navController = navController, startDestination = startScreen.route) {
         composable(
             route = Screens.Dialer.route,
-            enterTransition = {
-                when (initialState.destination.route) {
-                    Screens.Catalog.route,
-                    Screens.Settings.route -> {
-                        slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
-                    }
-                    else -> null
-                }
-            },
-            exitTransition = {
-                when (targetState.destination.route) {
-                    Screens.Catalog.route,
-                    Screens.Settings.route -> {
-                        slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
-                    }
-                    else -> null
-                }
-            }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) { backStackEntry ->
             val callerNumber = backStackEntry.arguments?.getString("caller_number")
             val callerName = backStackEntry.arguments?.getString("caller_name")
@@ -132,56 +122,25 @@ private fun HomeScreenNavCtl(
                 navController = navController,
                 callerNameArg = callerName,
                 callerNumberArg = callerNumber,
-                isPermissionGranted = true
+                isPermissionGranted = true,
+                openDialPad = {
+                    scope.launch {
+                        modalBottomSheetState.show()
+                    }
+                }
             )
         }
         composable(
             route = Screens.Catalog.route,
-            enterTransition = {
-                when (initialState.destination.route) {
-                    Screens.Dialer.route -> {
-                        slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
-                    }
-                    Screens.Settings.route -> {
-                        slideIntoContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
-                    }
-                    else -> null
-                }
-            },
-            exitTransition = {
-                when (targetState.destination.route) {
-                    Screens.Dialer.route -> {
-                        slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
-                    }
-                    Screens.Settings.route -> {
-                        slideOutOfContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
-                    }
-                    else -> null
-                }
-            }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             CatalogScreen()
         }
         composable(
             route = Screens.Settings.route,
-            enterTransition = {
-                when (initialState.destination.route) {
-                    Screens.Dialer.route,
-                    Screens.Catalog.route -> {
-                        slideIntoContainer(NavAnimationUtils.SLIDE_LEFT, NavAnimationUtils.ANIMATION)
-                    }
-                    else -> null
-                }
-            },
-            exitTransition = {
-                when (targetState.destination.route) {
-                    Screens.Dialer.route,
-                    Screens.Catalog.route -> {
-                        slideOutOfContainer(NavAnimationUtils.SLIDE_RIGHT, NavAnimationUtils.ANIMATION)
-                    }
-                    else -> null
-                }
-            }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             ProfileScreen(
                 openSettings = {
@@ -191,10 +150,20 @@ private fun HomeScreenNavCtl(
                     masterNavController.navigate(route = MasterScreens.LoginScreen.route)
                 }
             )
-//            ProfileScreen {
-//                masterNavController.navigate(route = MasterScreens.SettingsScreen.route)
-//            }
         }
+    }
+//    HomeDialPad(modalBottomSheetState)
+}
+
+@Composable
+private fun HomeDialPad(sheetState: ModalBottomSheetState) {
+    ModalBottomSheetLayout(
+        sheetContent = {
+
+        },
+        sheetState = sheetState
+    ) {
+
     }
 }
 

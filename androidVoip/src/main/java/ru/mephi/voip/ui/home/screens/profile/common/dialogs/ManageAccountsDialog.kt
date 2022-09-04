@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,13 +41,10 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.model.Account
-import ru.mephi.shared.data.model.Appointment
-import ru.mephi.shared.vm.SavedAccountsViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.utils.getImageUrl
 
@@ -54,9 +52,10 @@ import ru.mephi.voip.utils.getImageUrl
 internal fun ManageAccountsDialog(
     onDismiss: () -> Unit,
     openAddAccountDialog: () -> Unit,
-    saVM: SavedAccountsViewModel = get()
+    phoneManager: PhoneManager = get()
 ) {
     val activity = LocalContext.current as MasterActivity
+    val accountsList = phoneManager.accountsList.collectAsState()
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(
@@ -95,7 +94,7 @@ internal fun ManageAccountsDialog(
                 Surface(
                     modifier = Modifier.padding(it)
                 ) {
-                    AccountsList(saVM.accountsMap, onDismiss)
+                    AccountsList(accountsList.value, onDismiss)
                 }
             }
         }
@@ -104,15 +103,13 @@ internal fun ManageAccountsDialog(
 
 @Composable
 private fun AccountsList(
-    accountsMap: MutableMap<String, MutableStateFlow<Appointment>>,
+    accountsList: List<Account>,
     onDismiss: () -> Unit
 ) {
-    if (accountsMap.isNotEmpty()) {
+    if (accountsList.isNotEmpty()) {
         LazyColumn {
-            accountsMap.forEach { entry ->
-                item {
-                    SavedAccountItem(entry.value, onDismiss)
-                }
+            itemsIndexed(items = accountsList) { _, item ->
+                SavedAccountItem(item, onDismiss)
             }
         }
     } else {
@@ -158,11 +155,10 @@ private fun AccountsListEmpty() {
 
 @Composable
 private fun SavedAccountItem(
-    app: MutableStateFlow<Appointment>,
+    account: Account,
     onDismiss: () -> Unit,
-    accountRepo: AccountStatusRepository = get(),
+    accountRepo: PhoneManager = get(),
 ) {
-    val account = app.collectAsState()
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
@@ -170,7 +166,7 @@ private fun SavedAccountItem(
             .wrapContentHeight()
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .clickable { accountRepo.setActiveAccount(accountRepo.accountsList.value.first { it.login == account.value.line }); onDismiss() },
+            .clickable { accountRepo.setActiveAccount(account); onDismiss() },
         elevation = CardDefaults.elevatedCardElevation(),
         colors = CardDefaults.elevatedCardColors()
     ) {
@@ -180,7 +176,7 @@ private fun SavedAccountItem(
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(getImageUrl(account.value.line))
+                    .data(getImageUrl(account.login))
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .build(),
@@ -201,34 +197,27 @@ private fun SavedAccountItem(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = if (account.value.firstname.isEmpty() || account.value.lastname.isEmpty()) "Имя Фамилия" else "${account.value.firstname} ${account.value.lastname}",
+                    text = account.displayedName,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = MaterialTheme.typography.labelLarge.toSpanStyle()) {
-                            append("Номер: ")
-                        }
-                        withStyle(style = MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                            append(account.value.line)
-                        }
-                    },
+                    text = "Номер: ${account.login}",
                     maxLines = 1,
-                    overflow  = TextOverflow.Ellipsis
+                    overflow  = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelLarge
                 )
                 val current = accountRepo.currentAccount.collectAsState()
                 Text(
-                    text = if (current.value.login == account.value.line) "Вход выполнен" else "Без входа",
+                    text = if (current.value.login == account.login) "Вход выполнен" else "Без входа",
                     style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.secondary),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-
             IconButton(
-                onClick = { onDismiss(); accountRepo.removeAccount(Account(login = account.value.line, password = "")) }
+                onClick = { onDismiss(); accountRepo.removeAccount(account) }
             ) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
             }

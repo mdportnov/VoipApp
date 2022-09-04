@@ -40,7 +40,7 @@ import ru.mephi.shared.vm.LogType
 import ru.mephi.shared.vm.LoggerViewModel
 import ru.mephi.shared.vm.UserNotifierViewModel
 import ru.mephi.voip.BuildConfig
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.home.HomeScreen
 import ru.mephi.voip.ui.login.LoginScreen
 import ru.mephi.voip.ui.settings.SettingsScreen
@@ -55,7 +55,7 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
     var isPermissionsGranted = false
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-    private val accountRepository: AccountStatusRepository by inject()
+    private val phoneManager: PhoneManager by inject()
     private val notificationHandler: NotificationHandler by inject()
 
     private var isBackgroundWork: Boolean = false
@@ -70,7 +70,7 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         phone = (application as AbtoApplication).abtoPhone
         if (!isBackgroundWork) {
             if (isSipEnabled) {
-                accountRepository.initPhone()
+                phoneManager.initPhone()
             }
         }
     }
@@ -118,13 +118,13 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         }
 
         lifecycleScope.launch {
-            accountRepository.isSipEnabled.collect {
+            phoneManager.isSipEnabled.collect {
                 isSipEnabled = it
             }
         }
 
         lifecycleScope.launch {
-            accountRepository.isBackgroundWork.collect {
+            phoneManager.isBackgroundWork.collect {
                 isBackgroundWork = it
             }
         }
@@ -143,12 +143,13 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (!isBackgroundWork) {
-            accountRepository.exitPhone()
-        }
-        if (!isSipEnabled) {
-            accountRepository.exitPhone()
-        }
+        Timber.e("onDestroy: onDestroy()")
+//        if (!isBackgroundWork) {
+//            accountRepository.exitPhone()
+//        }
+//        if (!isSipEnabled) {
+//            accountRepository.exitPhone()
+//        }
     }
 
     fun checkNonGrantedPermissions(

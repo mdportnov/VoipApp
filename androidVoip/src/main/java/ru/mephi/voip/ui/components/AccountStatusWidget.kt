@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.sip.AccountStatus
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.profile.ProfileViewModel
 import ru.mephi.voip.utils.ColorAccent
 import ru.mephi.voip.utils.ColorGray
@@ -29,11 +29,11 @@ import ru.mephi.voip.utils.ColorPrimary
 @Composable
 fun AccountStatusWidget(
     modifier: Modifier = Modifier,
-    accountStatusRepository: AccountStatusRepository,
+    phoneManager: PhoneManager,
     scaffoldState: ScaffoldState
 ) {
-    val accountStatus by accountStatusRepository.phoneStatus.collectAsState()
-    val isSipEnabled by accountStatusRepository.isSipEnabled.collectAsState(initial = false)
+    val accountStatus by phoneManager.phoneStatus.collectAsState()
+    val isSipEnabled by phoneManager.isSipEnabled.collectAsState(initial = false)
     val scope = rememberCoroutineScope()
     val hapticFeedback = LocalHapticFeedback.current
     val viewModel: ProfileViewModel by inject()
@@ -59,13 +59,15 @@ fun AccountStatusWidget(
         Icon(
             when (accountStatus) {
                 AccountStatus.REGISTERED, AccountStatus.NO_CONNECTION -> Icons.Filled.CheckCircle
-                AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED, AccountStatus.RECONNECTING, AccountStatus.LOADING, AccountStatus.SWITCHING -> Icons.Filled.Refresh
+                AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED, AccountStatus.RECONNECTING, AccountStatus.CONNECTING -> Icons.Filled.Refresh
+                else -> Icons.Filled.Refresh
             },
             "Статус",
             tint = when (accountStatus) {
                 AccountStatus.REGISTERED -> ColorGreen
                 AccountStatus.UNREGISTERED, AccountStatus.REGISTRATION_FAILED -> ColorAccent
-                AccountStatus.NO_CONNECTION, AccountStatus.RECONNECTING, AccountStatus.LOADING, AccountStatus.SWITCHING -> ColorGray
+                AccountStatus.NO_CONNECTION, AccountStatus.RECONNECTING, AccountStatus.CONNECTING -> ColorGray
+                else -> ColorGray
             },
         )
     }

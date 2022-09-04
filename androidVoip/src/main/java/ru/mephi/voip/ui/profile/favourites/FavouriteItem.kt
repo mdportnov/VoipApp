@@ -30,7 +30,7 @@ import coil.request.ImageRequest
 import ru.mephi.shared.data.model.FavouriteRecord
 import ru.mephi.shared.data.network.GET_PROFILE_PIC_URL_BY_SIP
 import ru.mephi.shared.data.sip.AccountStatus
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.profile.ProfileViewModel
 import ru.mephi.voip.utils.ColorGreen
@@ -45,7 +45,7 @@ fun FavouriteItem(
     favouriteRecord: FavouriteRecord, expanded: Boolean,
     changeExpandedState: (Boolean) -> Unit,
     viewModel: ProfileViewModel,
-    accountStatusRepository: AccountStatusRepository
+    phoneManager: PhoneManager
 ) {
     val context = LocalContext.current
 
@@ -102,7 +102,7 @@ fun FavouriteItem(
                             viewModel.deleteFromFavourite(favouriteRecord)
                         }
                         FavouriteContextMenu.CALL -> {
-                            if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED && favouriteRecord.sipNumber.isNotEmpty()) {
+                            if (phoneManager.phoneStatus.value == AccountStatus.REGISTERED && favouriteRecord.sipNumber.isNotEmpty()) {
                                 CallActivity.create(context, favouriteRecord.sipNumber, false)
                             } else {
                                 Toast.makeText(

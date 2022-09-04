@@ -33,7 +33,7 @@ import ru.mephi.shared.data.model.CallRecord
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.components.ExpandableCard
 import ru.mephi.voip.ui.components.ExpandableContent
@@ -45,7 +45,7 @@ fun CallRecordsList(
     onSnackBarHostStateChanged: (CallRecord) -> Unit,
 ) {
     val viewModel: CallerViewModel by inject()
-    val accountStatusRepository: AccountStatusRepository by inject()
+    val phoneManager: PhoneManager by inject()
     val items by viewModel.getAllRecordsFlow().collectAsState(initial = emptyList())
 
     val context = LocalContext.current
@@ -61,7 +61,7 @@ fun CallRecordsList(
     }
 
     val onSwipeToCall: (CallRecord) -> Unit = { record ->
-        if (accountStatusRepository.phoneStatus.value == AccountStatus.REGISTERED) {
+        if (phoneManager.phoneStatus.value == AccountStatus.REGISTERED) {
             CallActivity.create(context, record.sipNumber, false)
         } else {
             Toast.makeText(

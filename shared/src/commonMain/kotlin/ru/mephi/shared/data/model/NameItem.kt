@@ -9,5 +9,6 @@ data class NameItem(
     val appointment: String? = "",
     val code_str: String = "",
     val name: String = "",
-    val shortname: String = ""
+    val shortname: String = "",
+    val fullname: String = ""
 )

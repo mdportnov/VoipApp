@@ -36,14 +36,14 @@ import coil.request.ImageRequest
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.voip.R
-import ru.mephi.voip.data.AccountStatusRepository
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.components.AccountStatusWidget
 import ru.mephi.voip.utils.*
 
 @Composable
 fun ProfileContent(modifier: Modifier) {
     val viewModel: ProfileViewModel by inject()
-    val accountRepository: AccountStatusRepository by inject()
+    val accountRepository: PhoneManager by inject()
     val hapticFeedback = LocalHapticFeedback.current
     val localContext = LocalContext.current
     val scaffoldState = rememberScaffoldState()
@@ -100,7 +100,7 @@ fun ProfileContent(modifier: Modifier) {
 
                 AccountStatusWidget(
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    accountStatusRepository = accountRepository,
+                    phoneManager = accountRepository,
                     scaffoldState = scaffoldState
                 )
             }
