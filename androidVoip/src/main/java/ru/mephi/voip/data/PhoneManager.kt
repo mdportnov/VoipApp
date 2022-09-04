@@ -139,9 +139,9 @@ class PhoneManager(
                     }
                 }
                 addAccount(newAccount)
+                newAccount = Account()
             }
         }
-        Timber.e("setLoginStatus: account count = ${phone.config.accountsCount}")
     }
 
     fun initPhone() {
@@ -272,9 +272,7 @@ class PhoneManager(
             return
         }
         setPhoneStatus(AccountStatus.SHUTTING_DOWN)
-        if (accId != -1L) {
-            phone.unregister()
-        }
+        phone.unregister()
         phone.destroy()
         waitDeathJob = scope.launch {
             while (phone.isActive) delay(100)
@@ -363,7 +361,7 @@ class PhoneManager(
             "",
             300,
             false,
-            phone.config.accountsCount > 0
+            this@PhoneManager.accId == -1L
         )
         phone.register()
         Timber.e("registerAccount: account registered, accId=$ret")
