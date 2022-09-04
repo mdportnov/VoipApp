@@ -321,7 +321,6 @@ class PhoneManager(
             scope.launch {
                 settings.enableSip(false)
             }
-            exitPhone()
             currentAccount.value = Account()
         }
         val list = accountsList.value.toMutableList()
