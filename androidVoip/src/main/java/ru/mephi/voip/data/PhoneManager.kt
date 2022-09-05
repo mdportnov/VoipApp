@@ -2,10 +2,7 @@ package ru.mephi.voip.data
 
 import android.app.Application
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -163,7 +160,7 @@ class PhoneManager(
 
         phone.setRegistrationStateListener(object : OnRegistrationListener {
             override fun onRegistered(accId: Long) {
-                Timber.e("onRegistered: account registered, accId=$accId")
+                Timber.e("onRegistered: account registered, accId=$accId, count=${phone.config.accountsCount}")
                 when (accId) {
                     this@PhoneManager.accId -> {
                         setPhoneStatus(AccountStatus.REGISTERED)
@@ -176,7 +173,7 @@ class PhoneManager(
             }
 
             override fun onUnRegistered(accId: Long) {
-                Timber.e("onUnRegistered: account unregistered, accId=$accId")
+                Timber.e("onUnRegistered: account unregistered, accId=$accId, count=${phone.config.accountsCount}")
                 when (accId) {
                     this@PhoneManager.accId -> {
                         setPhoneStatus(AccountStatus.UNREGISTERED)
@@ -192,7 +189,7 @@ class PhoneManager(
                 statusCode: Int,
                 statusText: String?
             ) {
-                Timber.e("onRegistrationFailed: account registration failed, accId=$accId, statusCode=$statusCode")
+                Timber.e("onRegistrationFailed: account registration failed, accId=$accId, statusCode=$statusCode, count=${phone.config.accountsCount}")
                 when (accId) {
                     this@PhoneManager.accId -> {
                         when (statusCode) {
@@ -233,10 +230,15 @@ class PhoneManager(
             Timber.e("onInitializeState: state=${state.value}, message=${message ?: "null"}")
             when (state) {
                 OnInitializeListener.InitializeState.SUCCESS -> {
-                    Timber.e("onInitializeState: login=${currentAccount.value.login}, isLoginMode=${isLoginMode}")
-                    if (currentAccount.value.login.isNotEmpty() && !isLoginMode) {
-                        setPhoneStatus(AccountStatus.CONNECTING)
-                        accId = registerAccount(accId, currentAccount.value)
+                    when {
+                        accId != -1L -> {
+                            setPhoneStatus(AccountStatus.CONNECTING)
+                            phone.register()
+                        }
+                        currentAccount.value.login.isNotEmpty() && !isLoginMode -> {
+                            setPhoneStatus(AccountStatus.CONNECTING)
+                            accId = registerAccount(accId, currentAccount.value)
+                        }
                     }
                 }
                 else -> { }
@@ -272,6 +274,8 @@ class PhoneManager(
             return
         }
         setPhoneStatus(AccountStatus.SHUTTING_DOWN)
+        accId = -1L
+        loginAccId = -1L
         phone.unregister()
         phone.destroy()
         waitDeathJob = scope.launch {
@@ -291,7 +295,7 @@ class PhoneManager(
     fun retryRegistration() {
         if (phoneStatus.value == AccountStatus.RECONNECTING) {
             setPhoneStatus(AccountStatus.CONNECTING)
-            accId = registerAccount(accId, currentAccount.value)
+            phone.register()
         }
     }
 
