@@ -129,7 +129,7 @@ class PhoneManager(
             AccountStatus.REGISTRATION_FAILED,
             AccountStatus.RECONNECTING,
             AccountStatus.CONNECTING -> {
-                if (isForegroundAllowed) {
+                if (isForegroundAllowed && phone.isActive) {
                     notificationHandler.getDisplayedNotification(status)
                 }
             }
