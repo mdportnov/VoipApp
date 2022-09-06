@@ -73,6 +73,7 @@ internal fun CallScreenNew(
             topBar = {
                 CallScreenTopBar(
                     state = state,
+                    stopActivity = stopActivity,
                     callVM = callVM
                 )
             }
@@ -249,16 +250,24 @@ private fun DialPadIconButton(
 @Composable
 private fun CallScreenTopBar(
     state: CallButtonsState,
+    stopActivity: () -> Unit,
     callVM: CallViewModel = get()
 ) {
     val appointment = callVM.comradeAppointment.collectAsState()
     Column(
         modifier = Modifier
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        ) {
+            IconButton(onClick = { stopActivity() }) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+            }
+        }
         AsyncImage(
             modifier = Modifier
                 .size(172.dp)
