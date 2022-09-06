@@ -251,6 +251,12 @@ class CatalogViewModel : MainIoExecutor(), KoinComponent {
             lVM.e("addSearchRecord: ${searchDB.getAll()}")
         }
     }
+
+    fun clearSearchHistory() {
+        lVM.e("clearSearchHistory: called, clearing!")
+        totalSearchHistory.clear()
+        searchDB.deleteAll()
+    }
 }
 
 object CatalogUtils {

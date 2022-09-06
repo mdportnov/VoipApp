@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.components.settings.*
 import ru.mephi.voip.ui.home.Screens
@@ -38,7 +39,8 @@ internal fun Settings(
     deleteAllCatalogCache: () -> Unit,
     deleteAllSearchRecords: () -> Unit,
     deleteAllFavouritesRecords: () -> Unit,
-    sVM: SettingsViewModel = get()
+    sVM: SettingsViewModel = get(),
+    catalogVM: CatalogViewModel = get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -126,7 +128,7 @@ internal fun Settings(
         Preference(
             icon = Icons.Default.DeleteSweep, title = stringResource(R.string.delete_search_history)
         ) {
-            deleteAllSearchRecords()
+            catalogVM.clearSearchHistory()
             scope.launch {
                 scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
                 scaffoldState.snackbarHostState.showSnackbar("История поиска удалена")
