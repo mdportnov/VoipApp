@@ -41,7 +41,6 @@ internal fun ProfileScreen(
 ) {
     val scope = rememberCoroutineScope()
     var openManager by remember { mutableStateOf(false) }
-    val list = phone.accountsList.collectAsState()
     Scaffold(
         topBar = { ProfileTopBar(openSettings) },
         floatingActionButton = {
@@ -52,8 +51,8 @@ internal fun ProfileScreen(
         }
     ) {
         Column(modifier = Modifier.padding(it)) {
-            if (list.value.isNotEmpty()) {
-                val currentAccount = phone.currentAccount.collectAsState()
+            val currentAccount = phone.currentAccount.collectAsState()
+            if (currentAccount.value.login.isNotEmpty()) {
                 val phoneStatus = phone.phoneStatus.collectAsState()
                 Box(modifier = Modifier
                     .wrapContentSize()
