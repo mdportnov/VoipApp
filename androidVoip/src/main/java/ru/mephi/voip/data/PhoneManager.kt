@@ -69,7 +69,8 @@ class PhoneManager(
 
     init {
         scope.launch {
-            Timber.e("AccountStatusRepository: init")
+            Timber.e("PhoneManager: init")
+            setPhoneStatus(AccountStatus.UNREGISTERED)
             getAccountsList().let { lst ->
                 accountsList.value = lst
                 lst.firstOrNull { it.isActive }.let {
@@ -77,7 +78,6 @@ class PhoneManager(
                         currentAccount.value = it
                     } else {
                         Timber.e("No active accounts found!")
-                        phoneStatus.value = AccountStatus.UNREGISTERED
                     }
                 }
             }
