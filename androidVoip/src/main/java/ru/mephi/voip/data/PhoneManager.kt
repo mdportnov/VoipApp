@@ -333,10 +333,15 @@ class PhoneManager(
     fun setActiveAccount(account: Account) {
         val list = accountsList.value.toMutableList()
         list.forEach { v -> v.isActive = false }
-        list.forEach { v -> if (v.login == account.login) v.isActive = true; currentAccount.value = v }
+        list.forEach { v -> if (v.login == account.login) v.isActive = true }
         setAccountsList(list)
+        account.isActive = true
+        currentAccount.value = account
         if (isSipEnabled.value) {
-            accId = registerAccount(accId, account)
+            accId.let {
+                accId = -1L
+                accId = registerAccount(it, account)
+            }
         }
     }
 
