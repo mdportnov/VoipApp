@@ -21,6 +21,7 @@ import ru.mephi.voip.R
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.NotificationUtils.intentFlags
+import ru.mephi.voip.utils.NotificationUtils.mNotificationId
 import ru.mephi.voip.utils.NotificationUtils.pendingIntentFlags
 import timber.log.Timber
 
@@ -29,7 +30,6 @@ class NotificationHandler(
     private val notificationReciever: NotificationReciever
 ) {
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    private val mNotificationId = 1
     private val mChannelId = "MEPhI"
     private val mChannelName = context.getString(R.string.app_name)
 
@@ -66,6 +66,8 @@ class NotificationHandler(
             return it
         }
     }
+
+
 }
 
 class NotificationReciever(
@@ -73,14 +75,18 @@ class NotificationReciever(
     private var preferenceRepo: PreferenceRepository
 ) : BroadcastReceiver() {
 
+    private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var mIsListening = false
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == NotificationUtils.disableSipAction) {
+            notificationManager.cancel(mNotificationId)
             disable()
-            CoroutineScope(Dispatchers.IO).launch {
-                preferenceRepo.enableSip(false)
-            }
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    preferenceRepo.enableSip(false)
+                }
+            } catch (e: NullPointerException) { }
         }
     }
 
@@ -103,6 +109,8 @@ class NotificationReciever(
 private object NotificationUtils {
     const val intentFlags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
     const val pendingIntentFlags = PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+
+    const val mNotificationId = 1
 
     const val disableSipAction = "ru.mephi.voip.EXIT_SIP_ACTION"
 }
