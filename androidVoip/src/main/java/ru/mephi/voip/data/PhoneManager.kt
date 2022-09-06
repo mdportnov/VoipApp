@@ -65,6 +65,8 @@ class PhoneManager(
     private var ignition = false
     private val scope = CoroutineScope(Dispatchers.IO)
 
+    private var isForegroundAllowed = false
+
     init {
         scope.launch {
             Timber.e("AccountStatusRepository: init")
@@ -92,6 +94,23 @@ class PhoneManager(
                     }
                 }
             }
+            scope.launch {
+                settings.isBackgroundModeEnabled.collect() { enabled ->
+                    isForegroundAllowed = enabled
+                    if (!enabled && phone.isActive) {
+                        phone.stopForeground()
+                    } else if (enabled && phone.isActive && phoneStatus.value != AccountStatus.SHUTTING_DOWN) {
+                        exitPhone()
+                        scope.launch {
+                            phoneStatus.collect {
+                                if (it != AccountStatus.SHUTTING_DOWN) {
+                                    initPhone(); return@collect
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -100,6 +119,18 @@ class PhoneManager(
     ) {
         Timber.e("setPhoneStatus: switching status, ${phoneStatus.value.name} => ${status.name}")
         phoneStatus.value = status
+        when (status) {
+            AccountStatus.REGISTERED,
+            AccountStatus.NO_CONNECTION,
+            AccountStatus.REGISTRATION_FAILED,
+            AccountStatus.RECONNECTING,
+            AccountStatus.CONNECTING -> {
+                if (isForegroundAllowed) {
+                    notificationHandler.getDisplayedNotification(status)
+                }
+            }
+            else -> { }
+        }
     }
 
     private fun setLoginStatus(
@@ -231,11 +262,7 @@ class PhoneManager(
             when (state) {
                 OnInitializeListener.InitializeState.SUCCESS -> {
                     when {
-                        accId != -1L -> {
-                            setPhoneStatus(AccountStatus.CONNECTING)
-                            phone.register()
-                        }
-                        currentAccount.value.login.isNotEmpty() && !isLoginMode -> {
+                        currentAccount.value.login.isNotEmpty() && !isLoginMode && accId == -1L -> {
                             setPhoneStatus(AccountStatus.CONNECTING)
                             accId = registerAccount(accId, currentAccount.value)
                         }
@@ -265,7 +292,11 @@ class PhoneManager(
         }
         AbtoPhoneCfg.setLogLevel(7, true)
 
-        phone.initializeForeground(notificationHandler.getDisplayedNotification())
+        if (isForegroundAllowed) {
+            phone.initializeForeground(notificationHandler.getDisplayedNotification(phoneStatus.value))
+        } else {
+            phone.initialize()
+        }
     }
 
     fun exitPhone() {

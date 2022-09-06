@@ -48,9 +48,9 @@ class NotificationHandler(
     private val intentHelper = Intent(NotificationUtils.disableSipAction)
     private val actionIntent = PendingIntent.getBroadcast(context, 0x0, intentHelper, pendingIntentFlags)
 
-    fun getDisplayedNotification(): Notification {
+    fun getDisplayedNotification(status: AccountStatus): Notification {
         notificationReciever.enable()
-        return with(mBuilder) {
+        with(mBuilder) {
             setAutoCancel(false)
             setOngoing(true)
             setContentIntent(contentIntent)
@@ -59,8 +59,12 @@ class NotificationHandler(
                 addAction(R.drawable.ic_outline_dialer_sip, "Выключить SIP", actionIntent)
             }
             setContentTitle("Работа в фоне!")
+            setContentText("Статус: ${status.status}")
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-        }.build()
+        }.build().let {
+            notificationManager.notify(mNotificationId, it)
+            return it
+        }
     }
 }
 
