@@ -55,9 +55,9 @@ class NotificationHandler(
             setOngoing(true)
             setContentIntent(contentIntent)
             setSmallIcon(R.drawable.ic_launcher_foreground)
-            if (mActions.isEmpty()) {
-                addAction(R.drawable.ic_outline_dialer_sip, "Выключить SIP", actionIntent)
-            }
+//            if (mActions.isEmpty()) {
+//                addAction(R.drawable.ic_outline_dialer_sip, "Выключить SIP", actionIntent)
+//            }
             setContentTitle("Работа в фоне!")
             setContentText("Статус: ${status.status}")
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
