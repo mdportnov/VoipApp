@@ -7,6 +7,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -14,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -120,7 +124,7 @@ private fun SearchTopBar(
     focusRequester: FocusRequester,
 ) {
     val activity = LocalContext.current as MasterActivity
-    CenterAlignedTopAppBar(
+    SmallTopAppBar(
         navigationIcon = {
             IconButton(onClick = { exitSearch() }) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
@@ -161,7 +165,7 @@ private fun SearchTopBar(
             }
         },
         actions = {
-            IconButton(onClick = {
+            val onSearchTypeClick = {
                 val msgHelper = when(searchType) {
                     SearchType.SEARCH_USER -> "Поиск подразделений"
                     SearchType.SEARCH_UNIT -> "Поиск пользователей"
@@ -175,18 +179,47 @@ private fun SearchTopBar(
                 if (searchStr.text.isNotEmpty()) {
                     Toast.makeText(activity, msgHelper, Toast.LENGTH_SHORT).show()
                 }
-            }) {
-                Icon(
-                    imageVector = when (searchType) {
-                        SearchType.SEARCH_USER -> Icons.Default.Person
-                        SearchType.SEARCH_UNIT -> Icons.Default.Group
-                    },
-                    contentDescription = null
-                )
             }
+            SearchTypeButton(
+                isSelected = searchType == SearchType.SEARCH_USER,
+                onClick = onSearchTypeClick,
+                icon = if (searchType == SearchType.SEARCH_USER) Icons.Filled.Person else Icons.Outlined.Person
+            )
+            SearchTypeButton(
+                isSelected = searchType == SearchType.SEARCH_UNIT,
+                onClick = onSearchTypeClick,
+                icon = if (searchType == SearchType.SEARCH_UNIT) Icons.Filled.Group else Icons.Outlined.Group
+            )
         }
     )
 }
+
+@Composable
+private fun SearchTypeButton(
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    icon: ImageVector
+) {
+    Box(modifier = Modifier.wrapContentSize()) {
+        if (isSelected) {
+            Surface(
+                modifier = Modifier.align(Alignment.Center).size(40.dp),
+                shape = CircleShape,
+                tonalElevation = 4.dp
+            ) { }
+        }
+        IconButton(
+            onClick = { if (!isSelected) onClick() },
+            modifier = Modifier.align(Alignment.Center)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null
+            )
+        }
+    }
+}
+
 
 @Composable
 private fun SearchHistory(
