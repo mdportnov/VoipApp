@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -165,9 +166,10 @@ private fun DetailedInfoContent(
             Text(
                 text = getRealUsername(appointment),
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(4.dp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
             )
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -286,8 +288,8 @@ private fun DetailedInfoDivider() {
 
 private fun getRealUsername(i: Appointment): String {
     return when {
-        i.firstname.isNotEmpty() && i.lastname.isNotEmpty() -> "${i.lastname} ${i.firstname}"
         i.fullName.isNotEmpty() -> i.fullName
+        i.firstname.isNotEmpty() && i.lastname.isNotEmpty() -> "${i.lastname} ${i.firstname}"
         i.fio.isNotEmpty() -> i.fio
         else -> i.line
     }
