@@ -183,7 +183,7 @@ private fun InCallDialPad(
                     DialPadTextButton("0", callVM)
                     DialPadIconButton(
                         icon = Icons.Outlined.PhoneCallback,
-                        onClick = {},
+                        onClick = { transferCall() },
                         onLongClick = {}
                     )
                 }
