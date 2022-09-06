@@ -95,20 +95,24 @@ class PhoneManager(
                 }
             }
             scope.launch {
-                settings.isBackgroundModeEnabled.collect() { enabled ->
+                settings.isBackgroundModeEnabled.collect { enabled ->
                     isForegroundAllowed = enabled
                     if (!enabled && phone.isActive) {
                         phone.stopForeground()
                     } else if (enabled && phone.isActive && phoneStatus.value != AccountStatus.SHUTTING_DOWN) {
                         exitPhone()
-                        scope.launch {
-                            phoneStatus.collect {
-                                if (it != AccountStatus.SHUTTING_DOWN) {
-                                    initPhone(); return@collect
-                                }
-                            }
-                        }
+                        waitForRestart()
                     }
+                }
+            }
+        }
+    }
+
+    private fun waitForRestart() {
+        scope.launch {
+            phoneStatus.collect {
+                if (it != AccountStatus.SHUTTING_DOWN) {
+                    initPhone(); return@collect
                 }
             }
         }
