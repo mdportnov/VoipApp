@@ -96,6 +96,7 @@ class PhoneManager(
             }
             scope.launch {
                 settings.isBackgroundModeEnabled.collect { enabled ->
+                    Timber.e("isBackgroundModeEnabled: called")
                     isForegroundAllowed = enabled
                     if (!enabled && phone.isActive) {
                         phone.stopForeground()
@@ -110,11 +111,11 @@ class PhoneManager(
 
     private fun waitForRestart() {
         scope.launch {
-            phoneStatus.collect {
-                if (it != AccountStatus.SHUTTING_DOWN) {
-                    initPhone(); return@collect
-                }
+            while(phoneStatus.value != AccountStatus.UNREGISTERED) {
+                delay(100)
             }
+            Timber.e("waitForRestart: starting")
+            initPhone()
         }
     }
 
@@ -312,7 +313,9 @@ class PhoneManager(
         accId = -1L
         loginAccId = -1L
         phone.unregister()
-        phone.destroy()
+        try {
+            phone.destroy()
+        } catch(e: NullPointerException) { }
         waitDeathJob = scope.launch {
             while (phone.isActive) delay(100)
             if (!ignition) setPhoneStatus(AccountStatus.UNREGISTERED)
