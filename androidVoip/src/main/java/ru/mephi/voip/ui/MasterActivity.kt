@@ -217,7 +217,10 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
             composable(
                 route = MasterScreens.HomeScreen.route
             ) {
-                HomeScreen(masterNavController = navController)
+                HomeScreen(
+                    openLogin = { navController.navigate(route = MasterScreens.LoginScreen.route) },
+                    openSettings = { navController.navigate(route = MasterScreens.SettingsScreen.route) }
+                )
             }
             composable(
                 route = MasterScreens.LoginScreen.route

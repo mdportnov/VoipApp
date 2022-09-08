@@ -41,8 +41,7 @@ fun CallerScreen(
     isPermissionGranted: Boolean = false,
     navController: NavController,
     callerNumberArg: String? = null,
-    callerNameArg: String? = null,
-    openDialPad: () -> Unit
+    callerNameArg: String? = null
 ) {
     val phoneManager: PhoneManager by inject()
     val viewModel: CallerViewModel by inject()

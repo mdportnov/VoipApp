@@ -6,7 +6,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -27,7 +26,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.model.Appointment
@@ -45,16 +43,15 @@ internal fun CatalogNextScreen(
     goNext: (UnitM) -> Unit,
     goBack: (Int) -> Unit,
     openSearch: () -> Unit,
-    cVM: CatalogViewModel = get(),
-    breadCrumbsState: LazyListState
+    catalogVM: CatalogViewModel = get()
 ) {
-    val unitM = cVM.navigateUnitMap[codeStr]?.unitM?.collectAsState()
-    val status = cVM.navigateUnitMap[codeStr]?.status?.collectAsState()
+    val unitM = catalogVM.navigateUnitMap[codeStr]?.unitM?.collectAsState()
+    val status = catalogVM.navigateUnitMap[codeStr]?.status?.collectAsState()
     SwipeRefresh(
         state = rememberSwipeRefreshState(false),
         onRefresh = {
             if (unitM != null) {
-                cVM.navigateNext(unitM.value)
+                catalogVM.navigateNext(unitM.value)
             }
         },
         modifier = Modifier.fillMaxSize()
@@ -64,8 +61,7 @@ internal fun CatalogNextScreen(
                 CatalogNextTopBar(
                     title = unitM?.value?.shortname ?: "",
                     goBack = goBack,
-                    openSearch = openSearch,
-                    breadCrumbsState = breadCrumbsState
+                    openSearch = openSearch
                 )
             }
         ) {
@@ -94,8 +90,7 @@ internal fun CatalogNextScreen(
 private fun CatalogNextTopBar(
     title: String,
     goBack: (Int) -> Unit,
-    openSearch: () -> Unit,
-    breadCrumbsState: LazyListState
+    openSearch: () -> Unit
 ) {
     Column {
         CenterAlignedTopAppBar(
@@ -117,18 +112,18 @@ private fun CatalogNextTopBar(
                 }
             }
         )
-        CatalogBreadCrumbs(goBack, breadCrumbsState)
+        CatalogBreadCrumbs(goBack)
     }
 }
 
 @Composable
 private fun CatalogBreadCrumbs(
     goBack: (Int) -> Unit,
-    breadCrumbsState: LazyListState,
-    cVM: CatalogViewModel = get()
+    catalogVM: CatalogViewModel = get()
 ) {
     val scope = rememberCoroutineScope()
-    val stack = cVM.stack
+    val breadCrumbsState = rememberLazyListState()
+    val stack = catalogVM.stack
     LaunchedEffect(true) {
         breadCrumbsState.animateScrollToItem(index = stack.size - 1)
     }

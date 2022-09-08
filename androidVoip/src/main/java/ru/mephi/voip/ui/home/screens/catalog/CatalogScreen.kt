@@ -2,48 +2,33 @@
 
 package ru.mephi.voip.ui.home.screens.catalog
 
-
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.Composable
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import org.koin.androidx.compose.get
+import com.google.accompanist.navigation.animation.navigation
 import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.utils.pop
 import ru.mephi.shared.vm.CatalogUtils
 import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.shared.vm.DetailedInfoViewModel
+import ru.mephi.voip.ui.home.Screens.Catalog
 import ru.mephi.voip.ui.home.screens.catalog.screens.CatalogHomeScreen
 import ru.mephi.voip.ui.home.screens.catalog.screens.CatalogNextScreen
 import ru.mephi.voip.ui.home.screens.catalog.screens.SearchScreen
 
-@Composable
-fun CatalogScreen() {
-    val navController = rememberAnimatedNavController()
-    val breadCrumbsState = rememberLazyListState()
-    Box {
-        CatalogNavCtl(navController, breadCrumbsState)
-    }
-}
 
-@Composable
-private fun CatalogNavCtl(
+internal fun NavGraphBuilder.catalogNavCtl(
     navController: NavHostController,
-    breadCrumbsState: LazyListState,
-    cVM: CatalogViewModel = get(),
-    diVM: DetailedInfoViewModel = get()
+    catalogVM: CatalogViewModel,
+    detailedInfoVM: DetailedInfoViewModel
 ) {
-    AnimatedNavHost(
-        navController = navController,
+    navigation(
+        route = Catalog.route,
         startDestination = Screens.CatalogHomeScreen.route
     ) {
         composable(
@@ -58,10 +43,10 @@ private fun CatalogNavCtl(
                     }
                 },
                 openDetailedInfo = { app ->
-                    diVM.loadDetailedInfo(appointment = app)
+                    detailedInfoVM.loadDetailedInfo(appointment = app)
                 },
                 goNext = { unitM ->
-                    cVM.navigateNext(unitM)
+                    catalogVM.navigateNext(unitM)
                     goNext(unitM, navController)
                 }
             )
@@ -71,22 +56,22 @@ private fun CatalogNavCtl(
             arguments = listOf(navArgument("codeStr") { type = NavType.StringType }),
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
-        ) { backStackEntry ->
-            val codeStr = backStackEntry.arguments?.getString("codeStr") ?: CatalogUtils.INIT_CODE_STR
+        ) {
+            val codeStr = it.arguments?.getString("codeStr") ?: CatalogUtils.INIT_CODE_STR
             CatalogNextScreen(
                 codeStr = codeStr,
                 openDetailedInfo = { app ->
-                    diVM.loadDetailedInfo(appointment = app)
+                    detailedInfoVM.loadDetailedInfo(appointment = app)
                 },
                 goNext = { unitM ->
                     if (unitM.code_str != codeStr) {
-                        cVM.navigateNext(unitM)
+                        catalogVM.navigateNext(unitM)
                         goNext(unitM, navController)
                     }
                 },
-                goBack = {
-                    for (i in 1..it) {
-                        cVM.stack.pop()
+                goBack = { count ->
+                    for (i in 1..count) {
+                        catalogVM.stack.pop()
                         navController.popBackStack()
                     }
                 },
@@ -94,8 +79,7 @@ private fun CatalogNavCtl(
                     navController.navigate(route = Screens.SearchScreen.route) {
                         launchSingleTop = true
                     }
-                },
-                breadCrumbsState = breadCrumbsState
+                }
             )
         }
         composable(
@@ -106,10 +90,10 @@ private fun CatalogNavCtl(
             CatalogNextScreen(
                 codeStr = "Search",
                 openDetailedInfo = { app ->
-                    diVM.loadDetailedInfo(appointment = app)
+                    detailedInfoVM.loadDetailedInfo(appointment = app)
                 },
                 goNext = { unitM ->
-                    cVM.navigateNext(unitM)
+                    catalogVM.navigateNext(unitM)
                     goNext(unitM, navController)
                 },
                 goBack = { navController.popBackStack() },
@@ -117,8 +101,7 @@ private fun CatalogNavCtl(
                     navController.navigate(route = Screens.SearchScreen.route) {
                         launchSingleTop = true
                     }
-                },
-                breadCrumbsState = breadCrumbsState
+                }
             )
         }
         composable(
@@ -128,7 +111,7 @@ private fun CatalogNavCtl(
         ) {
             SearchScreen(
                 runSearch = { str, type ->
-                    cVM.runSearch(str, type)
+                    catalogVM.runSearch(str, type)
                     navController.navigate(route = Screens.CatalogSearchScreen.route) {
                         launchSingleTop = true
                         popUpTo(route = Screens.CatalogHomeScreen.route)
@@ -144,8 +127,10 @@ private fun goNext(
     unitM: UnitM,
     navController: NavHostController,
 ) {
-    navController.navigate(route = Screens.CatalogNextScreen.route.replace(
-        oldValue = "{codeStr}",
-        newValue = unitM.code_str
-    ))
+    navController.navigate(
+        route = Screens.CatalogNextScreen.route.replace(
+            oldValue = "{codeStr}",
+            newValue = unitM.code_str
+        )
+    )
 }
