@@ -284,7 +284,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 
         try {
             callViewModel.activeCallId =
-                phone.startCall(sipNumber, phoneManager.accId)
+                phone.startCall(sipNumber, phoneManager.getCurrentAccId())
         } catch (e: RemoteException) {
             callViewModel.activeCallId = -1
             e.printStackTrace()

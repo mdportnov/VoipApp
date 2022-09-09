@@ -8,5 +8,6 @@ enum class AccountStatus(val status: String) {
     REGISTERED("Аккаунт активен"),
     RECONNECTING("Переподключение..."),
     STARTING_UP("Включение SIP..."),
-    SHUTTING_DOWN("Выключение SIP...")
+    SHUTTING_DOWN("Выключение SIP..."),
+    RESTARTING("Перезапуск SIP...")
 }

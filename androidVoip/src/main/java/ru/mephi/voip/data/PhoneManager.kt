@@ -12,7 +12,6 @@ import org.abtollc.sdk.OnInitializeListener
 import org.abtollc.sdk.OnRegistrationListener
 import org.abtollc.utils.codec.Codec
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.network.Resource
@@ -29,12 +28,11 @@ import timber.log.Timber
 
 class PhoneManager(
     app: Application,
-    var settings: PreferenceRepository,
-    private val notificationHandler: NotificationHandler
+    private var settings: PreferenceRepository,
+    private val notificationHandler: NotificationHandler,
+    private val serviceRepo: VoIPServiceRepository
 ) : KoinComponent {
     private var phone: AbtoPhone = (app as AbtoApp).abtoPhone
-
-    private val serviceRepo: VoIPServiceRepository by inject()
 
     private var _displayName = MutableStateFlow<NameItem?>(null)
     val displayName: StateFlow<NameItem?> = _displayName
@@ -53,7 +51,7 @@ class PhoneManager(
     private var _accountsCount = MutableStateFlow(0)
     val accountsCount: StateFlow<Int> = _accountsCount
 
-    var accId = -1L
+    private var accId = -1L
     val currentAccount = MutableStateFlow(Account())
     val accountsList = MutableStateFlow(emptyList<Account>())
     val phoneStatus = MutableStateFlow(AccountStatus.UNREGISTERED)
@@ -62,15 +60,15 @@ class PhoneManager(
     var loginStatus = MutableStateFlow(LoginStatus.LOGIN_IN_PROGRESS)
     private var newAccount = Account()
 
-    private var ignition = false
     private val scope = CoroutineScope(Dispatchers.IO)
+    private var waitDeathJob: Job? = null
+    private var loginFetchJob: Job? = null
 
     private var isForegroundAllowed = false
 
     init {
         scope.launch {
             Timber.e("PhoneManager: init")
-            setPhoneStatus(AccountStatus.UNREGISTERED)
             getAccountsList().let { lst ->
                 accountsList.value = lst
                 lst.firstOrNull { it.isActive }.let {
@@ -83,39 +81,29 @@ class PhoneManager(
             }
             scope.launch {
                 settings.isSipEnabled.collect { enabled ->
-                    _isSipEnabled.value = enabled
-                    when (enabled) {
-                        true -> {
-                            initPhone()
-                        }
-                        false -> {
-                            exitPhone()
+                    if (_isSipEnabled.value != enabled) {
+                        _isSipEnabled.value = enabled
+                        when (enabled) {
+                            true -> { initPhone() }
+                            false -> { exitPhone(false) }
                         }
                     }
                 }
             }
             scope.launch {
                 settings.isBackgroundModeEnabled.collect { enabled ->
-                    Timber.e("isBackgroundModeEnabled: called")
-                    isForegroundAllowed = enabled
-                    if (!enabled && phone.isActive) {
-                        phone.stopForeground()
-                    } else if (enabled && phone.isActive && phoneStatus.value != AccountStatus.SHUTTING_DOWN) {
-                        exitPhone()
-                        waitForRestart()
+                    if (isForegroundAllowed != enabled) {
+                        isForegroundAllowed = enabled
+                        if (phone.isActive) {
+                            if (!enabled) {
+                                phone.stopForeground()
+                            } else if (enabled && phoneStatus.value != AccountStatus.SHUTTING_DOWN) {
+                                exitPhone(true)
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-
-    private fun waitForRestart() {
-        scope.launch {
-            while(phoneStatus.value != AccountStatus.UNREGISTERED) {
-                delay(100)
-            }
-            Timber.e("waitForRestart: starting")
-            initPhone()
         }
     }
 
@@ -149,7 +137,7 @@ class PhoneManager(
                 phone.unregister(loginAccId)
                 loginAccId = -1L
                 if (!isSipEnabled.value) {
-                    exitPhone()
+                    exitPhone(false)
                 }
             }
             LoginStatus.DATA_FETCH_FAILURE -> {
@@ -266,11 +254,9 @@ class PhoneManager(
             Timber.e("onInitializeState: state=${state.value}, message=${message ?: "null"}")
             when (state) {
                 OnInitializeListener.InitializeState.SUCCESS -> {
-                    when {
-                        currentAccount.value.login.isNotEmpty() && !isLoginMode && accId == -1L -> {
-                            setPhoneStatus(AccountStatus.CONNECTING)
-                            accId = registerAccount(accId, currentAccount.value)
-                        }
+                    if (currentAccount.value.login.isNotEmpty() && !isLoginMode && accId == -1L) {
+                        setPhoneStatus(AccountStatus.CONNECTING)
+                        accId = registerAccount(accId, currentAccount.value)
                     }
                 }
                 else -> { }
@@ -304,25 +290,35 @@ class PhoneManager(
         }
     }
 
-    fun exitPhone() {
+    private fun exitPhone(
+        isRestart: Boolean
+    ) {
+        waitDeathJob?.cancel()
         if (!phone.isActive) {
             Timber.e("exitPhone: failed, phone is already dead!")
             return
         }
-        setPhoneStatus(AccountStatus.SHUTTING_DOWN)
+        when (isRestart) {
+            true -> { setPhoneStatus(AccountStatus.RESTARTING) }
+            false -> { setPhoneStatus(AccountStatus.SHUTTING_DOWN) }
+        }
         accId = -1L
         loginAccId = -1L
         phone.unregister()
         try {
             phone.destroy()
-        } catch(e: NullPointerException) { }
+        } catch(e: NullPointerException) {
+            Timber.e("exitPhone: fatal, phone was already dead!")
+        }
         waitDeathJob = scope.launch {
             while (phone.isActive) delay(100)
-            if (!ignition) setPhoneStatus(AccountStatus.UNREGISTERED)
+            when (isRestart) {
+                true -> { initPhone() }
+                false -> { setPhoneStatus(AccountStatus.UNREGISTERED) }
+            }
         }
     }
 
-    private var waitDeathJob: Job? = null
 
     fun getUserNumber() = when {
         phone.config.accountsCount == 0 -> null
@@ -414,11 +410,14 @@ class PhoneManager(
         return ret
     }
 
+    fun getCurrentAccId() = accId
+
     private var isLoginMode = false
 
     fun startNewAccountLogin(
         account: Account
     ) {
+        loginFetchJob?.cancel()
         isLoginMode = true
         newAccount = Account()
         setLoginStatus(LoginStatus.LOGIN_IN_PROGRESS)
@@ -426,7 +425,7 @@ class PhoneManager(
             phone.unregister(loginAccId)
             loginAccId = -1L
         }
-        scope.launch {
+        loginFetchJob = scope.launch {
             serviceRepo.getInfoByPhone(account.login).onEach { resource ->
                 when (resource) {
                     is Resource.Loading -> { setLoginStatus(LoginStatus.LOGIN_IN_PROGRESS)  }
@@ -454,6 +453,10 @@ class PhoneManager(
             }.launchIn(this)
         }
     }
+}
+
+private object PhoneUtils {
+    const val NULL_ACC_ID = -1L
 }
 
 enum class LoginStatus {

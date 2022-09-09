@@ -56,7 +56,6 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val phoneManager: PhoneManager by inject()
-    private val notificationHandler: NotificationHandler by inject()
 
     private var isBackgroundWork: Boolean = false
     private var isSipEnabled = false
@@ -138,18 +137,6 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         startActivity(intent)
 
         checkNonGrantedPermissions()
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Timber.e("onDestroy: onDestroy()")
-//        if (!isBackgroundWork) {
-//            accountRepository.exitPhone()
-//        }
-//        if (!isSipEnabled) {
-//            accountRepository.exitPhone()
-//        }
     }
 
     fun checkNonGrantedPermissions(

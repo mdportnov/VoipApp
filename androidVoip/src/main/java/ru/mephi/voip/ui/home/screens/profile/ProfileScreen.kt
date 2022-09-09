@@ -119,7 +119,8 @@ private fun IconStatus(
                 AccountStatus.UNREGISTERED -> Icons.Outlined.PhoneDisabled
                 AccountStatus.CONNECTING,
                 AccountStatus.STARTING_UP,
-                AccountStatus.SHUTTING_DOWN-> Icons.Outlined.Sync
+                AccountStatus.SHUTTING_DOWN -> Icons.Outlined.Sync
+                AccountStatus.RESTARTING -> Icons.Outlined.RestartAlt
                 AccountStatus.NO_CONNECTION -> Icons.Outlined.WifiOff
                 AccountStatus.REGISTRATION_FAILED,
                 AccountStatus.RECONNECTING -> Icons.Outlined.ErrorOutline
@@ -132,7 +133,8 @@ private fun IconStatus(
                 AccountStatus.CONNECTING,
                 AccountStatus.UNREGISTERED,
                 AccountStatus.STARTING_UP,
-                AccountStatus.SHUTTING_DOWN -> Color(0xFFDE7411)
+                AccountStatus.SHUTTING_DOWN,
+                AccountStatus.RESTARTING -> Color(0xFFDE7411)
                 AccountStatus.REGISTERED -> Color(0xFF58B95D)
             },
             contentDescription = null
@@ -179,7 +181,13 @@ private fun PhoneButton(
         modifier = Modifier
             .padding(top = 4.dp, start = 12.dp, end = 12.dp, bottom = 8.dp)
             .wrapContentHeight()
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        enabled = when (phoneStatus.value) {
+            AccountStatus.SHUTTING_DOWN,
+            AccountStatus.RESTARTING,
+            AccountStatus.STARTING_UP -> false
+            else -> true
+        }
     ) {
         Text(if (!sipStatus.value) "Включить SIP" else "Выключить SIP")
     }
