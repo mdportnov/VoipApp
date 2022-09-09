@@ -55,11 +55,11 @@ class NotificationHandler(
             setOngoing(true)
             setContentIntent(contentIntent)
             setSmallIcon(R.drawable.ic_launcher_foreground)
-//            if (mActions.isEmpty()) {
-//                addAction(R.drawable.ic_outline_dialer_sip, "Выключить SIP", actionIntent)
-//            }
-            setContentTitle("Работа в фоне!")
-            setContentText("Статус: ${status.status}")
+            if (mActions.isEmpty()) {
+                addAction(R.drawable.ic_outline_dialer_sip, "Выключить SIP", actionIntent)
+            }
+            setSubText("Фоновый режим")
+            setContentTitle("Статус: ${status.status}")
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         }.build().let {
             notificationManager.notify(mNotificationId, it)
@@ -74,7 +74,6 @@ class NotificationReciever(
     private val context: Context,
     private var preferenceRepo: PreferenceRepository
 ) : BroadcastReceiver() {
-
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var mIsListening = false
 
@@ -97,7 +96,7 @@ class NotificationReciever(
         mIsListening = true
     }
 
-    fun disable() {
+    private fun disable() {
         if (!mIsListening) return
         Timber.d("NotificationReciever: disabling!")
         context.unregisterReceiver(this)
