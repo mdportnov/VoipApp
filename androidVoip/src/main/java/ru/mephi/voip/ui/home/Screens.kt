@@ -36,4 +36,4 @@ sealed class Screens(
     )
 }
 
-val homeScreensList = Screens::class.sealedSubclasses.mapNotNull { it.objectInstance }
+val homeScreensList = listOf(Screens.Dialer, Screens.Catalog, Screens.Settings)
