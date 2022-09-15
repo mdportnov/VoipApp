@@ -37,6 +37,7 @@ import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.data.CatalogViewModel
 import ru.mephi.voip.ui.home.screens.catalog.screens.common.DetailedInfoDialog
 import ru.mephi.voip.utils.getImageUrl
+import ru.mephi.voip.utils.getImageUrlByGuid
 
 
 @Composable
@@ -106,7 +107,13 @@ internal fun UserCatalogItem(
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(getImageUrl(appointment.line))
+                    .data(
+                        if (appointment.EmpGUID.isNotEmpty()) {
+                            getImageUrlByGuid(appointment.EmpGUID)
+                        } else {
+                            getImageUrl(appointment.line)
+                        }
+                    )
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .build(),
