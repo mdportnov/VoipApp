@@ -13,6 +13,7 @@ import androidx.compose.material.ScaffoldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.voip.R
+import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.components.settings.*
 import ru.mephi.voip.ui.home.Screens
 import ru.mephi.voip.utils.ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE
@@ -40,7 +42,8 @@ internal fun Settings(
     deleteAllSearchRecords: () -> Unit,
     deleteAllFavouritesRecords: () -> Unit,
     sVM: SettingsViewModel = get(),
-    catalogVM: CatalogViewModel = get()
+    catalogVM: CatalogViewModel = get(),
+    phoneManager: PhoneManager = get()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -54,12 +57,15 @@ internal fun Settings(
     ) {
         SectionTitle(stringResource(id = R.string.main_settings))
 
+        val isSipSwitchedAllowed = phoneManager.currentAccount.collectAsState()
         SwitchPreference(
             icon = Icons.Default.Sip,
             title = stringResource(id = if (uiState.isSipEnabled) R.string.disable_sip else R.string.enable_sip),
             checked = uiState.isSipEnabled,
             onCheckedChange = {
-                onSipEnableChange(it)
+                if (isSipSwitchedAllowed.value.login.isNotEmpty()) {
+                    onSipEnableChange(it)
+                }
             },
         )
 
