@@ -434,7 +434,7 @@ class PhoneManager(
                             newAccount = Account(
                                 login = account.login,
                                 password = account.password,
-                                displayedName = lst[0].display_name.ifEmpty { "User ${account.login}" },
+                                displayedName = lst[0].display_name.ifEmpty { "Пользователь ${account.login}" },
                                 isActive = true
                             )
                             initPhone()
@@ -445,7 +445,19 @@ class PhoneManager(
                         } ?: run { setLoginStatus(LoginStatus.DATA_FETCH_FAILURE) }
                     }
                     is Resource.Error.EmptyError -> { setLoginStatus(LoginStatus.DATA_FETCH_FAILURE) }
-                    is Resource.Error.NotFoundError -> { setLoginStatus(LoginStatus.DATA_FETCH_FAILURE) }
+                    is Resource.Error.NotFoundError -> {
+                        newAccount = Account(
+                            login = account.login,
+                            password = account.password,
+                            displayedName = "Пользователь ${account.login}",
+                            isActive = true
+                        )
+                        initPhone()
+                        while (!phone.isActive) {
+                            delay(100)
+                        }
+                        loginAccId = registerAccount(accId = loginAccId, account = newAccount)
+                    }
                     is Resource.Error.NetworkError -> { setLoginStatus(LoginStatus.DATA_FETCH_FAILURE) }
                     is Resource.Error.ServerNotRespondError -> { setLoginStatus(LoginStatus.DATA_FETCH_FAILURE) }
                     is Resource.Error.UndefinedError -> { setLoginStatus(LoginStatus.DATA_FETCH_FAILURE) }
