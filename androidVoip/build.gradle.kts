@@ -12,8 +12,8 @@ android {
         applicationId = "ru.mephi.voip"
         minSdk = 23
         targetSdk = 30 // 31 causes error with pendingIntents and abto (should be 30)
-        versionCode = 24
-        versionName = "2.0.0"
+        versionCode = 25
+        versionName = "2.0.1"
         multiDexEnabled = true
         signingConfig = signingConfigs.getByName("debug")
     }
