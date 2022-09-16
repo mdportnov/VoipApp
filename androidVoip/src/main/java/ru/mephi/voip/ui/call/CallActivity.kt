@@ -10,7 +10,6 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import coil.annotation.ExperimentalCoilApi
@@ -20,8 +19,6 @@ import org.abtollc.sdk.OnCallHeldListener.HoldState
 import org.abtollc.sdk.OnCallHeldListener.HoldState.*
 import org.abtollc.sdk.OnInitializeListener.InitializeState
 import org.koin.android.ext.android.inject
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.data.model.CallStatus
@@ -30,7 +27,6 @@ import ru.mephi.voip.abto.parseRemoteContact
 import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.theme.MasterTheme
 import ru.mephi.voip.utils.toast
-import timber.log.Timber
 
 class CallActivity : AppCompatActivity(), LifecycleOwner,
     OnCallConnectedListener, OnInitializeListener,
@@ -94,7 +90,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 //                    ::stopActivity,
 //                    ::transferCall
 //                )
-                CallScreenNew(
+                CallScreen(
                     pickUp = ::pickUp,
                     holdCall = {
                         phone.holdRetriveCall(callViewModel.activeCallId)
