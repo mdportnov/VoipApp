@@ -8,7 +8,6 @@ import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.call.CallViewModel
 import ru.mephi.voip.data.CatalogViewModel
-import ru.mephi.voip.data.InitDataStore
 import ru.mephi.voip.ui.profile.ProfileViewModel
 import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.ui.settings.SettingsViewModel
@@ -23,10 +22,6 @@ val repositories = module {
     single { PreferenceRepository(androidApplication()) }
     single { PhoneManager(androidApplication(), get(), get(), get()) }
     single { CatalogRepository() }
-}
-
-val dataStores = module {
-    single { InitDataStore(androidApplication()) }
 }
 
 val notifications = module {
