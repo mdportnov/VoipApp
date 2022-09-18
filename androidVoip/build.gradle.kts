@@ -85,26 +85,18 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.1.1")
     implementation("androidx.compose.foundation:foundation:1.2.0-beta01")
     implementation("androidx.navigation:navigation-compose:2.4.2")
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     implementation("com.google.accompanist:accompanist-swiperefresh:0.23.1")
     implementation("com.google.accompanist:accompanist-permissions:0.23.1")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.23.1")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
-    implementation("com.google.accompanist:accompanist-permissions:0.23.1")
     implementation("com.google.android.material:material:1.6.1")
-
-    implementation("com.github.judemanutd:autostarter:1.1.0")
 
     // Network
     implementation("io.ktor:ktor-client-okhttp:1.6.2")
     implementation("io.ktor:ktor-client-serialization:1.6.7")
     implementation("io.ktor:ktor-client-core:1.6.8")
     implementation("io.ktor:ktor-client-json:1.6.7")
-
-    // Database
-    implementation("com.squareup.sqldelight:runtime:1.5.3")
-    implementation("com.squareup.sqldelight:coroutines-extensions:1.5.3")
 
     // Coil
     implementation("io.coil-kt:coil:2.1.0")
@@ -119,18 +111,12 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Preferences
-    implementation("com.github.JamalMulla:ComposePrefs:1.0.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
 
     implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("com.github.leonardoxh:keystore-ultimate:1.3.0")
-
-    // Splash
-    implementation("androidx.core:core-splashscreen:1.0.0-beta01")
-
-    implementation("androidx.compose.runtime:runtime-livedata:1.1.1")
 
     implementation(project(":shared"))
     implementation(files("aars/abto_android_voip_sdk.aar"))
