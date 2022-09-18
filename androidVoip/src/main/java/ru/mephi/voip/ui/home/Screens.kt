@@ -13,9 +13,16 @@ sealed class Screens(
     var icon: ImageVector,
     var selectedIcon: ImageVector,
 ) {
-    object Dialer : Screens(
-        route = "dialer",
-        title = R.string.dialer,
+    object Favourites : Screens(
+        route = "favourites",
+        title = R.string.bottom_bar_title_favourites,
+        icon = Icons.Outlined.Call,
+        selectedIcon = Icons.Default.Call
+    )
+
+    object History : Screens(
+        route = "history",
+        title = R.string.bottom_bar_title_history,
         icon = Icons.Outlined.Call,
         selectedIcon = Icons.Default.Call
     )
@@ -23,17 +30,17 @@ sealed class Screens(
     // TODO: Даже Outlined.MenuBook выглядит как Default.MenuBook, то есть необходимо создать локальную копию Outlined.MenuBook, с незакрашенной левой стороной
     object Catalog : Screens(
         route = "catalog",
-        title = R.string.catalog,
+        title = R.string.bottom_bar_title_catalog,
         icon = Icons.Outlined.MenuBook,
         selectedIcon = Icons.Default.MenuBook,
     )
 
     object Settings : Screens(
         route = "settings",
-        title = R.string.profile,
+        title = R.string.bottom_bar_title_settings,
         icon = Icons.Outlined.Person,
         selectedIcon = Icons.Default.Person,
     )
 }
 
-val homeScreensList = listOf(Screens.Dialer, Screens.Catalog, Screens.Settings)
+val homeScreensList = listOf(Screens.History, Screens.Catalog, Screens.Settings)

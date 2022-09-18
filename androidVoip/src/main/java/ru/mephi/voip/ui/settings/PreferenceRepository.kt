@@ -41,7 +41,7 @@ class PreferenceRepository(val context: Context) {
     val startScreen: Flow<Screens> = context.dataStore.data.map { prefs ->
         prefs[PreferenceKeys.SELECTED_START_SCREEN]?.let {
             when (it) {
-                Screens.Dialer.route-> Screens.Dialer
+                Screens.History.route-> Screens.History
                 Screens.Catalog.route -> Screens.Catalog
                 Screens.Settings.route -> Screens.Settings
                 else -> Screens.Catalog

@@ -116,7 +116,7 @@ private fun HomeScreenNavCtl(
 
     AnimatedNavHost(navController = navController, startDestination = startScreen.route) {
         composable(
-            route = Screens.Dialer.route,
+            route = Screens.History.route,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {

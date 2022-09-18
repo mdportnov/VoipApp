@@ -67,5 +67,11 @@
     <string name="history">История</string>
     <string name="info">Инфо</string>
 
+    <!-- bottom bar titles -->
+    <string name="bottom_bar_title_favourites">Избранные</string>
+    <string name="bottom_bar_title_history">Недавнее</string>
+    <string name="bottom_bar_title_catalog">Каталог</string>
+    <string name="bottom_bar_title_settings">Параметры</string>
+
     <string name="no_active_account_call">Нет активного аккаунта для совершения звонка</string>
 </resources>
