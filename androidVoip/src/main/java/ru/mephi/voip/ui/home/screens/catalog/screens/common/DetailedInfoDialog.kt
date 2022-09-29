@@ -43,7 +43,6 @@ import ru.mephi.shared.vm.DetailedInfoViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.common.OnBadResult
 import ru.mephi.voip.utils.getImageUrl
-import ru.mephi.voip.utils.getImageUrlByGuid
 import ru.mephi.voip.utils.launchMailClientIntent
 
 @Composable
@@ -156,13 +155,7 @@ private fun DetailedInfoContent(
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(
-                        if (appointment.EmpGUID.isNotEmpty()) {
-                            getImageUrlByGuid(appointment.EmpGUID)
-                        } else {
-                            getImageUrl(appointment.line)
-                        }
-                    )
+                    .data(getImageUrl(appointment.line))
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .build(),

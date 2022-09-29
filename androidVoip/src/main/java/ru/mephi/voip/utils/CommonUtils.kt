@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import org.abtollc.sdk.AbtoPhone
-import ru.mephi.shared.data.network.GET_PROFILE_PIC_URL_BY_GUID
 import ru.mephi.shared.data.network.GET_PROFILE_PIC_URL_BY_SIP
 import timber.log.Timber
 import java.time.LocalDateTime
@@ -20,7 +19,6 @@ fun String.isLetters(): Boolean {
 }
 
 fun getImageUrl(number: String) = GET_PROFILE_PIC_URL_BY_SIP + number
-fun getImageUrlByGuid(EmpGUID: String) = GET_PROFILE_PIC_URL_BY_GUID + EmpGUID
 
 fun Long.stringFromDate(): String {
     val dtfCustom: DateTimeFormatter =
