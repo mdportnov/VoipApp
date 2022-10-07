@@ -27,7 +27,6 @@ sealed class Screens(
         selectedIcon = Icons.Default.Call
     )
 
-    // TODO: Даже Outlined.MenuBook выглядит как Default.MenuBook, то есть необходимо создать локальную копию Outlined.MenuBook, с незакрашенной левой стороной
     object Catalog : Screens(
         route = "catalog",
         title = R.string.bottom_bar_title_catalog,

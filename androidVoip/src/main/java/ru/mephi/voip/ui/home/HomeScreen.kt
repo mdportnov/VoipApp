@@ -41,9 +41,7 @@ internal fun HomeScreen(
 ) {
     rememberSystemUiController().let {
         it.setStatusBarColor(MaterialTheme.colorScheme.background)
-        it.setNavigationBarColor(
-            TopAppBarDefaults.smallTopAppBarColors().containerColor(scrollFraction = 1.0f).value
-        )
+        it.setNavigationBarColor(MaterialTheme.colorScheme.surface)
     }
 
     val navController = rememberAnimatedNavController()
@@ -66,39 +64,39 @@ internal fun HomeScreen(
 private fun HomeScreenNavBar(
     navController: NavHostController
 ) {
-    CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
-        NavigationBar {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
-            homeScreensList.forEach{ item ->
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            imageVector = when (currentDestination?.hierarchy?.any { it.route == item.route }) {
-                                true -> item.selectedIcon
-                                false -> item.icon
-                                else -> item.icon
-                            },
-                            contentDescription = stringResource(id = item.title)
-                        )
-                    },
-                    label = { Text(
+    NavigationBar {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
+        homeScreensList.forEach { item ->
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = when (currentDestination?.hierarchy?.any { it.route == item.route }) {
+                            true -> item.selectedIcon
+                            false -> item.icon
+                            else -> item.icon
+                        },
+                        contentDescription = stringResource(id = item.title)
+                    )
+                },
+                label = {
+                    Text(
                         text = stringResource(id = item.title),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
-                    ) },
-                    selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-                    onClick = {
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
+                    )
+                },
+                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
                         }
+                        launchSingleTop = true
+                        restoreState = true
                     }
-                )
-            }
+                }
+            )
         }
     }
 }

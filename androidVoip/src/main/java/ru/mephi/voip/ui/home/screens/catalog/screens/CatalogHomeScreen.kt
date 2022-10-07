@@ -76,28 +76,31 @@ internal fun CatalogHomeScreen(
 private fun CatalogHomeTopBar(
     openSearch: () -> Unit
 ) {
-    Row(
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 5.dp,
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(color = CommonColor(), shape = RoundedCornerShape(48.dp))
             .clip(RoundedCornerShape(48.dp))
             .height(48.dp)
             .fillMaxWidth()
             .clickable { openSearch() }
             .padding(start = 4.dp)
     ) {
-        IconButton(onClick = { openSearch() }) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null
+        Row {
+            IconButton(onClick = { openSearch() }) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null
+                )
+            }
+            Text(
+                text = "Поиск",
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .wrapContentHeight(),
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.outline)
             )
         }
-        Text(
-            text = "Поиск",
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .wrapContentHeight(),
-            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.outline)
-        )
     }
 }

@@ -5,7 +5,6 @@
 package ru.mephi.voip.ui.home.screens.catalog.screens.common
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -140,7 +139,7 @@ private fun DetailedInfoContent(
 ) {
     val context = LocalContext.current
     CompositionLocalProvider(
-        LocalOverScrollConfiguration provides null
+        LocalOverscrollConfiguration provides null
     ) {
         Column(
             modifier = Modifier

@@ -30,6 +30,7 @@ import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.data.LoginStatus
 import ru.mephi.voip.data.PhoneManager
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LoginScreen(
     goBack: () -> Unit,
