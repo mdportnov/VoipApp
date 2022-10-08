@@ -22,7 +22,6 @@ import ru.mephi.voip.R
 import ru.mephi.voip.abto.AbtoApp
 import ru.mephi.voip.abto.decryptAccountJson
 import ru.mephi.voip.abto.encryptAccountJson
-import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
 

@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalAnimationApi::class)
+@file:OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 
 package ru.mephi.voip.ui
 
@@ -11,13 +11,27 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -36,16 +50,15 @@ import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 import ru.mephi.shared.utils.appContext
-import ru.mephi.shared.vm.LogType
-import ru.mephi.shared.vm.LoggerViewModel
-import ru.mephi.shared.vm.UserNotifierViewModel
+import ru.mephi.shared.vm.*
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.data.PhoneManager
-import ru.mephi.voip.ui.home.HomeScreen
-import ru.mephi.voip.ui.login.LoginScreen
-import ru.mephi.voip.ui.settings.SettingsScreen
+import ru.mephi.voip.ui.caller.CallerScreen
+import ru.mephi.voip.ui.screens.catalog.catalogNavCtl
+import ru.mephi.voip.data.PreferenceRepository
+import ru.mephi.voip.ui.screens.favourites.FavouritesScreen
+import ru.mephi.voip.ui.screens.settings.SettingsScreen
 import ru.mephi.voip.ui.theme.MasterTheme
-import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
 
 
@@ -112,7 +125,7 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         setContent {
             scaffoldState = rememberScaffoldState()
             MasterTheme {
-                MasterNavCtl()
+                MasterScreen()
             }
         }
 
@@ -195,31 +208,99 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
     }
 
     @Composable
-    private fun MasterNavCtl() {
+    private fun MasterScreen() {
         val navController = rememberAnimatedNavController()
-        AnimatedNavHost(
-            navController = navController,
-            startDestination = MasterScreens.HomeScreen.route
+        Scaffold(
+            bottomBar = {
+                MasterScreenBottomBar(navController = navController)
+            }
         ) {
-            composable(
-                route = MasterScreens.HomeScreen.route
-            ) {
-                HomeScreen(
-                    openLogin = { navController.navigate(route = MasterScreens.LoginScreen.route) },
-                    openSettings = { navController.navigate(route = MasterScreens.SettingsScreen.route) }
-                )
-            }
-            composable(
-                route = MasterScreens.LoginScreen.route
-            ) {
-                LoginScreen(goBack = { navController.popBackStack() })
-            }
-            composable(
-                route = MasterScreens.SettingsScreen.route
-            ) {
-                SettingsScreen(navController)
+            Box(modifier = Modifier.padding(it)) {
+                MasterNavCtl(navController)
             }
         }
     }
 
+    @Composable
+    private fun MasterScreenBottomBar(
+        navController: NavHostController
+    ) {
+        NavigationBar {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+            masterScreensList.forEach { item ->
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = when (currentDestination?.hierarchy?.any { it.route == item.route }) {
+                                true -> item.selectedIcon
+                                false -> item.icon
+                                else -> item.icon
+                            },
+                            contentDescription = stringResource(id = item.title)
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = stringResource(id = item.title),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun MasterNavCtl(
+        navController: NavHostController,
+        preferenceRepository: PreferenceRepository = get(),
+        catalogVM: CatalogViewModel = get(),
+        detailedInfoVM: DetailedInfoViewModel = get()
+    ) {
+        val startScreen by preferenceRepository.startScreen.collectAsState(initial = MasterScreens.Catalog)
+
+        AnimatedNavHost(navController = navController, startDestination = startScreen.route) {
+            composable(
+                route = MasterScreens.History.route,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
+                CallerScreen(
+                    navController = navController,
+                    isPermissionGranted = true
+                )
+            }
+            composable(
+                route = MasterScreens.Settings.route,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
+                SettingsScreen()
+            }
+            composable(
+                route = MasterScreens.Favourites.route,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
+                FavouritesScreen()
+            }
+            catalogNavCtl(
+                navController = navController,
+                catalogVM = catalogVM,
+                detailedInfoVM = detailedInfoVM
+            )
+        }
+    }
 }

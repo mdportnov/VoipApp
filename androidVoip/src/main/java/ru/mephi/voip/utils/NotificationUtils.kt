@@ -1,7 +1,6 @@
 package ru.mephi.voip.utils
 
 import android.app.Notification
-import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -13,13 +12,11 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.MasterActivity
-import ru.mephi.voip.ui.settings.PreferenceRepository
+import ru.mephi.voip.data.PreferenceRepository
 import ru.mephi.voip.utils.NotificationUtils.intentFlags
 import ru.mephi.voip.utils.NotificationUtils.mNotificationId
 import ru.mephi.voip.utils.NotificationUtils.pendingIntentFlags

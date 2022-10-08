@@ -26,7 +26,7 @@ import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.call.CallButtonsState
 import ru.mephi.voip.ui.call.CallState
 import ru.mephi.voip.ui.call.CallViewModel
-import ru.mephi.voip.ui.settings.PreferenceRepository
+import ru.mephi.voip.data.PreferenceRepository
 import timber.log.Timber
 
 class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnectedListener {
