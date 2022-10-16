@@ -38,8 +38,8 @@ sealed class MasterScreens(
     object Settings : MasterScreens(
         route = "settings",
         title = R.string.bottom_bar_title_settings,
-        icon = Icons.Outlined.Person,
-        selectedIcon = Icons.Default.Person,
+        icon = Icons.Outlined.Settings,
+        selectedIcon = Icons.Default.Settings,
     )
 }
 

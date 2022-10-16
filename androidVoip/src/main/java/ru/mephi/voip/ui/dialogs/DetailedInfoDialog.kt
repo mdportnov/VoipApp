@@ -37,7 +37,7 @@ import ru.mephi.shared.data.model.UnitM
 import ru.mephi.shared.vm.DetailedInfoStatus
 import ru.mephi.shared.vm.DetailedInfoViewModel
 import ru.mephi.voip.R
-import ru.mephi.voip.ui.common.OnBadResult
+import ru.mephi.voip.ui.common.exceptions.OnBadResult
 import ru.mephi.voip.ui.screens.catalog.screens.common.OnLoading
 import ru.mephi.voip.ui.screens.catalog.screens.common.OnNetworkFailure
 import ru.mephi.voip.utils.getImageUrl

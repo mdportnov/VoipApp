@@ -14,7 +14,10 @@ fun Fragment.toast(message: CharSequence?) =
 fun Context.launchMailClientIntent(email: String) {
     val emailIntent = Intent(Intent.ACTION_SEND)
     emailIntent.data = Uri.parse("mailto:$email")
-    startActivity(Intent.createChooser(emailIntent, "Отправить сообщение по почте через..."))
+    startActivity(
+        Intent.createChooser(emailIntent, "Отправить сообщение по почте через...")
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    )
 }
 
 fun Context.launchDialer(number: String) {

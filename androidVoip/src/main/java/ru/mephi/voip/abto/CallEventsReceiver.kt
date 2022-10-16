@@ -26,7 +26,7 @@ import ru.mephi.voip.ui.call.CallActivity
 import ru.mephi.voip.ui.call.CallButtonsState
 import ru.mephi.voip.ui.call.CallState
 import ru.mephi.voip.ui.call.CallViewModel
-import ru.mephi.voip.data.PreferenceRepository
+import ru.mephi.voip.data.SettingsRepository
 import timber.log.Timber
 
 class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnectedListener {
@@ -34,7 +34,7 @@ class CallEventsReceiver : BroadcastReceiver(), KoinComponent, OnCallDisconnecte
     lateinit var abtoApp: AbtoApp
     lateinit var phone: AbtoPhone
 
-    private val settings: PreferenceRepository by inject()
+    private val settings: SettingsRepository by inject()
     private val callViewModel: CallViewModel by inject()
 
     init {

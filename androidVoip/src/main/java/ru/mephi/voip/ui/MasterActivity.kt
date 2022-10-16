@@ -3,6 +3,7 @@
 package ru.mephi.voip.ui
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -10,21 +11,24 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -35,6 +39,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -44,21 +49,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.abtollc.sdk.AbtoApplication
-import org.abtollc.sdk.AbtoPhone
 import org.koin.android.ext.android.get
-import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
-import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.vm.*
 import ru.mephi.voip.BuildConfig
-import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.caller.CallerScreen
 import ru.mephi.voip.ui.screens.catalog.catalogNavCtl
-import ru.mephi.voip.data.PreferenceRepository
 import ru.mephi.voip.ui.screens.favourites.FavouritesScreen
 import ru.mephi.voip.ui.screens.settings.SettingsScreen
 import ru.mephi.voip.ui.theme.MasterTheme
+import ru.mephi.voip.vm.SettingsViewModel
 import timber.log.Timber
 
 
@@ -68,24 +68,6 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
     var isPermissionsGranted = false
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-    private val phoneManager: PhoneManager by inject()
-
-    private var isBackgroundWork: Boolean = false
-    private var isSipEnabled = false
-
-    companion object {
-        var phone: AbtoPhone = (appContext as AbtoApplication).abtoPhone
-    }
-
-    override fun onResume() {
-        super.onResume()
-        phone = (application as AbtoApplication).abtoPhone
-        if (!isBackgroundWork) {
-            if (isSipEnabled) {
-                phoneManager.initPhone()
-            }
-        }
-    }
 
     private var scaffoldState: ScaffoldState? = null
 
@@ -126,18 +108,6 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
             scaffoldState = rememberScaffoldState()
             MasterTheme {
                 MasterScreen()
-            }
-        }
-
-        lifecycleScope.launch {
-            phoneManager.isSipEnabled.collect {
-                isSipEnabled = it
-            }
-        }
-
-        lifecycleScope.launch {
-            phoneManager.isBackgroundWork.collect {
-                isBackgroundWork = it
             }
         }
 
@@ -219,13 +189,18 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
                 MasterNavCtl(navController)
             }
         }
+        rememberSystemUiController().setSystemBarsColor(
+            color = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+        )
     }
 
     @Composable
     private fun MasterScreenBottomBar(
         navController: NavHostController
     ) {
-        NavigationBar {
+        NavigationBar(
+            windowInsets = NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Horizontal)
+        ) {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             masterScreensList.forEach { item ->
@@ -265,13 +240,14 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
     @Composable
     private fun MasterNavCtl(
         navController: NavHostController,
-        preferenceRepository: PreferenceRepository = get(),
+        settingsVM: SettingsViewModel = get(),
         catalogVM: CatalogViewModel = get(),
         detailedInfoVM: DetailedInfoViewModel = get()
     ) {
-        val startScreen by preferenceRepository.startScreen.collectAsState(initial = MasterScreens.Catalog)
-
-        AnimatedNavHost(navController = navController, startDestination = startScreen.route) {
+        AnimatedNavHost(
+            navController = navController,
+            startDestination = (if (settingsVM.isScreenReady()) settingsVM.initialStartScreen else MasterScreens.Catalog).route
+        ) {
             composable(
                 route = MasterScreens.History.route,
                 enterTransition = { EnterTransition.None },

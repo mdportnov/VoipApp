@@ -7,16 +7,17 @@ import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.data.CatalogRepository
 import ru.mephi.voip.ui.call.CallViewModel
 import ru.mephi.voip.data.CatalogViewModel
-import ru.mephi.voip.data.PreferenceRepository
+import ru.mephi.voip.data.SettingsRepository
 import ru.mephi.voip.utils.NotificationHandler
 import ru.mephi.voip.utils.NotificationReciever
+import ru.mephi.voip.vm.SettingsViewModel
 
 val koinModule = module {
     single { CallEventsReceiver() }
 }
 
 val repositories = module {
-    single { PreferenceRepository(androidApplication()) }
+    single { SettingsRepository(androidApplication(), get(), get()) }
     single { PhoneManager(androidApplication(), get(), get(), get()) }
     single { CatalogRepository() }
 }
@@ -27,19 +28,7 @@ val notifications = module {
 }
 
 val viewModels = module {
-//    viewModel {
-//        ProfileViewModel(androidApplication(), get(), get(), get())
-//    }
-
-    single {
-        CallViewModel(get(), get())
-    }
-
-    single {
-        CatalogViewModel(get())
-    }
-
-//    single {
-//        SettingsViewModel(androidApplication(), get(), get(), get())
-//    }
+    single { CallViewModel(get(), get()) }
+    single { SettingsViewModel(get()) }
+    single { CatalogViewModel(get()) }
 }

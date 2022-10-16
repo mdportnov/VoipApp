@@ -13,7 +13,6 @@ import org.abtollc.sdk.OnRegistrationListener
 import org.abtollc.utils.codec.Codec
 import org.koin.core.component.KoinComponent
 import ru.mephi.shared.data.model.Account
-import ru.mephi.shared.data.model.NameItem
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repo.VoIPServiceRepository
 import ru.mephi.shared.data.sip.AccountStatus
@@ -27,35 +26,20 @@ import timber.log.Timber
 
 class PhoneManager(
     app: Application,
-    private var settings: PreferenceRepository,
+    private var settingsRepo: SettingsRepository,
     private val notificationHandler: NotificationHandler,
     private val serviceRepo: VoIPServiceRepository
 ) : KoinComponent {
     private var phone: AbtoPhone = (app as AbtoApp).abtoPhone
 
-    private var _displayName = MutableStateFlow<NameItem?>(null)
-    val displayName: StateFlow<NameItem?> = _displayName
+    val accountManagementStatus = MutableStateFlow(AccountManagementStatus.LOADING)
 
-    private val _status = MutableStateFlow(AccountStatus.UNREGISTERED)
-    val status: StateFlow<AccountStatus> = _status
-
-    private var _isSipEnabled = MutableStateFlow(false)
-    val isSipEnabled: StateFlow<Boolean> = _isSipEnabled
-
-    val isBackgroundWork = settings.isBackgroundModeEnabled
-
-    private val _accountsList: MutableStateFlow<List<Account>> = MutableStateFlow(emptyList())
-    val accountList: StateFlow<List<Account>> = _accountsList
-
-    private var _accountsCount = MutableStateFlow(0)
-    val accountsCount: StateFlow<Int> = _accountsCount
-
-    private var accId = -1L
+    private var accId = PhoneUtils.NULL_ACC_ID
     val currentAccount = MutableStateFlow(Account())
     val accountsList = MutableStateFlow(emptyList<Account>())
     val phoneStatus = MutableStateFlow(AccountStatus.UNREGISTERED)
 
-    private var loginAccId = -1L
+    private var loginAccId = PhoneUtils.NULL_ACC_ID
     var loginStatus = MutableStateFlow(LoginStatus.LOGIN_IN_PROGRESS)
     private var newAccount = Account()
 
@@ -64,33 +48,40 @@ class PhoneManager(
     private var loginFetchJob: Job? = null
 
     private var isForegroundAllowed = false
+    private var isSipEnabled = false
 
     init {
         scope.launch {
             Timber.e("PhoneManager: init")
             getAccountsList().let { lst ->
                 accountsList.value = lst
-                lst.firstOrNull { it.isActive }.let {
-                    if (it != null) {
-                        currentAccount.value = it
-                    } else {
-                        Timber.e("No active accounts found!")
+                if (lst.isEmpty()) {
+                    accountManagementStatus.value = AccountManagementStatus.NO_SAVED_ACC
+                } else {
+                    lst.firstOrNull { it.isActive }.let {
+                        if (it != null) {
+                            currentAccount.value = it
+                            accountManagementStatus.value = AccountManagementStatus.ACC_SELECTED
+                        } else {
+                            accountManagementStatus.value = AccountManagementStatus.ACC_NOT_SELECTED
+                        }
                     }
                 }
             }
             scope.launch {
-                settings.isSipEnabled.collect { enabled ->
-                    if (_isSipEnabled.value != enabled) {
-                        _isSipEnabled.value = enabled
+                settingsRepo.isSipEnabled.collect { enabled ->
+                    if (isSipEnabled != enabled) {
+                        isSipEnabled = enabled
                         when (enabled) {
-                            true -> { initPhone() }
+                            true -> { initPhone()
+                            }
                             false -> { exitPhone(false) }
                         }
                     }
                 }
             }
             scope.launch {
-                settings.isBackgroundModeEnabled.collect { enabled ->
+                settingsRepo.isBackgroundModeEnabled.collect { enabled ->
                     if (isForegroundAllowed != enabled) {
                         isForegroundAllowed = enabled
                         if (phone.isActive) {
@@ -134,8 +125,8 @@ class PhoneManager(
             LoginStatus.LOGIN_FAILURE -> {
                 isLoginMode = false
                 phone.unregister(loginAccId)
-                loginAccId = -1L
-                if (!isSipEnabled.value) {
+                loginAccId = PhoneUtils.NULL_ACC_ID
+                if (!isSipEnabled) {
                     exitPhone(false)
                 }
             }
@@ -151,11 +142,11 @@ class PhoneManager(
                 if (phone.config.accountsCount > 1) {
                     phone.unregister(accId)
                     accId = loginAccId
-                    loginAccId = -1L
+                    loginAccId = PhoneUtils.NULL_ACC_ID
                 }
-                if (!isSipEnabled.value) {
+                if (!isSipEnabled) {
                     scope.launch {
-                        settings.enableSip(true)
+                        settingsRepo.enableSip(true)
                     }
                 }
                 addAccount(newAccount)
@@ -164,7 +155,7 @@ class PhoneManager(
         }
     }
 
-    fun initPhone() {
+    private fun initPhone() {
         if (phone.isActive) {
             Timber.e("initPhone: failed, phone is already active!")
             return
@@ -200,7 +191,7 @@ class PhoneManager(
                 when (accId) {
                     this@PhoneManager.accId -> {
                         setPhoneStatus(AccountStatus.UNREGISTERED)
-                        this@PhoneManager.accId = -1L
+                        this@PhoneManager.accId = PhoneUtils.NULL_ACC_ID
                     }
                     loginAccId -> { }
                     else -> { }
@@ -253,7 +244,7 @@ class PhoneManager(
             Timber.e("onInitializeState: state=${state.value}, message=${message ?: "null"}")
             when (state) {
                 OnInitializeListener.InitializeState.SUCCESS -> {
-                    if (currentAccount.value.login.isNotEmpty() && !isLoginMode && accId == -1L) {
+                    if (currentAccount.value.login.isNotEmpty() && !isLoginMode && accId == PhoneUtils.NULL_ACC_ID) {
                         setPhoneStatus(AccountStatus.CONNECTING)
                         accId = registerAccount(accId, currentAccount.value)
                     }
@@ -301,8 +292,8 @@ class PhoneManager(
             true -> { setPhoneStatus(AccountStatus.RESTARTING) }
             false -> { setPhoneStatus(AccountStatus.SHUTTING_DOWN) }
         }
-        accId = -1L
-        loginAccId = -1L
+        accId = PhoneUtils.NULL_ACC_ID
+        loginAccId = PhoneUtils.NULL_ACC_ID
         phone.unregister()
         try {
             phone.destroy()
@@ -316,13 +307,6 @@ class PhoneManager(
                 false -> { setPhoneStatus(AccountStatus.UNREGISTERED) }
             }
         }
-    }
-
-
-    fun getUserNumber() = when {
-        phone.config.accountsCount == 0 -> null
-        phone.config.getAccount(accId).active -> phone.config.getAccount(phone.currentAccountId)?.sipUserName
-        else -> null
     }
 
     fun retryRegistration() {
@@ -339,15 +323,16 @@ class PhoneManager(
         setAccountsList(list)
         account.isActive = true
         currentAccount.value = account
-        if (isSipEnabled.value) {
+        accountManagementStatus.value = AccountManagementStatus.ACC_SELECTED
+        if (isSipEnabled) {
             accId.let {
-                accId = -1L
+                accId = PhoneUtils.NULL_ACC_ID
                 accId = registerAccount(it, account)
             }
         }
     }
 
-    fun addAccount(account: Account) {
+    private fun addAccount(account: Account) {
         currentAccount.value = account.copy(isActive = true)
         val list = accountsList.value.toMutableList()
         list.forEach { v -> v.isActive = false }
@@ -357,16 +342,21 @@ class PhoneManager(
 
     fun removeAccount(account: Account) {
         if (account.isActive) {
-            if (accId != -1L) {
+            if (accId != PhoneUtils.NULL_ACC_ID) {
                 phone.unregister(accId)
             }
             scope.launch {
-                settings.enableSip(false)
+                settingsRepo.enableSip(false)
             }
             currentAccount.value = Account()
         }
         val list = accountsList.value.toMutableList()
         list.removeAll { v -> v.login == account.login}
+        accountManagementStatus.value = when {
+            list.isEmpty() -> AccountManagementStatus.NO_SAVED_ACC
+            account.isActive -> AccountManagementStatus.ACC_NOT_SELECTED
+            else -> AccountManagementStatus.ACC_SELECTED
+        }
         setAccountsList(list)
     }
 
@@ -386,10 +376,10 @@ class PhoneManager(
     }
 
     private fun registerAccount(
-        accId: Long = -1L,
+        accId: Long = PhoneUtils.NULL_ACC_ID,
         account: Account
     ): Long {
-        if (accId != -1L) {
+        if (accId != PhoneUtils.NULL_ACC_ID) {
             Timber.e("registerAccount: unregistering previous account, accId=$accId")
             phone.unregister(accId)
         }
@@ -402,7 +392,7 @@ class PhoneManager(
             "",
             300,
             false,
-            this@PhoneManager.accId == -1L
+            this@PhoneManager.accId == PhoneUtils.NULL_ACC_ID
         )
         phone.register()
         Timber.e("registerAccount: account registered, accId=$ret")
@@ -420,9 +410,9 @@ class PhoneManager(
         isLoginMode = true
         newAccount = Account()
         setLoginStatus(LoginStatus.LOGIN_IN_PROGRESS)
-        if (loginAccId != -1L) {
+        if (loginAccId != PhoneUtils.NULL_ACC_ID) {
             phone.unregister(loginAccId)
-            loginAccId = -1L
+            loginAccId = PhoneUtils.NULL_ACC_ID
         }
         loginFetchJob = scope.launch {
             serviceRepo.getInfoByPhone(account.login).onEach { resource ->
@@ -472,4 +462,8 @@ private object PhoneUtils {
 
 enum class LoginStatus {
     LOGIN_IN_PROGRESS, DATA_FETCH_FAILURE, LOGIN_FAILURE, LOGIN_SUCCESSFUL
+}
+
+enum class AccountManagementStatus {
+    ACC_SELECTED, ACC_NOT_SELECTED, NO_SAVED_ACC, LOADING
 }

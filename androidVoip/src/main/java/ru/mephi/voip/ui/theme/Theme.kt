@@ -83,7 +83,7 @@ fun MasterTheme(
             dynamicLightColorScheme(LocalContext.current)
         }
 //        isDarkTheme -> DarkColors
-        else -> LightColors
+        else -> MaterialTheme.colorScheme
     }
 
     MaterialTheme(

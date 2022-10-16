@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.common
+package ru.mephi.voip.ui.common.exceptions
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState

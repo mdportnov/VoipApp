@@ -92,6 +92,9 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.25.1")
     implementation("com.google.android.material:material:1.6.1")
 
+    // Splash
+    implementation("androidx.core:core-splashscreen:1.0.0")
+
     // Network
     implementation("io.ktor:ktor-client-okhttp:1.6.2")
     implementation("io.ktor:ktor-client-serialization:1.6.7")

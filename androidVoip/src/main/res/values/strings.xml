@@ -69,9 +69,29 @@
 
     <!-- bottom bar titles -->
     <string name="bottom_bar_title_favourites">Избранные</string>
-    <string name="bottom_bar_title_history">Недавнее</string>
+    <string name="bottom_bar_title_history">Недавние</string>
     <string name="bottom_bar_title_catalog">Каталог</string>
     <string name="bottom_bar_title_settings">Параметры</string>
+
+    <!-- SETTINGS -->
+    <string name="param_background_work">Работа в фоне</string>
+    <string name="param_background_work_description">Увеличивает расход заряда аккумулятора</string>
+    <string name="param_call_screen_always_enabled">Экран входящего вызова</string>
+    <string name="param_call_screen_always_enabled_description" />
+    <string name="param_initial_screen">Стартовый экран</string>
+    <string name="param_initial_screen_description">Выбрано: %1$s</string>
+    <string name="param_clear_search_history">Удалить историю запросов</string>
+    <string name="param_clear_search_history_description" />
+    <string name="param_clear_catalog_cache">Удалить кэш католога</string>
+    <string name="param_clear_catalog_cache_description" />
+    <string name="param_clear_favourites">Удалить избранные контакты</string>
+    <string name="param_clear_favourites_description" />
+    <string name="param_send_feedback">Обратная связь</string>
+    <string name="param_send_feedback_description">Сообщить об ошибке или проблеме</string>
+
+    <string name="param_clear_search_history_confirmation">Вы уверены, что хотите удалить всю историю запросов?</string>
+    <string name="param_clear_catalog_cache_confirmation">Вы уверены, что хотите удалить весь кэш каталога?</string>
+    <string name="param_clear_favourites_confirmation">Вы уверены, что хотите удалить все избранные контакты?</string>
 
     <string name="no_active_account_call">Нет активного аккаунта для совершения звонка</string>
 </resources>

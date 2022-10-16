@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.MasterActivity
-import ru.mephi.voip.data.PreferenceRepository
+import ru.mephi.voip.data.SettingsRepository
 import ru.mephi.voip.utils.NotificationUtils.intentFlags
 import ru.mephi.voip.utils.NotificationUtils.mNotificationId
 import ru.mephi.voip.utils.NotificationUtils.pendingIntentFlags
@@ -63,13 +63,11 @@ class NotificationHandler(
             return it
         }
     }
-
-
 }
 
 class NotificationReciever(
     private val context: Context,
-    private var preferenceRepo: PreferenceRepository
+    private var preferenceRepo: SettingsRepository
 ) : BroadcastReceiver() {
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var mIsListening = false
