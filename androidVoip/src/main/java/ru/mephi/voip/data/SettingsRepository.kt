@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import ru.mephi.shared.data.database.FavouritesDB
 import ru.mephi.shared.vm.CatalogViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.MasterScreens
@@ -20,7 +19,7 @@ import ru.mephi.voip.utils.launchMailClientIntent
 class SettingsRepository(
     private val context: Context,
     private val catalogVM: CatalogViewModel,
-    private val favoriteDB: FavouritesDB
+    private val favouritesRepo: FavouritesRepository
 ) {
     private val Context.dataStore by preferencesDataStore(
         name = context.packageName + "_preferences",
@@ -107,7 +106,7 @@ class SettingsRepository(
 
     fun clearCatalogCache() { }
 
-    fun clearFavourites() { }
+    fun clearFavourites() = favouritesRepo.removeAllFavourites()
 
     fun sendFeedback() = context.launchMailClientIntent(context.getString(R.string.support_email))
 

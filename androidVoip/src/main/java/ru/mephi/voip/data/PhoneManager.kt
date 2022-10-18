@@ -15,7 +15,7 @@ import org.koin.core.component.KoinComponent
 import ru.mephi.shared.data.model.Account
 import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repo.VoIPServiceRepository
-import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.data.sip.PhoneStatus
 import ru.mephi.shared.utils.appContext
 import ru.mephi.voip.R
 import ru.mephi.voip.abto.AbtoApp
@@ -37,7 +37,7 @@ class PhoneManager(
     private var accId = PhoneUtils.NULL_ACC_ID
     val currentAccount = MutableStateFlow(Account())
     val accountsList = MutableStateFlow(emptyList<Account>())
-    val phoneStatus = MutableStateFlow(AccountStatus.UNREGISTERED)
+    val phoneStatus = MutableStateFlow(PhoneStatus.UNREGISTERED)
 
     private var loginAccId = PhoneUtils.NULL_ACC_ID
     var loginStatus = MutableStateFlow(LoginStatus.LOGIN_IN_PROGRESS)
@@ -87,7 +87,7 @@ class PhoneManager(
                         if (phone.isActive) {
                             if (!enabled) {
                                 phone.stopForeground()
-                            } else if (enabled && phoneStatus.value != AccountStatus.SHUTTING_DOWN) {
+                            } else if (enabled && phoneStatus.value != PhoneStatus.SHUTTING_DOWN) {
                                 exitPhone(true)
                             }
                         }
@@ -98,16 +98,16 @@ class PhoneManager(
     }
 
     private fun setPhoneStatus(
-        status: AccountStatus
+        status: PhoneStatus
     ) {
         Timber.e("setPhoneStatus: switching status, ${phoneStatus.value.name} => ${status.name}")
         phoneStatus.value = status
         when (status) {
-            AccountStatus.REGISTERED,
-            AccountStatus.NO_CONNECTION,
-            AccountStatus.REGISTRATION_FAILED,
-            AccountStatus.RECONNECTING,
-            AccountStatus.CONNECTING -> {
+            PhoneStatus.REGISTERED,
+            PhoneStatus.NO_CONNECTION,
+            PhoneStatus.REGISTRATION_FAILED,
+            PhoneStatus.RECONNECTING,
+            PhoneStatus.CONNECTING -> {
                 if (isForegroundAllowed && phone.isActive) {
                     notificationHandler.getDisplayedNotification(status)
                 }
@@ -138,7 +138,7 @@ class PhoneManager(
             }
             LoginStatus.LOGIN_SUCCESSFUL -> {
                 isLoginMode = false
-                setPhoneStatus(AccountStatus.REGISTERED)
+                setPhoneStatus(PhoneStatus.REGISTERED)
                 if (phone.config.accountsCount > 1) {
                     phone.unregister(accId)
                     accId = loginAccId
@@ -150,6 +150,7 @@ class PhoneManager(
                     }
                 }
                 addAccount(newAccount)
+                accountManagementStatus.value = AccountManagementStatus.ACC_SELECTED
                 newAccount = Account()
             }
         }
@@ -160,15 +161,15 @@ class PhoneManager(
             Timber.e("initPhone: failed, phone is already active!")
             return
         }
-        setPhoneStatus(AccountStatus.STARTING_UP)
+        setPhoneStatus(PhoneStatus.STARTING_UP)
         Timber.e("initPhone: initialising")
 
         phone.setNetworkEventListener { connected, networkType ->
             Timber.e("setNetworkEventListener: network state changed, connected=$connected, networkType=$networkType")
             if (connected) {
-                setPhoneStatus(AccountStatus.CONNECTING)
+                setPhoneStatus(PhoneStatus.CONNECTING)
             } else {
-                setPhoneStatus(AccountStatus.NO_CONNECTION)
+                setPhoneStatus(PhoneStatus.NO_CONNECTION)
             }
         }
 
@@ -177,7 +178,7 @@ class PhoneManager(
                 Timber.e("onRegistered: account registered, accId=$accId, count=${phone.config.accountsCount}")
                 when (accId) {
                     this@PhoneManager.accId -> {
-                        setPhoneStatus(AccountStatus.REGISTERED)
+                        setPhoneStatus(PhoneStatus.REGISTERED)
                     }
                     loginAccId -> {
                         setLoginStatus(LoginStatus.LOGIN_SUCCESSFUL)
@@ -190,7 +191,7 @@ class PhoneManager(
                 Timber.e("onUnRegistered: account unregistered, accId=$accId, count=${phone.config.accountsCount}")
                 when (accId) {
                     this@PhoneManager.accId -> {
-                        setPhoneStatus(AccountStatus.UNREGISTERED)
+                        setPhoneStatus(PhoneStatus.UNREGISTERED)
                         this@PhoneManager.accId = PhoneUtils.NULL_ACC_ID
                     }
                     loginAccId -> { }
@@ -208,19 +209,19 @@ class PhoneManager(
                     this@PhoneManager.accId -> {
                         when (statusCode) {
                             100 -> { }
-                            405 -> { setPhoneStatus(AccountStatus.NO_CONNECTION) }
+                            405 -> { setPhoneStatus(PhoneStatus.NO_CONNECTION) }
                             408, 502 -> {
                                 if (currentAccount.value.login.isNotEmpty()) {
                                     CoroutineScope(Dispatchers.Main).launch {
-                                        setPhoneStatus(AccountStatus.RECONNECTING)
+                                        setPhoneStatus(PhoneStatus.RECONNECTING)
                                         delay(10000)
                                         retryRegistration()
                                     }
                                 } else {
-                                    setPhoneStatus(AccountStatus.REGISTRATION_FAILED)
+                                    setPhoneStatus(PhoneStatus.REGISTRATION_FAILED)
                                 }
                             }
-                            else -> { setPhoneStatus(AccountStatus.REGISTRATION_FAILED) }
+                            else -> { setPhoneStatus(PhoneStatus.REGISTRATION_FAILED) }
                         }
                     }
                     loginAccId -> {
@@ -245,7 +246,7 @@ class PhoneManager(
             when (state) {
                 OnInitializeListener.InitializeState.SUCCESS -> {
                     if (currentAccount.value.login.isNotEmpty() && !isLoginMode && accId == PhoneUtils.NULL_ACC_ID) {
-                        setPhoneStatus(AccountStatus.CONNECTING)
+                        setPhoneStatus(PhoneStatus.CONNECTING)
                         accId = registerAccount(accId, currentAccount.value)
                     }
                 }
@@ -289,8 +290,8 @@ class PhoneManager(
             return
         }
         when (isRestart) {
-            true -> { setPhoneStatus(AccountStatus.RESTARTING) }
-            false -> { setPhoneStatus(AccountStatus.SHUTTING_DOWN) }
+            true -> { setPhoneStatus(PhoneStatus.RESTARTING) }
+            false -> { setPhoneStatus(PhoneStatus.SHUTTING_DOWN) }
         }
         accId = PhoneUtils.NULL_ACC_ID
         loginAccId = PhoneUtils.NULL_ACC_ID
@@ -304,14 +305,14 @@ class PhoneManager(
             while (phone.isActive) delay(100)
             when (isRestart) {
                 true -> { initPhone() }
-                false -> { setPhoneStatus(AccountStatus.UNREGISTERED) }
+                false -> { setPhoneStatus(PhoneStatus.UNREGISTERED) }
             }
         }
     }
 
     fun retryRegistration() {
-        if (phoneStatus.value == AccountStatus.RECONNECTING) {
-            setPhoneStatus(AccountStatus.CONNECTING)
+        if (phoneStatus.value == PhoneStatus.RECONNECTING) {
+            setPhoneStatus(PhoneStatus.CONNECTING)
             phone.register()
         }
     }

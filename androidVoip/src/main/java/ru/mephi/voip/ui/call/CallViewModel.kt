@@ -3,10 +3,7 @@ package ru.mephi.voip.ui.call
 import android.os.Handler
 import androidx.compose.runtime.*
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.abtollc.sdk.AbtoPhone
@@ -94,22 +91,26 @@ class CallViewModel(
     var mTotalTime: Long = 0
     private val mHandler = Handler()
 
-    // TODO: Use only this!
+    private val _isCallReady = MutableStateFlow(false)
+    val isCallReady = _isCallReady.asStateFlow()
+
     var comradeAppointment = MutableStateFlow(Appointment())
-    var dialPadText = MutableStateFlow("")
+
+    private val _dialPadText = MutableStateFlow("")
+    var dialPadText = _dialPadText.asStateFlow()
 
     fun appendDialPadText(text: String) {
         if (text.toInt() in 0..9) {
-            dialPadText.value = dialPadText.value + text
+            _dialPadText.value += text
         }
     }
 
     fun backspaceDialPadText() {
-        dialPadText.value = dialPadText.value.dropLast(1)
+        _dialPadText.value = _dialPadText.value.dropLast(1)
     }
 
     fun clearDialPadText() {
-        dialPadText.value = ""
+        _dialPadText.value = ""
     }
 
     private val mUpdateTimeTask: Runnable = object : Runnable {

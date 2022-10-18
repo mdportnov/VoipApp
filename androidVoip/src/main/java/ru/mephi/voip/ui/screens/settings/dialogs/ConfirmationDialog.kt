@@ -7,14 +7,12 @@ import androidx.compose.runtime.Composable
 
 @Composable
 internal fun ConfirmationDialog(
-    title: String,
     text: String,
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(text = title) },
         text = { Text(text = text) },
         confirmButton = {
             TextButton(

@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalLayoutApi::class
+)
 
 package ru.mephi.voip.ui.screens.settings
 
@@ -24,28 +26,29 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.model.Account
-import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.data.sip.PhoneStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.data.AccountManagementStatus
 import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.data.SettingsRepository
-import ru.mephi.voip.ui.common.AccountCard
-import ru.mephi.voip.ui.common.SipStatusActionButton
-import ru.mephi.voip.ui.dialogs.LoginDialog
-import ru.mephi.voip.ui.dialogs.ManageAccountsDialog
+import ru.mephi.voip.ui.screens.settings.cards.AccountCard
+import ru.mephi.voip.ui.common.scaffold.TopBarWithStatus
+import ru.mephi.voip.ui.screens.settings.dialogs.LoginDialog
+import ru.mephi.voip.ui.screens.settings.dialogs.ManageAccountsDialog
 import ru.mephi.voip.ui.screens.settings.etc.AboutApp
 import ru.mephi.voip.ui.screens.settings.etc.ParamsDivider
 import ru.mephi.voip.ui.screens.settings.params.*
-import ru.mephi.voip.ui.screens.settings.params.ClearSearchHistoryParam
-import ru.mephi.voip.ui.screens.settings.params.BackgroundModeParam
-import ru.mephi.voip.ui.screens.settings.params.CallScreenAlwaysEnabledParam
+import ru.mephi.voip.ui.screens.settings.params.impl.ClearSearchHistoryParam
+import ru.mephi.voip.ui.screens.settings.params.impl.BackgroundModeParam
+import ru.mephi.voip.ui.screens.settings.params.impl.CallScreenAlwaysEnabledParam
 import ru.mephi.voip.ui.screens.settings.params.InitialScreenParam
+import ru.mephi.voip.ui.screens.settings.params.impl.ClearCatalogCacheParam
+import ru.mephi.voip.ui.screens.settings.params.impl.ClearFavouritesParam
 import ru.mephi.voip.utils.launchDialer
 import ru.mephi.voip.utils.launchMailClientIntent
 import ru.mephi.voip.vm.SettingsViewModel
@@ -60,16 +63,17 @@ internal fun SettingsScreen(
     val accountManagementStatus by phoneManager.accountManagementStatus.collectAsState()
     val phoneStatus by phoneManager.phoneStatus.collectAsState()
     Scaffold(
-        topBar = { SettingsTopBar() },
+        topBar = { TopBarWithStatus(title = stringResource(R.string.bottom_bar_title_settings)) },
         floatingActionButton = { SettingsFAB(
             accountManagementStatus = accountManagementStatus,
             phoneStatus = phoneStatus,
             settingsVM = settingsVM
-        ) }
+        ) },
+        contentWindowInsets = MutableWindowInsets()
     ) {
         Box(modifier = Modifier.padding(it)) {
             if (isLoginOpen) {
-                LoginDialog(onDismiss = settingsVM::closeLoginDialog)
+                LoginDialog(settingsVM = settingsVM)
             }
             if (isAccManagerOpen) {
                 ManageAccountsDialog(
@@ -88,26 +92,9 @@ internal fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsTopBar() {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(R.string.bottom_bar_title_settings),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        actions = { SipStatusActionButton() },
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-        )
-    )
-}
-
-@Composable
 private fun SettingsFAB(
     accountManagementStatus: AccountManagementStatus,
-    phoneStatus: AccountStatus,
+    phoneStatus: PhoneStatus,
     settingsRepo: SettingsRepository = get(),
     settingsVM: SettingsViewModel = get()
 ) {
@@ -121,9 +108,9 @@ private fun SettingsFAB(
                 when (accountManagementStatus) {
                     AccountManagementStatus.ACC_SELECTED -> {
                         when (phoneStatus) {
-                            AccountStatus.STARTING_UP,
-                            AccountStatus.RESTARTING,
-                            AccountStatus.SHUTTING_DOWN -> { }
+                            PhoneStatus.STARTING_UP,
+                            PhoneStatus.RESTARTING,
+                            PhoneStatus.SHUTTING_DOWN -> { }
                             else -> {
                                 scope.launch {
                                     settingsRepo.enableSip(!isSipEnabled)
@@ -163,9 +150,9 @@ private fun SettingsFAB(
         )
         AnimatedVisibility(
             visible = when (phoneStatus) {
-                AccountStatus.STARTING_UP,
-                AccountStatus.RESTARTING,
-                AccountStatus.SHUTTING_DOWN -> true
+                PhoneStatus.STARTING_UP,
+                PhoneStatus.RESTARTING,
+                PhoneStatus.SHUTTING_DOWN -> true
                 else -> false
             },
             enter = fadeIn(initialAlpha = 0.6f, animationSpec = tween(50)),
@@ -184,7 +171,7 @@ private fun SettingsFAB(
 @Composable
 private fun SettingsContent(
     accountManagementStatus: AccountManagementStatus,
-    phoneStatus: AccountStatus,
+    phoneStatus: PhoneStatus,
     settingsVM: SettingsViewModel = get(),
     settingsRepo: SettingsRepository = get(),
     phoneManager: PhoneManager = get()
@@ -255,7 +242,7 @@ private fun SettingsContent(
 @Composable
 private fun SelectedAccCard(
     currentAccount: Account,
-    phoneStatus: AccountStatus
+    phoneStatus: PhoneStatus
 ) {
     Box(
         modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 6.dp, bottom = 2.dp)

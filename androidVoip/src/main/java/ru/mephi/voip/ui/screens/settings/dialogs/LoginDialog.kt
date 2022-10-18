@@ -1,8 +1,9 @@
 @file:OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 
-package ru.mephi.voip.ui.dialogs
+package ru.mephi.voip.ui.screens.settings.dialogs
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
@@ -29,59 +31,48 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
-import ru.mephi.shared.data.model.Account
-import ru.mephi.voip.data.LoginStatus
-import ru.mephi.voip.data.PhoneManager
+import ru.mephi.voip.vm.SettingsViewModel
 
 @Composable
 fun LoginDialog(
-    onDismiss: () -> Unit,
-    phoneManager: PhoneManager = get()
+    settingsVM: SettingsViewModel = get()
 ) {
-    val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val loginErrorMsg by settingsVM.loginErrorMsg.collectAsState()
+    val isLoginUiLocked by settingsVM.isLoginUiLocked.collectAsState()
     var sipInput by rememberSaveable { mutableStateOf("") }
     var passwordInput by rememberSaveable { mutableStateOf("") }
     var passwordVisibility by rememberSaveable { mutableStateOf(false) }
-    var isError by remember { mutableStateOf(false) }
-    var errorMsg by remember { mutableStateOf("") }
-    var isLocked by remember { mutableStateOf(false) }
-    val onRun = { account: Account ->
-        keyboardController?.hide()
-        scope.launch {
-            runCredentialsCheck(
-                goBack = onDismiss,
-                setErrorMsg = { s ->
-                    errorMsg = s; isError = s.isNotEmpty()
-                },
-                setLockState = { b -> isLocked = b },
-                account = account,
-                phoneManager = phoneManager
-            )
-        }
-    }
     Dialog(
-        onDismissRequest = { if (!isLocked) onDismiss() },
+        onDismissRequest = settingsVM::closeLoginDialog,
         properties = DialogProperties(
             usePlatformDefaultWidth = false
         )
     ) {
-        ElevatedCard(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 34.dp, bottom = 42.dp, start = 10.dp, end = 10.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = settingsVM::closeLoginDialog
+                )
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(8.dp))
+                    .padding(top = 34.dp, bottom = 42.dp, start = 10.dp, end = 10.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+            ) {
                 Column(
-                    modifier = Modifier
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) { if (!isLocked) onDismiss() }
-                        .align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = "Вход",
@@ -89,7 +80,7 @@ fun LoginDialog(
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .wrapContentSize()
-                            .padding(bottom = 16.dp)
+                            .padding(bottom = 12.dp)
                     )
                     val width = LocalConfiguration.current.screenWidthDp
                     Column(
@@ -97,10 +88,10 @@ fun LoginDialog(
                     ) {
                         OutlinedTextField(
                             value = sipInput,
-                            onValueChange = { s -> sipInput = s; isError = false },
+                            onValueChange = { s -> sipInput = s; settingsVM.clearErrorMsg() },
                             label = { Text(text = "Номер") },
-                            readOnly = isLocked,
-                            isError = isError,
+                            readOnly = isLoginUiLocked,
+                            isError = loginErrorMsg.isNotEmpty(),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number,
                                 imeAction = ImeAction.Next
@@ -113,10 +104,10 @@ fun LoginDialog(
                         )
                         OutlinedTextField(
                             value = passwordInput,
-                            onValueChange = { s -> passwordInput = s; isError = false },
+                            onValueChange = { s -> passwordInput = s; settingsVM.clearErrorMsg() },
                             label = { Text(text = "Пароль") },
-                            readOnly = isLocked,
-                            isError = isError,
+                            readOnly = isLoginUiLocked,
+                            isError = loginErrorMsg.isNotEmpty(),
                             trailingIcon = {
                                 IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
                                     Icon(
@@ -128,29 +119,34 @@ fun LoginDialog(
                             visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
                             keyboardActions = KeyboardActions(onGo = {
-                                if (!isLocked) onRun(
-                                    Account(
-                                        login = sipInput,
-                                        password = passwordInput
-                                    )
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                                settingsVM.startNewAccountLogin(
+                                    login = sipInput,
+                                    password = passwordInput
                                 )
                             })
                         )
                     }
-                    Text(
-                        text = errorMsg,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(vertical = 1.dp, horizontal = 4.dp)
-                    )
+                    if (loginErrorMsg.isNotEmpty()) {
+                        Text(
+                            text = loginErrorMsg,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 1.dp, horizontal = 4.dp)
+                        )
+                    }
                     Button(
                         onClick = {
-                            if (!isLocked) {
-                                onRun(Account(login = sipInput, password = passwordInput))
-                            }
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                            settingsVM.startNewAccountLogin(
+                                login = sipInput,
+                                password = passwordInput
+                            )
                         },
-                        enabled = !isLocked,
-                        modifier = Modifier.align(Alignment.End),
+                        enabled = !isLoginUiLocked,
+                        modifier = Modifier.padding(top = 4.dp),
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Text(
@@ -162,50 +158,8 @@ fun LoginDialog(
             }
         }
     }
-    BackHandler(!isLocked) {
-        onDismiss()
-    }
-}
-
-private suspend fun runCredentialsCheck(
-    goBack: () -> Unit,
-    setErrorMsg: (String) -> Unit,
-    setLockState: (Boolean) -> Unit,
-    account: Account,
-    phoneManager: PhoneManager
-) {
-    setErrorMsg("")
-    setLockState(true)
-    if (account.login.isEmpty() || account.password.isEmpty()) {
-        setErrorMsg("Номер или пароль не может быть пустым!")
-        setLockState(false)
-        return
-    }
-    if (account.login.toIntOrNull() == null) {
-        setErrorMsg("В номере допустимы только цифры!")
-        setLockState(false)
-        return
-    }
-    if (phoneManager.accountsList.value.map { it.login }.contains(account.login)) {
-        setErrorMsg("В этот аккаунт уже выполнен вход!")
-        setLockState(false)
-        return
-    }
-    phoneManager.startNewAccountLogin(account)
-    phoneManager.loginStatus.collect { status ->
-        when (status) {
-            LoginStatus.LOGIN_FAILURE -> {
-                setErrorMsg("Не удалось войти в акакунт"); setLockState(false); return@collect
-            }
-            LoginStatus.LOGIN_IN_PROGRESS -> {
-                setLockState(true); setErrorMsg("")
-            }
-            LoginStatus.LOGIN_SUCCESSFUL -> {
-                setLockState(false); goBack(); return@collect
-            }
-            LoginStatus.DATA_FETCH_FAILURE -> {
-                setErrorMsg("Не удалось получить данные о пользователе"); setLockState(false); return@collect
-            }
-        }
-    }
+    BackHandler(
+        enabled = true,
+        onBack = settingsVM::closeLoginDialog
+    )
 }

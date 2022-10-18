@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 
-package ru.mephi.voip.ui.dialogs
+package ru.mephi.voip.ui.screens.settings.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,7 +30,7 @@ import androidx.compose.ui.window.DialogProperties
 import org.koin.androidx.compose.get
 import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.MasterActivity
-import ru.mephi.voip.ui.common.AccountCard
+import ru.mephi.voip.ui.screens.settings.cards.AccountCard
 
 @Composable
 internal fun ManageAccountsDialog(

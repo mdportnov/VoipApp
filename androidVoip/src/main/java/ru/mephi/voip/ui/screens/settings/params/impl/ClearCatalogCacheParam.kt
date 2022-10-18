@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.screens.settings.params
+package ru.mephi.voip.ui.screens.settings.params.impl
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -12,15 +12,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.screens.settings.dialogs.ConfirmationDialog
+import ru.mephi.voip.ui.screens.settings.params.SettingsParam
 
 @Composable
-internal fun ClearFavouritesParam(
-    clearFavourites: () -> Unit
+internal fun ClearCatalogCacheParam(
+    clearCatalogCache: () -> Unit
 ) {
     var dialog by remember { mutableStateOf(false) }
     SettingsParam(
-        title = stringResource(R.string.param_clear_favourites),
-        description = stringResource(R.string.param_clear_favourites_description),
+        title = stringResource(R.string.param_clear_catalog_cache),
+        description = stringResource(R.string.param_clear_catalog_cache_description),
         trailingIcon = {
             Box(modifier = Modifier.size(36.dp)) {
                 Icon(
@@ -39,10 +40,9 @@ internal fun ClearFavouritesParam(
             onDismissRequest = { dialog = false },
             onConfirm = {
                 dialog = false
-                clearFavourites()
+                clearCatalogCache()
             },
-            title = stringResource(R.string.param_clear_favourites),
-            text = stringResource(R.string.param_clear_favourites_confirmation)
+            text = stringResource(R.string.param_clear_catalog_cache_confirmation)
         )
     }
 }

@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.screens.settings.params
+package ru.mephi.voip.ui.screens.settings.params.impl
 
 import android.content.Intent
 import android.net.Uri
@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.get
 import ru.mephi.voip.R
+import ru.mephi.voip.ui.screens.settings.params.SettingsParam
 import ru.mephi.voip.vm.SettingsViewModel
 
 @Composable

@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.Appointment
 import ru.mephi.shared.data.model.UnitM
-import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.data.sip.PhoneStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.MasterActivity
@@ -59,7 +59,7 @@ internal fun UserCatalogItem(
         bottomEnd = (if (isEnd) 8 else 0).dp
     )
     val onCallClick = { sip: String ->
-        if (phoneManager.phoneStatus.value == AccountStatus.REGISTERED && sip.isNotEmpty()) {
+        if (phoneManager.phoneStatus.value == PhoneStatus.REGISTERED && sip.isNotEmpty()) {
             CallActivity.create(activity, sip, false)
         } else {
             Toast.makeText(activity, R.string.no_active_account_call, Toast.LENGTH_SHORT).show()

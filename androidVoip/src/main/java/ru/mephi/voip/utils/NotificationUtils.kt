@@ -13,7 +13,7 @@ import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.data.sip.PhoneStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.ui.MasterActivity
 import ru.mephi.voip.data.SettingsRepository
@@ -45,7 +45,7 @@ class NotificationHandler(
     private val intentHelper = Intent(NotificationUtils.disableSipAction)
     private val actionIntent = PendingIntent.getBroadcast(context, 0x0, intentHelper, pendingIntentFlags)
 
-    fun getDisplayedNotification(status: AccountStatus): Notification {
+    fun getDisplayedNotification(status: PhoneStatus): Notification {
         notificationReciever.enable()
         with(mBuilder) {
             setAutoCancel(false)

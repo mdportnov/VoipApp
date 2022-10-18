@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.get
-import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.data.sip.PhoneStatus
 import ru.mephi.voip.data.PhoneManager
 
 @Composable
@@ -39,15 +39,15 @@ fun SipStatusActionButton(
             ) { }
             Icon(
                 imageVector = when (phoneStatus) {
-                    AccountStatus.UNREGISTERED -> Icons.Outlined.PhoneDisabled
-                    AccountStatus.CONNECTING,
-                    AccountStatus.STARTING_UP,
-                    AccountStatus.SHUTTING_DOWN -> Icons.Outlined.Sync
-                    AccountStatus.RESTARTING -> Icons.Outlined.RestartAlt
-                    AccountStatus.NO_CONNECTION -> Icons.Outlined.WifiOff
-                    AccountStatus.REGISTRATION_FAILED,
-                    AccountStatus.RECONNECTING -> Icons.Outlined.ErrorOutline
-                    AccountStatus.REGISTERED -> Icons.Outlined.Done
+                    PhoneStatus.UNREGISTERED -> Icons.Outlined.PhoneDisabled
+                    PhoneStatus.CONNECTING,
+                    PhoneStatus.STARTING_UP,
+                    PhoneStatus.SHUTTING_DOWN -> Icons.Outlined.Sync
+                    PhoneStatus.RESTARTING -> Icons.Outlined.RestartAlt
+                    PhoneStatus.NO_CONNECTION -> Icons.Outlined.WifiOff
+                    PhoneStatus.REGISTRATION_FAILED,
+                    PhoneStatus.RECONNECTING -> Icons.Outlined.ErrorOutline
+                    PhoneStatus.REGISTERED -> Icons.Outlined.Done
                 },
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(28.dp),

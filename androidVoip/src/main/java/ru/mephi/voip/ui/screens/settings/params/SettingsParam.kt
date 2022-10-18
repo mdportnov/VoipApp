@@ -39,14 +39,23 @@ internal fun SettingsParam(
                 text = title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleMedium
+                style = when (isLocked) {
+                    true -> MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.outline)
+                    false -> MaterialTheme.typography.titleMedium
+                },
             )
             if (description.isNotEmpty()) {
                 Text(
                     text = description,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal)
+                    style = when (isLocked) {
+                        true -> MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                        false -> MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal)
+                    }
                 )
             }
         }

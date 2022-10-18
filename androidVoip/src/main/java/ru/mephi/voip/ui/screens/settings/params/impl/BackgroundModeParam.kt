@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.screens.settings.params
+package ru.mephi.voip.ui.screens.settings.params.impl
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Switch
@@ -11,13 +11,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
-import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.data.sip.PhoneStatus
 import ru.mephi.voip.R
+import ru.mephi.voip.ui.screens.settings.params.SettingsParam
 import ru.mephi.voip.vm.SettingsViewModel
 
 @Composable
 internal fun BackgroundModeParam(
-    phoneStatus: AccountStatus,
+    phoneStatus: PhoneStatus,
     enableBackgroundMode: (Boolean) -> Unit,
     settingsVM: SettingsViewModel = get()
 ) {
@@ -36,13 +37,19 @@ internal fun BackgroundModeParam(
                         }
                     }
                 },
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier.padding(start = 16.dp),
+                enabled = when (phoneStatus) {
+                    PhoneStatus.RESTARTING,
+                    PhoneStatus.SHUTTING_DOWN,
+                    PhoneStatus.STARTING_UP -> false
+                    else -> true
+                }
             )
         },
         isLocked = when (phoneStatus) {
-            AccountStatus.RESTARTING,
-            AccountStatus.SHUTTING_DOWN,
-            AccountStatus.STARTING_UP -> true
+            PhoneStatus.RESTARTING,
+            PhoneStatus.SHUTTING_DOWN,
+            PhoneStatus.STARTING_UP -> true
             else -> false
         },
         onClick = {

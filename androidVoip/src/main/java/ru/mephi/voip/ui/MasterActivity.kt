@@ -1,9 +1,10 @@
-@file:OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class, ExperimentalLayoutApi::class
+)
 
 package ru.mephi.voip.ui
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -11,24 +12,24 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -39,7 +40,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -54,6 +54,9 @@ import org.koin.core.component.KoinComponent
 import ru.mephi.shared.vm.*
 import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.ui.caller.CallerScreen
+import ru.mephi.voip.ui.common.etc.DialPad
+import ru.mephi.voip.ui.common.paddings.NavBarPadding
+import ru.mephi.voip.ui.common.paddings.getNavBarPadding
 import ru.mephi.voip.ui.screens.catalog.catalogNavCtl
 import ru.mephi.voip.ui.screens.favourites.FavouritesScreen
 import ru.mephi.voip.ui.screens.settings.SettingsScreen
@@ -61,15 +64,12 @@ import ru.mephi.voip.ui.theme.MasterTheme
 import ru.mephi.voip.vm.SettingsViewModel
 import timber.log.Timber
 
-
 class MasterActivity : AppCompatActivity(), KoinComponent {
 
     private val requiredPermission = listOf(Manifest.permission.USE_SIP, Manifest.permission.RECORD_AUDIO)
     var isPermissionsGranted = false
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-
-    private var scaffoldState: ScaffoldState? = null
 
     init {
         lifecycleScope.launch {
@@ -101,11 +101,11 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         requiredPermission.filter { p -> !isPermissionGranted(p) }.let { if (it.isEmpty()) isPermissionsGranted = true }
 
         setContent {
-            scaffoldState = rememberScaffoldState()
             MasterTheme {
                 MasterScreen()
             }
@@ -179,67 +179,86 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
 
     @Composable
     private fun MasterScreen() {
-        val navController = rememberAnimatedNavController()
-        Scaffold(
-            bottomBar = {
-                MasterScreenBottomBar(navController = navController)
-            }
+        val scope = rememberCoroutineScope()
+        val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+        ModalBottomSheetLayout(
+            sheetContent = {
+                DialPad(
+                    isVisible = sheetState.isVisible,
+                    closeDialPad = { scope.launch { sheetState.hide() } },
+                    launchCall = {  },
+                    bottomPadding = getNavBarPadding() + 38.dp
+                )
+            },
+            sheetState = sheetState
         ) {
-            Box(modifier = Modifier.padding(it)) {
-                MasterNavCtl(navController)
+            val navController = rememberAnimatedNavController()
+            Scaffold(
+                bottomBar = {
+                    MasterScreenBottomBar(navController = navController)
+                },
+                contentWindowInsets = MutableWindowInsets()
+            ) {
+                Box(modifier = Modifier.padding(it)) {
+                    MasterNavCtl(
+                        navController = navController,
+                        openDialPad = { scope.launch { sheetState.show() } }
+                    )
+                }
             }
         }
-        rememberSystemUiController().setSystemBarsColor(
-            color = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-        )
     }
 
     @Composable
     private fun MasterScreenBottomBar(
         navController: NavHostController
     ) {
-        NavigationBar(
-            windowInsets = NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Horizontal)
-        ) {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
-            masterScreensList.forEach { item ->
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            imageVector = when (currentDestination?.hierarchy?.any { it.route == item.route }) {
-                                true -> item.selectedIcon
-                                false -> item.icon
-                                else -> item.icon
-                            },
-                            contentDescription = stringResource(id = item.title)
-                        )
-                    },
-                    label = {
-                        Text(
-                            text = stringResource(id = item.title),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-                    onClick = {
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+        Column {
+            NavigationBar(
+                windowInsets = MutableWindowInsets()
+            ) {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                masterScreensList.forEach { item ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                imageVector = when (currentDestination?.hierarchy?.any { it.route == item.route }) {
+                                    true -> item.selectedIcon
+                                    false -> item.icon
+                                    else -> item.icon
+                                },
+                                contentDescription = stringResource(id = item.title)
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = stringResource(id = item.title),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                        onClick = {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
-                    }
-                )
+                    )
+                }
             }
+            NavBarPadding()
         }
     }
 
     @Composable
     private fun MasterNavCtl(
         navController: NavHostController,
+        openDialPad: () -> Unit,
         settingsVM: SettingsViewModel = get(),
         catalogVM: CatalogViewModel = get(),
         detailedInfoVM: DetailedInfoViewModel = get()
@@ -270,7 +289,7 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) {
-                FavouritesScreen()
+                FavouritesScreen(openDialPad = openDialPad)
             }
             catalogNavCtl(
                 navController = navController,

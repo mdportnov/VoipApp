@@ -13,10 +13,10 @@ class FavouritesDB : KoinComponent {
     private val database = AppDatabase(databaseDriverFactory.createDriver())
     private val dbQuery = database.appDatabaseQueries
 
-    fun getAllFavourites(): Flow<List<FavouriteRecord>> =
+    fun getAllFavourites(): List<FavouriteRecord> =
         dbQuery.getAllFavorites { id, sipNumber, sipName, createdAt ->
             FavouriteRecord(id, sipName, sipNumber, createdAt)
-        }.asFlow().mapToList()
+        }.executeAsList()
 
     fun addFavourite(record: FavouriteRecord) {
         dbQuery.addFavourite(record.id, record.sipNumber, record.sipName, record.createdAt)

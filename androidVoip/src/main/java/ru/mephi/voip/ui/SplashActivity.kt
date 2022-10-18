@@ -10,6 +10,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import ru.mephi.voip.data.PhoneManager
+import ru.mephi.voip.data.SettingsRepository
 import ru.mephi.voip.vm.SettingsViewModel
 
 class SplashActivity : AppCompatActivity(), KoinComponent {
@@ -22,8 +23,12 @@ class SplashActivity : AppCompatActivity(), KoinComponent {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launchWhenCreated {
+//            inject<SettingsRepository>().let {
+//
+//            }
+
             inject<PhoneManager>().value
-            val settingsVM: SettingsViewModel = get()
+            val settingsVM by inject<SettingsViewModel>()
             while(!settingsVM.isScreenReady()) {
                 delay(100L)
             }

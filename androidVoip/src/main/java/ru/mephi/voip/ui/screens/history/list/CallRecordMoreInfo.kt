@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
-import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.data.sip.PhoneStatus
 import ru.mephi.voip.R
 import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.call.CallActivity
@@ -58,7 +58,7 @@ fun CallRecordMoreInfo(record: CallRecord, setSelectedRecord: (CallRecord?) -> U
                 )
             }
             IconButton(onClick = {
-                if (phoneManager.phoneStatus.value == AccountStatus.REGISTERED) {
+                if (phoneManager.phoneStatus.value == PhoneStatus.REGISTERED) {
                     CallActivity.create(context, record.sipNumber, false)
                 } else {
                     Toast.makeText(

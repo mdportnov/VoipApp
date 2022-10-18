@@ -24,7 +24,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.inject
 import ru.mephi.shared.data.model.CallRecord
-import ru.mephi.shared.data.sip.AccountStatus
+import ru.mephi.shared.data.sip.PhoneStatus
 import ru.mephi.shared.vm.CallerViewModel
 import ru.mephi.voip.R
 import ru.mephi.voip.data.PhoneManager
@@ -190,7 +190,7 @@ fun CallerScreen(
                                 }
                                 return@FloatingActionButton
                             }
-                            if (phoneManager.phoneStatus.value == AccountStatus.REGISTERED) {
+                            if (phoneManager.phoneStatus.value == PhoneStatus.REGISTERED) {
                                 CallActivity.create(
                                     context, inputState, false
                                 )

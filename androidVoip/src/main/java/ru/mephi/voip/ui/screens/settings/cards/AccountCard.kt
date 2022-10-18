@@ -1,4 +1,4 @@
-package ru.mephi.voip.ui.common
+package ru.mephi.voip.ui.screens.settings.cards
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

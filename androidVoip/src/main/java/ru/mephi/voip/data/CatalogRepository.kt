@@ -11,15 +11,7 @@ import ru.mephi.shared.data.model.FavouriteRecord
 
 // TODO: design flaw
 class CatalogRepository : KoinComponent {
-    private val searchDB: SearchDB by inject()
     private val favoritesDB: FavouritesDB by inject()
-    private val catalogDao: CatalogDao by inject()
-
-    fun deleteAllCatalogCache() {
-        catalogDao.deleteAll()
-    }
-
-    fun deleteAllSearchRecords() = searchDB.deleteAll()
 
     fun addToFavourites(record: Appointment): SavingResult {
         return if (record.line.isNullOrEmpty()) {
