@@ -18,7 +18,7 @@ open class AbtoApp : AbtoApplication(), KoinComponent {
 
         initKoin {
             androidContext(this@AbtoApp)
-            modules(koinModule, viewModels, repositories, notifications)
+            modules(koinModule, viewModels, repositories, notifications, audios)
         }
 
         registerReceiver(callEventsReceiver, IntentFilter(AbtoPhone.ACTION_ABTO_CALL_EVENT))

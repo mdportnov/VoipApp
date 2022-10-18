@@ -1,7 +1,11 @@
 package ru.mephi.voip.ui.call
 
+import android.content.Context
 import android.os.Handler
+import android.provider.MediaStore.Audio
 import androidx.compose.runtime.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,14 +24,17 @@ import ru.mephi.shared.data.network.Resource
 import ru.mephi.shared.data.repo.CallsRepository
 import ru.mephi.shared.data.repo.VoIPServiceRepository
 import ru.mephi.voip.data.CatalogRepository
+import ru.mephi.voip.utils.AudioUtils
+import ru.mephi.voip.utils.BluetoothReceiver
 
 @Suppress("DEPRECATION")
 class CallViewModel(
-    private val catalogRepository: CatalogRepository,
     private val callsRepository: CallsRepository,
 ) : MainIoExecutor(), KoinComponent {
-    private val vsRepo: VoIPServiceRepository by inject()
+    private val audioUtils by inject<AudioUtils>()
+    private val bluetoothReceiver by inject<BluetoothReceiver>()
 
+    private val vsRepo: VoIPServiceRepository by inject()
     var activeCallId = AbtoPhone.INVALID_CALL_ID
     var number: String = ""
     private var _isNumPadVisible = mutableStateOf(false)
@@ -94,9 +101,19 @@ class CallViewModel(
     var mTotalTime: Long = 0
     private val mHandler = Handler()
 
-    // TODO: Use only this!
     var comradeAppointment = MutableStateFlow(Appointment())
     var dialPadText = MutableStateFlow("")
+    val isBluetoothReady = MutableStateFlow(false)
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            isBluetoothReady.collect {
+                if (!it && _isBluetoothEnabled.value) {
+                    setBluetoothMode()
+                }
+            }
+        }
+    }
 
     fun appendDialPadText(text: String) {
         if (text.toInt() in 0..9) {
@@ -133,6 +150,9 @@ class CallViewModel(
         _callerAppointment.value = ""
         _callerName.value = ""
         isDeclinedFromMySide = false
+        audioUtils.setDefaultAudioMode()
+        isBluetoothReady.value = false
+        bluetoothReceiver.disable()
     }
 
     fun changeCallStatus(callStatus: CallStatus) {
@@ -242,14 +262,29 @@ class CallViewModel(
         _isMicMuted.value = !_isMicMuted.value
     }
 
-    /**
-     * Изменяет состояние разговорного динамика
-     */
-    fun changeSound() {
-        _isSpeakerModeEnabled.value = !_isSpeakerModeEnabled.value
+    fun setBluetoothMode() {
+        _isBluetoothEnabled.value = audioUtils.setBluetoothMode(!_isBluetoothEnabled.value)
+        _isSpeakerModeEnabled.value = false
     }
 
-    fun changeBluetooth() {
-        _isBluetoothEnabled.value = !_isBluetoothEnabled.value
+    fun setSpeakerMode() {
+        _isSpeakerModeEnabled.value = audioUtils.setSpeakerMode(!_isSpeakerModeEnabled.value)
+        _isBluetoothEnabled.value = false
+    }
+
+    fun restoreAudio() {
+        bluetoothReceiver.enable {
+            isBluetoothReady.value = it
+        }
+        when {
+            _isBluetoothEnabled.value -> {
+                _isBluetoothEnabled.value = false
+                setBluetoothMode()
+            }
+            _isSpeakerModeEnabled.value -> {
+                _isSpeakerModeEnabled.value = false
+                setSpeakerMode()
+            }
+        }
     }
 }

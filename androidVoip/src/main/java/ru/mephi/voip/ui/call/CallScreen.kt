@@ -262,7 +262,9 @@ private fun CallScreenTopBar(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
         ) {
             IconButton(onClick = { stopActivity() }) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
@@ -335,12 +337,10 @@ private fun CallScreenBottomBar(
                 InCallButton(
                     title = "Динамик",
                     icon = if (isSpeakerModeEnabled) Icons.Filled.VolumeUp else Icons.Outlined.VolumeUp,
-                    onClick = { callVM.changeSound() },
-                    status = when {
-                        state != CallButtonsState.CALL_PROCESS -> ButtonStatus.INACTIVE
-                        isSpeakerModeEnabled -> ButtonStatus.SELECTED
-                        !isSpeakerModeEnabled -> ButtonStatus.NOT_SELECTED
-                        else -> ButtonStatus.INACTIVE
+                    onClick = { callVM.setSpeakerMode() },
+                    status = when(isSpeakerModeEnabled) {
+                        true -> ButtonStatus.SELECTED
+                        false -> ButtonStatus.NOT_SELECTED
                     }
                 )
                 val isMicMuted by callVM.isMicMuted.collectAsState()
@@ -348,23 +348,21 @@ private fun CallScreenBottomBar(
                     title = "Заглушить",
                     icon = if (isMicMuted) Icons.Filled.MicOff else Icons.Outlined.MicOff,
                     onClick = { callVM.micMute() },
-                    status = when {
-                        state != CallButtonsState.CALL_PROCESS -> ButtonStatus.INACTIVE
-                        isMicMuted -> ButtonStatus.SELECTED
-                        !isMicMuted -> ButtonStatus.NOT_SELECTED
-                        else -> ButtonStatus.INACTIVE
+                    status = when(isMicMuted) {
+                        true -> ButtonStatus.SELECTED
+                        false -> ButtonStatus.NOT_SELECTED
                     }
                 )
                 val isBluetoothEnabled by callVM.isBluetoothEnabled.collectAsState()
+                val isBluetoothReady by callVM.isBluetoothReady.collectAsState()
                 InCallButton(
                     title = "Bluetooth",
                     icon = if (isBluetoothEnabled) Icons.Filled.PhoneBluetoothSpeaker else Icons.Outlined.PhoneBluetoothSpeaker,
-                    onClick = { callVM.changeBluetooth() },
+                    onClick = { callVM.setBluetoothMode() },
                     status = when {
-                        state != CallButtonsState.CALL_PROCESS -> ButtonStatus.INACTIVE
+                        !isBluetoothReady -> ButtonStatus.INACTIVE
                         isBluetoothEnabled -> ButtonStatus.SELECTED
-                        !isBluetoothEnabled -> ButtonStatus.NOT_SELECTED
-                        else -> ButtonStatus.INACTIVE
+                        else -> ButtonStatus.NOT_SELECTED
                     }
                 )
             }

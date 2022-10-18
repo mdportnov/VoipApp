@@ -61,7 +61,6 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 
     private lateinit var phone: AbtoPhone
 
-    @OptIn(ExperimentalCoilApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initWakeLocks()
@@ -82,14 +81,6 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
 
         setContent {
             MasterTheme {
-//                CallScreen(
-//                    callViewModel,
-//                    ::pickUp,
-//                    ::holdCall,
-//                    ::hangUp,
-//                    ::stopActivity,
-//                    ::transferCall
-//                )
                 CallScreen(
                     pickUp = ::pickUp,
                     holdCall = {
@@ -102,6 +93,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
             }
         }
 
+        callViewModel.restoreAudio()
         callViewModel.retrieveInfoAboutCall(callViewModel.number)
 
         callViewModel.showStatusBar()
@@ -143,18 +135,6 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
         lifecycleScope.launch {
             callViewModel.isMicMuted.collect {
                 phone.setMicrophoneMute(it)
-            }
-        }
-
-        lifecycleScope.launch {
-            callViewModel.isSpeakerModeEnabled.collect {
-                phone.setSpeakerphoneOn(it)
-            }
-        }
-
-        lifecycleScope.launch {
-            callViewModel.isBluetoothEnabled.collect {
-                phone.setBluetoothOn(it)
             }
         }
 

@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
@@ -45,13 +46,23 @@ import ru.mephi.voip.ui.home.HomeScreen
 import ru.mephi.voip.ui.login.LoginScreen
 import ru.mephi.voip.ui.settings.SettingsScreen
 import ru.mephi.voip.ui.theme.MasterTheme
-import ru.mephi.voip.utils.NotificationHandler
 import timber.log.Timber
 
 
 class MasterActivity : AppCompatActivity(), KoinComponent {
 
-    private val requiredPermission = listOf(Manifest.permission.USE_SIP, Manifest.permission.RECORD_AUDIO)
+    private val requiredPermission = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+        listOf(
+            Manifest.permission.USE_SIP,
+            Manifest.permission.RECORD_AUDIO
+        )
+    } else {
+        listOf(
+            Manifest.permission.USE_SIP,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.BLUETOOTH_CONNECT
+        )
+    }
     var isPermissionsGranted = false
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -173,17 +184,8 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         permissions: List<String>
     ) {
         MaterialAlertDialogBuilder(this@MasterActivity).also {
-            it.setTitle("Необходимые разрешения")
-            if (permissions.contains(Manifest.permission.USE_SIP) && permissions.contains(Manifest.permission.RECORD_AUDIO)) {
-                it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения на совершения звонков и использования микрофона")
-            } else if (permissions.contains(Manifest.permission.USE_SIP)) {
-                it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения на совершения звонков")
-            } else if (permissions.contains(Manifest.permission.RECORD_AUDIO)) {
-                it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения на использования микрофона")
-            } else {
-                it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения")
-                Timber.e("dialog for ${permissions.joinToString(", ")} not implemented yet")
-            }
+            it.setTitle("Необходимы разрешения")
+            it.setMessage("Для полноценной работы приложения необходимо предоставить разрешения")
             it.setNeutralButton("Отмена") { _, _ -> onRequestDialogCancellation() }
             it.setOnCancelListener { onRequestDialogCancellation() }
             it.setPositiveButton("Предоставить") { _, _ ->  this.requestPermissions(permissions.toTypedArray(), 0x1)}
