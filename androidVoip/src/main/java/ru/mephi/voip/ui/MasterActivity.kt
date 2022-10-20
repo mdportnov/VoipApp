@@ -187,7 +187,7 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
                     isVisible = sheetState.isVisible,
                     closeDialPad = { scope.launch { sheetState.hide() } },
                     launchCall = {  },
-                    bottomPadding = getNavBarPadding() + 38.dp
+                    bottomPadding = getNavBarPadding() + 42.dp
                 )
             },
             sheetState = sheetState

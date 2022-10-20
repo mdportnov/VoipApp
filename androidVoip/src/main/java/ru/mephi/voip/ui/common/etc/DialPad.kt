@@ -1,23 +1,27 @@
 package ru.mephi.voip.ui.common.etc
 
+import android.os.Build
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Backspace
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.PhoneCallback
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,19 +64,20 @@ fun DialPad(
                 DialPadIconButton(
                     icon = Icons.Outlined.Backspace,
                     onClick = callVM::backspaceDialPadText,
+                    onLongClick = callVM::clearDialPadText,
                     enabled = dialPadText.isNotEmpty(),
                     iconSize = 26.dp
                 )
             }
             Divider(
-                color = Color(0xFFC6C2CB),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 2.dp, bottom = 14.dp),
+                    .padding(top = 2.dp, bottom = 24.dp),
                 thickness = 1.dp
             )
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -112,12 +117,14 @@ fun DialPad(
                 ) {
                     DialPadIconButton(
                         icon = Icons.Outlined.Close,
-                        onClick = closeDialPad
+                        onClick = closeDialPad,
+                        iconSize = 34.dp
                     )
                     DialPadTextButton("0", callVM::appendDialPadText)
                     DialPadIconButton(
                         icon = Icons.Outlined.PhoneCallback,
-                        onClick = launchCall
+                        onClick = launchCall,
+                        iconSize = 34.dp
                     )
                 }
             }
@@ -135,50 +142,123 @@ private fun DialPadTextButton(
     label: String,
     appendText: (String) -> Unit
 ) {
-    val view = LocalView.current
-    Text(
-        text = label,
-        style = MaterialTheme.typography.displaySmall.copy(
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .size(52.dp)
-            .clip(CircleShape)
-            .clickable {
-                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                appendText(label)
-            }
-    )
+    DialPadButton(
+        onClick = { appendText(label) },
+        onLongClick = null,
+        enabled = true,
+        vibrateBefore = true
+    ) {
+        Box(
+            modifier = Modifier
+                .height(52.dp)
+                .width(72.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.displaySmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
 }
 
 @Composable
 private fun DialPadIconButton(
     icon: ImageVector,
-    onClick: () -> Unit,
+    iconSize: Dp,
+    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
-    iconSize: Dp = 34.dp
+) {
+    DialPadButton(
+        onClick = onClick,
+        onLongClick = onLongClick,
+        enabled = enabled,
+        vibrateBefore = false
+    ) {
+        Box(
+            modifier = Modifier.size(52.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(iconSize),
+                tint = when (enabled) {
+                    true -> LocalContentColor.current
+                    false -> LocalContentColor.current.copy(alpha = 0.7f)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun DialPadButton(
+    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
+    vibrateBefore: Boolean,
+    enabled: Boolean,
+    content: @Composable () -> Unit
 ) {
     val view = LocalView.current
+    val interactionSource = remember { MutableInteractionSource() }
+    LaunchedEffect(enabled) {
+        if (!enabled) {
+            interactionSource.emit(PressInteraction.Release(PressInteraction.Press(Offset(0f, 0f))))
+        }
+    }
     Box(
         modifier = Modifier
-            .size(52.dp)
-            .clip(CircleShape)
-            .clickable(enabled = enabled) {
-                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                onClick()
-            }
+            .wrapContentSize()
+            .clip(RoundedCornerShape(12.dp))
+            .indication(interactionSource, LocalIndication.current)
+            .pointerInput(enabled) {
+                detectTapGestures(
+                    onLongPress = when (onLongClick == null || !enabled) {
+                        true -> null
+                        false -> { _ ->
+                            if (!vibrateBefore) {
+                                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                            }
+                            onLongClick()
+                        }
+                    },
+                    onTap = when (onClick == null || !enabled) {
+                        true -> null
+                        false -> { _ ->
+                            if (!vibrateBefore) {
+                                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                            }
+                            onClick()
+                        }
+                    },
+                    onPress = {
+                        when {
+                            !enabled -> return@detectTapGestures
+                            !vibrateBefore -> {}
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 -> {
+                                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_PRESS)
+                            }
+                            else -> {
+                                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                            }
+                        }
+                        PressInteraction
+                            .Press(it)
+                            .let { press ->
+                                interactionSource.emit(press)
+                                tryAwaitRelease()
+                                interactionSource.emit(PressInteraction.Release(press))
+                            }
+                    }
+                )
+            },
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(iconSize),
-            tint = when (enabled) {
-                true -> LocalContentColor.current
-                false -> LocalContentColor.current.copy(alpha = 0.7f)
-            }
-        )
+        content()
     }
 }
