@@ -51,18 +51,7 @@ import timber.log.Timber
 
 class MasterActivity : AppCompatActivity(), KoinComponent {
 
-    private val requiredPermission = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-        listOf(
-            Manifest.permission.USE_SIP,
-            Manifest.permission.RECORD_AUDIO
-        )
-    } else {
-        listOf(
-            Manifest.permission.USE_SIP,
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.BLUETOOTH_CONNECT
-        )
-    }
+    private val requiredPermission = listOf(Manifest.permission.USE_SIP, Manifest.permission.RECORD_AUDIO)
     var isPermissionsGranted = false
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
