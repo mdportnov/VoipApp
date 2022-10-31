@@ -93,7 +93,6 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
             }
         }
 
-        callViewModel.restoreAudio()
         callViewModel.retrieveInfoAboutCall(callViewModel.number)
 
         callViewModel.showStatusBar()

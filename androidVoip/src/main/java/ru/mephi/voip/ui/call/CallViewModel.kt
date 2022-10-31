@@ -151,6 +151,9 @@ class CallViewModel(
         _callerName.value = ""
         isDeclinedFromMySide = false
         audioUtils.setDefaultAudioMode()
+        _isBluetoothEnabled.value = false
+        _isSpeakerModeEnabled.value = false
+        if (_isMicMuted.value) micMute()
         isBluetoothReady.value = false
         bluetoothReceiver.disable()
     }
@@ -270,21 +273,5 @@ class CallViewModel(
     fun setSpeakerMode() {
         _isSpeakerModeEnabled.value = audioUtils.setSpeakerMode(!_isSpeakerModeEnabled.value)
         _isBluetoothEnabled.value = false
-    }
-
-    fun restoreAudio() {
-        bluetoothReceiver.enable {
-            isBluetoothReady.value = it
-        }
-        when {
-            _isBluetoothEnabled.value -> {
-                _isBluetoothEnabled.value = false
-                setBluetoothMode()
-            }
-            _isSpeakerModeEnabled.value -> {
-                _isSpeakerModeEnabled.value = false
-                setSpeakerMode()
-            }
-        }
     }
 }
