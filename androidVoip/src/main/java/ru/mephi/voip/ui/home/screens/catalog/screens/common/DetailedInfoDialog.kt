@@ -26,9 +26,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
@@ -166,7 +172,9 @@ private fun DetailedInfoContent(
             Text(
                 text = getRealUsername(appointment),
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(12.dp)
+                    .fillMaxWidth(),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
@@ -179,7 +187,12 @@ private fun DetailedInfoContent(
                     DetailedInfoDivider()
                     DetailedInfoTitle(title = "Телефон")
                     DetailedInfoCard(
-                        text = "Номер: ${appointment.line}",
+                        text = buildAnnotatedString {
+                            withStyle(MaterialTheme.typography.titleMedium.toSpanStyle().copy(fontWeight = FontWeight.Bold)) {
+                                append("Номер: ")
+                            }
+                            append(appointment.line)
+                        },
                         icon = Icons.Default.Phone,
                         onClick = { onCallClick(appointment.line) }
                     )
@@ -188,7 +201,12 @@ private fun DetailedInfoContent(
                     DetailedInfoDivider()
                     DetailedInfoTitle(title = "Почта")
                     DetailedInfoCard(
-                        text = "Email: ${appointment.email}",
+                        text = buildAnnotatedString {
+                            withStyle(MaterialTheme.typography.titleMedium.toSpanStyle().copy(fontWeight = FontWeight.Bold)) {
+                                append("Email: ")
+                            }
+                            append(appointment.email)
+                        },
                         icon = Icons.Default.Mail,
                         onClick = { context.launchMailClientIntent(appointment.email) }
                     )
@@ -199,7 +217,24 @@ private fun DetailedInfoContent(
                     appointment.positions.let {
                         it.forEachIndexed { i, pos ->
                             DetailedInfoCard(
-                                text = getPositionString(pos),
+                                text = buildAnnotatedString {
+                                    withStyle(MaterialTheme.typography.titleMedium.toSpanStyle().copy(fontWeight = FontWeight.Bold)) {
+                                        append("Место: ")
+                                    }
+                                    append("${pos.unitName}\n")
+                                    if (pos.appointmentName.isNotEmpty()) {
+                                        withStyle(MaterialTheme.typography.titleMedium.toSpanStyle().copy(fontWeight = FontWeight.Bold)) {
+                                            append("Должность: ")
+                                        }
+                                        append("${pos.appointmentName}\n")
+                                    }
+                                    if (pos.room.isNotEmpty()) {
+                                        withStyle(MaterialTheme.typography.titleMedium.toSpanStyle().copy(fontWeight = FontWeight.Bold)) {
+                                            append("Помещение: ")
+                                        }
+                                        append(pos.room)
+                                    }
+                                },
                                 icon = Icons.Default.Search,
                                 onClick = {
                                     goNext(
@@ -229,13 +264,13 @@ private fun DetailedInfoTitle(
         style = MaterialTheme.typography.titleMedium,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(start = 4.dp)
+        modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
     )
 }
 
 @Composable
 private fun DetailedInfoCard(
-    text: String,
+    text: AnnotatedString,
     icon: ImageVector,
     onClick: () -> Unit,
     isStart: Boolean = true,
@@ -294,13 +329,3 @@ private fun getRealUsername(i: Appointment): String {
         else -> i.line
     }
 }
-
-private fun getPositionString(pos: PositionInfo): String {
-    var ret = ""
-    if (pos.unitName.isNotEmpty()) ret += "Место: ${pos.unitName}\n"
-    if (pos.appointmentName.isNotEmpty()) ret += "Должность: ${pos.appointmentName}\n"
-    if (pos.room.isNotEmpty()) ret += "Помещение: ${pos.room}"
-    return ret.trim()
-}
-
-
