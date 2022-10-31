@@ -6,11 +6,11 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ScaffoldState
@@ -34,7 +34,6 @@ import kotlinx.coroutines.launch
 import org.abtollc.sdk.AbtoApplication
 import org.abtollc.sdk.AbtoPhone
 import org.koin.android.ext.android.get
-import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 import ru.mephi.shared.utils.appContext
 import ru.mephi.shared.vm.LogType
@@ -44,8 +43,10 @@ import ru.mephi.voip.BuildConfig
 import ru.mephi.voip.data.PhoneManager
 import ru.mephi.voip.ui.home.HomeScreen
 import ru.mephi.voip.ui.login.LoginScreen
+import ru.mephi.voip.ui.settings.PreferenceRepository
 import ru.mephi.voip.ui.settings.SettingsScreen
 import ru.mephi.voip.ui.theme.MasterTheme
+import ru.mephi.voip.utils.toast
 import timber.log.Timber
 
 
@@ -55,7 +56,7 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
     var isPermissionsGranted = false
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-    private val phoneManager: PhoneManager by inject()
+    private val phoneManager: PhoneManager = get()
 
     private var isBackgroundWork: Boolean = false
     private var isSipEnabled = false
@@ -104,6 +105,12 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         }
     }
 
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        CoroutineScope(Dispatchers.IO).launch {
+            get<PreferenceRepository>().enableCallScreenAlways(true)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -131,10 +138,22 @@ class MasterActivity : AppCompatActivity(), KoinComponent {
         firebaseAnalytics = Firebase.analytics
         firebaseAnalytics.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
 
-        val intent = Intent()
-        intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-        intent.data = Uri.parse("package:$packageName")
-        startActivity(intent)
+        startActivity(Intent(
+            Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Uri.parse("package:$packageName")
+        ))
+
+        if (!Settings.canDrawOverlays(this)) {
+            toast("Разрешите показывать приложение поверх других!")
+            resultLauncher.launch(Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            ))
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                get<PreferenceRepository>().enableCallScreenAlways(true)
+            }
+        }
 
         checkNonGrantedPermissions()
     }
