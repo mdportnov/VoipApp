@@ -64,8 +64,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initWakeLocks()
-        isCallStillGoingOn =
-            intent.getBooleanExtra(appContext.getString(R.string.isCallStillGoingOn), false)
+        isCallStillGoingOn = intent.getBooleanExtra(appContext.getString(R.string.isCallStillGoingOn), false)
 
         if (!isCallStillGoingOn) {
             callViewModel.changeButtonState(CallButtonsState.INCOMING_CALL)
@@ -76,8 +75,7 @@ class CallActivity : AppCompatActivity(), LifecycleOwner,
             }
             callViewModel.number =
                 parseRemoteContact(intent.getStringExtra(AbtoPhone.REMOTE_CONTACT)!!).second
-        } else
-            callViewModel.changeButtonState(CallButtonsState.CALL_PROCESS)
+        }
 
         setContent {
             MasterTheme {
