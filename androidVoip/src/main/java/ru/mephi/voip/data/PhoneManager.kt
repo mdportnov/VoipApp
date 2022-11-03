@@ -57,7 +57,7 @@ class PhoneManager(
     val phoneStatus = MutableStateFlow(AccountStatus.UNREGISTERED)
 
     private var loginAccId = -1L
-    var loginStatus = MutableStateFlow(LoginStatus.LOGIN_IN_PROGRESS)
+    var loginStatus = MutableStateFlow(LoginStatus.LOGIN_IDLE)
     private var newAccount = Account()
 
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -161,6 +161,9 @@ class PhoneManager(
                 }
                 addAccount(newAccount)
                 newAccount = Account()
+            }
+            LoginStatus.LOGIN_IDLE -> {
+                isLoginMode = false
             }
         }
     }
@@ -472,5 +475,5 @@ private object PhoneUtils {
 }
 
 enum class LoginStatus {
-    LOGIN_IN_PROGRESS, DATA_FETCH_FAILURE, LOGIN_FAILURE, LOGIN_SUCCESSFUL
+    LOGIN_IN_PROGRESS, DATA_FETCH_FAILURE, LOGIN_FAILURE, LOGIN_SUCCESSFUL, LOGIN_IDLE
 }

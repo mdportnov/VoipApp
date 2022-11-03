@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mephi.shared.data.model.Account
-import ru.mephi.shared.data.sip.AccountStatus
 import ru.mephi.voip.data.LoginStatus
 import ru.mephi.voip.data.PhoneManager
 
@@ -192,6 +191,7 @@ private suspend fun runCredentialsCheck(
             LoginStatus.DATA_FETCH_FAILURE -> {
                 setErrorMsg("Не удалось получить данные о пользователе"); setLockState(false); return@collect
             }
+            else -> {}
         }
     }
 }
