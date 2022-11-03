@@ -31,7 +31,7 @@ class PreferenceRepository(val context: Context) {
 
     val isBackgroundModeEnabled: Flow<Boolean> =
         context.dataStore.data.map { prefs ->
-            prefs[PreferenceKeys.IS_BACKGROUND_MODE_ENABLED] ?: false
+            prefs[PreferenceKeys.IS_BACKGROUND_MODE_ENABLED] ?: true
         }
 
     val deviceTheme: Flow<DeviceTheme> = context.dataStore.data.map { prefs ->
